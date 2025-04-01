@@ -32,4 +32,4 @@ jobs:
           pip install --force-reinstall --no-cache-dir dist/aethermark-*.tar.gz
 
       - name: Run tests
-        run: python3 -m tests/test.py
+        run: python3 tests/test.py
