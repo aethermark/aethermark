@@ -3,3 +3,5 @@ pybind11
 setuptools
 pybind11
 twine
+build
+wheel
