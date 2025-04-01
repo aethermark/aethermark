@@ -1,21 +1,26 @@
-name: Publish
-
 on:
   workflow_dispatch:
   push:
     branches:
       - main
     tags:
-      - "v*"  # Run when a new version tag is pushed
+      - "v*" # Run when a new version tag is pushed
 
 jobs:
   build-and-publish:
-    if: contains(github.event.head_commit.message, 'release: version ') || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Read commit message
+        id: commit_message
+        run: echo "MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
+      - name: Check if commit is a release
+        if: contains(env.MESSAGE, 'release: version')
+        run: echo "Release detected, proceeding with publish"
 
       - name: Read version from file
         id: get_version
@@ -37,6 +42,7 @@ jobs:
           python3 -m build
 
       - name: Create Git tag
+        if: contains(env.MESSAGE, 'release: version')
         run: |
           git config --global user.email "mukulwaval2000@gmail.com"
           git config --global user.name "MukulWaval"
@@ -48,6 +54,7 @@ jobs:
           fi
 
       - name: Publish to PyPI
+        if: contains(env.MESSAGE, 'release: version')
         env:
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: "${{ secrets.PYPI_API_TOKEN }}"
