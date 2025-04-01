@@ -76,6 +76,7 @@ If you encounter a bug or have a feature request, please open an issue on [GitHu
    ```bash
    python3 tests/test.py
    ```
+7. Update version in two file pyproject.toml and in VERSION. Make sure the are the same
 
 ## Licensing
 
