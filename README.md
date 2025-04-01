@@ -1,5 +1,8 @@
 # Aethermark
 
+[![Unit Tests](https://github.com/MukulWaval/aethermark/actions/workflows/test.yml/badge.svg)](https://github.com/MukulWaval/aethermark/actions/workflows/test.yml)
+![PyPI](https://img.shields.io/pypi/v/aethermark)
+
 Aethermark is a high-performance, extensible Markdown parser and renderer built with `pybind11`. It introduces **Aethermark-Flavored Markdown (AFM)**, a custom dialect that enhances standard Markdown with additional features and improved rendering capabilities.
 
 ## Features
