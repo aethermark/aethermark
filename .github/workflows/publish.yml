@@ -1,0 +1,55 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*" # Run when a new version tag is pushed
+  commit-message:
+    - "release: version *.*.*" # Run if commit message matches
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Read version from file
+        id: get_version
+        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Build package
+        run: |
+          rm -rf dist/
+          python3 -m build
+
+      - name: Create Git tag
+        run: |
+          git config --global user.email "mukulwaval2000@gmail.com"
+          git config --global user.name "MukulWaval"
+          if ! git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            git tag "v${{ env.VERSION }}"
+            git push origin "v${{ env.VERSION }}"
+          else
+            echo "Tag v${{ env.VERSION }} already exists. Skipping tagging."
+          fi
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: "__token__"
+          TWINE_PASSWORD: "${{ secrets.PYPI_API_TOKEN }}"
+        run: twine upload dist/aethermark-*.tar.gz --verbose

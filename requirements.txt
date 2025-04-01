@@ -1,0 +1,5 @@
+scikit-build-core
+pybind11
+setuptools
+pybind11
+twine
