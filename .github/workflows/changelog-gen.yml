@@ -66,3 +66,25 @@ jobs:
           echo "## Changelog for Version $VERSION" >> HISTORY.md
           echo "" >> HISTORY.md
           cat changelog.md >> HISTORY.md
+
+      - name: Commit and Push Updates
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add HISTORY.md changelog.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update changelog and HISTORY.md"
+          git push
+
+      - name: Update .last_commit file
+        run: |
+          NEW_LAST_COMMIT_HASH=$(git rev-parse HEAD)
+          echo $NEW_LAST_COMMIT_HASH > .last_commit
+          git add .last_commit
+          git commit -m "Update .last_commit file"
+          git push
