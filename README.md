@@ -39,7 +39,7 @@ print(html_output)
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests on [GitHub](https://github.com/yourusername/aethermark).
+Contributions are welcome! Feel free to open issues or submit pull requests on [GitHub](https://github.com/MukulWaval/aethermark).
 
 ## License
 
