@@ -1,3 +1,5 @@
+name: Publish
+
 on:
   workflow_dispatch:
   push:
@@ -14,13 +16,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Read commit message
+      - name: Get commit message
         id: commit_message
-        run: echo "MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+        run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
 
-      - name: Check if commit is a release
-        if: contains(env.MESSAGE, 'release: version')
-        run: echo "Release detected, proceeding with publish"
+      - name: Check commit message
+        run: |
+          if [[ ! "${{ env.COMMIT_MESSAGE }}" =~ ^release:\ version\ [0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Commit message does not match the release pattern. Skipping workflow."
+            exit 1
+          fi
 
       - name: Read version from file
         id: get_version
@@ -42,7 +47,6 @@ jobs:
           python3 -m build
 
       - name: Create Git tag
-        if: contains(env.MESSAGE, 'release: version')
         run: |
           git config --global user.email "mukulwaval2000@gmail.com"
           git config --global user.name "MukulWaval"
@@ -54,7 +58,6 @@ jobs:
           fi
 
       - name: Publish to PyPI
-        if: contains(env.MESSAGE, 'release: version')
         env:
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: "${{ secrets.PYPI_API_TOKEN }}"
