@@ -1,3 +1,3 @@
-from .aethermark import Example
+from .aethermark import Node, NodeWalker
 
-__all__ = ["Example"]
+__all__ = ["Node", "NodeWalker"]
