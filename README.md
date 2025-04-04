@@ -26,6 +26,7 @@ pip install aethermark
 
 Aethermark provides a simple API to parse and render Markdown:
 
+```
 import aethermark
 
 md_text = """
@@ -47,4 +48,3 @@ Contributions are welcome! Feel free to open issues or submit pull requests on [
 ## License
 
 Aethermark is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
