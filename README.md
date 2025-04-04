@@ -1,4 +1,6 @@
-# Aethermark
+![Aethermark](/favicon.png)
+
+# [Aethermark](https://mukulwaval.github.io/aethermark-docs/)
 
 [![Unit Tests](https://github.com/MukulWaval/aethermark/actions/workflows/test.yml/badge.svg)](https://github.com/MukulWaval/aethermark/actions/workflows/test.yml)
 ![PyPI](https://img.shields.io/pypi/v/aethermark)
@@ -24,10 +26,10 @@ pip install aethermark
 
 Aethermark provides a simple API to parse and render Markdown:
 
-```python
 import aethermark
 
 md_text = """
+
 # Hello, Aethermark!
 
 This is an example of **Aethermark-Flavored Markdown (AFM)**.
@@ -35,6 +37,7 @@ This is an example of **Aethermark-Flavored Markdown (AFM)**.
 
 html_output = aethermark.render(md_text)
 print(html_output)
+
 ```
 
 ## Contributing
@@ -44,3 +47,4 @@ Contributions are welcome! Feel free to open issues or submit pull requests on [
 ## License
 
 Aethermark is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```
