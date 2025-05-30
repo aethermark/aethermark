@@ -1,6 +1,6 @@
 ![Aethermark](/favicon.png)
 
-# [Aethermark](https://mukulwaval.github.io/aethermark-docs/)
+# [Aethermark](https://aethermark.dev)
 
 [![Unit Tests](https://github.com/MukulWaval/aethermark/actions/workflows/test.yml/badge.svg)](https://github.com/MukulWaval/aethermark/actions/workflows/test.yml)
 ![PyPI](https://img.shields.io/pypi/v/aethermark)
