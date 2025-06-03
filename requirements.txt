@@ -1,7 +1,0 @@
-scikit-build-core
-pybind11
-setuptools
-pytest
-twine
-build
-wheel
