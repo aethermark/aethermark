@@ -35,10 +35,10 @@ jobs:
         run: make build
 
       - name: Check artifacts
-        run: twine check dist/*
+        run: .venv/bin/twine check dist/*
 
       - name: Publish to PyPI
         env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-        run: source .venv/bin/activate && twine upload dist/*
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: .venv/bin/twine upload dist/*
