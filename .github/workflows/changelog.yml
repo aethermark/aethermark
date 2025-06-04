@@ -71,8 +71,6 @@ jobs:
 
       - name: Update HISTORY.md
         run: |
-          echo "## Changelog for Version $VERSION" >> HISTORY.md
-          echo "" >> HISTORY.md
           cat changelog.md >> HISTORY.md
 
       - name: Update .last_commit file
