@@ -1,8 +1,9 @@
 build
+cibuildwheel
+pre-commit
+pybind11
 pytest
 pytest-cov
-pybind11
+ruff
 scikit-build-core
 twine
-ruff
-cibuildwheel
