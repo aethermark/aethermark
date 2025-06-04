@@ -12,7 +12,7 @@ setup:
     $(PIP) install --upgrade pip
     $(PIP) install -e .[test]
     $(PIP) install -r requirements-dev.txt
-    $(PYTHON) -m pre-commit install
+	$(PYTHON) -m pre-commit install
 
 install:
     $(PIP) install -e .[test]
