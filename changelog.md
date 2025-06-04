@@ -18,4 +18,3 @@
 - 88af98f ci: update changelog workflow to push changes to the specific release branch (MukulWaval, 2025-06-04 10:04)
 - a103338 ci: update GitHub Actions workflow to run pre-commit checks instead of linting (MukulWaval, 2025-06-04 08:46)
 - 7ce5c92 ci: remove redundant changelog header from HISTORY.md update (MukulWaval, 2025-06-04 07:13)
-
