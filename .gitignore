@@ -117,7 +117,8 @@ env.bak/
 venv.bak/
 
 # Ignore entire .vscode folder
-.vscode/
+
+.vscode
 
 # Spyder project settings
 .spyderproject
