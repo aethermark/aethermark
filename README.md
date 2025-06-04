@@ -1,4 +1,4 @@
-![Aethermark](/favicon.png)
+![Aethermark](https://raw.githubusercontent.com/aethermark/aethermark/refs/heads/main/favicon.png)
 
 # [Aethermark](https://aethermark.dev)
 
