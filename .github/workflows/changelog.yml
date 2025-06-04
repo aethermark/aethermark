@@ -34,7 +34,7 @@ jobs:
           echo "## Changelog for Version $VERSION" > changelog.md
           echo "" >> changelog.md
 
-          declare -A commit_types=( 
+          declare -A commit_types=(
             [feat]="🚀 Features"
             [fix]="🛠 Fixes"
             [perf]="⚡ Performance Improvements"
