@@ -2,11 +2,7 @@ ci:
   autoupdate_commit_msg: "chore: update pre-commit hooks"
   autofix_commit_msg: "style: pre-commit fixes"
 
-exclude: |
-  (^\.venv/|^dist/|^build/|^\.tox/|^\.pytest_cache/|^\.ruff_cache/|^\.mypy_cache/|^\.git/|^\.cache/|^\.ipynb_checkpoints/|^\.vscode/)
-
 repos:
-  # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -22,23 +18,20 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
 
-  # Check linting and style issues
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.7.3"
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]
       - id: ruff-format
-        exclude: ^(docs)
+        exclude: ^docs/
 
-  # Changes tabs to spaces
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.5
     hooks:
       - id: remove-tabs
         exclude: ^(docs|Makefile)$
 
-  # CMake formatting
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
