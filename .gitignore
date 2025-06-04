@@ -115,6 +115,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.vscode/c_cpp_properties.json
 
 # Spyder project settings
 .spyderproject
