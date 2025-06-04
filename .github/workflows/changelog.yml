@@ -83,13 +83,10 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-
           git add HISTORY.md changelog.md .last_commit
-
           if git diff --staged --quiet; then
             echo "No changes to commit."
             exit 0
           fi
-
           git commit -m "Update changelog and HISTORY.md for version $VERSION, update .last_commit"
-          git push
+          git push origin HEAD:${{ github.event.release.target_commitish }}
