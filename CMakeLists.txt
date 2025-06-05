@@ -24,7 +24,14 @@ python_add_library(
   src/token.hpp
   src/nesting.hpp
   WITH_SOABI)
+
+# Link to pybind11
 target_link_libraries(_core PRIVATE pybind11::headers)
+
+# Require C++17 for std::optional and modern features
+target_compile_features(_core PRIVATE cxx_std_17)
+set_target_properties(_core PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED
+                                                       YES)
 
 # This is passing in the version as a define just as an example
 target_compile_definitions(_core PRIVATE VERSION_INFO=${PROJECT_VERSION})
