@@ -1,5 +1,5 @@
 ## Changelog for Version 0.0.16
 
-### 🚀 Features
-- d6e84ca feat: add token (MukulWaval, 2025-06-05 14:53)
+### ♻️ Refactoring
+- 0619afb refactor: ensure c++ 17 (MukulWaval, 2025-06-05 15:28)
 
