@@ -1,9 +1,44 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include "token.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
 namespace py = pybind11;
+
+void bind_nesting(py::module_ &m)
+{
+    py::enum_<Nesting>(m, "Nesting")
+        .value("Open", Nesting::Open)
+        .value("Self", Nesting::Self)
+        .value("Close", Nesting::Close)
+        .export_values();
+}
+
+void bind_token(py::module_ &m)
+{
+    py::class_<Token>(m, "Token")
+        .def(py::init<std::string, std::string, Nesting>())
+        .def_readwrite("type", &Token::type)
+        .def_readwrite("tag", &Token::tag)
+        .def_readwrite("attrs", &Token::attrs)
+        .def_readwrite("map", &Token::map)
+        .def_readwrite("nesting", &Token::nesting)
+        .def_readwrite("level", &Token::level)
+        .def_readwrite("children", &Token::children)
+        .def_readwrite("content", &Token::content)
+        .def_readwrite("markup", &Token::markup)
+        .def_readwrite("info", &Token::info)
+        .def_readwrite("meta", &Token::meta)
+        .def_readwrite("block", &Token::block)
+        .def_readwrite("hidden", &Token::hidden)
+        .def("attrIndex", &Token::attrIndex)
+        .def("attrPush", &Token::attrPush)
+        .def("attrSet", &Token::attrSet)
+        .def("attrGet", &Token::attrGet)
+        .def("attrJoin", &Token::attrJoin);
+}
 
 PYBIND11_MODULE(_core, m)
 {
@@ -51,6 +86,9 @@ PYBIND11_MODULE(_core, m)
 
         Learn more at: https://github.com/aethermark/aethermark
     )pbdoc";
+
+    bind_token(m);
+    bind_nesting(m);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
