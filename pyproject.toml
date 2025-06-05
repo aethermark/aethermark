@@ -5,7 +5,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "aethermark"
-version = "0.0.16"
+version = "0.0.17"
 description="Aethermark: A high-performance Markdown parser with AFM support."
 readme = "README.md"
 authors = [

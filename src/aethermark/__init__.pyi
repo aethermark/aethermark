@@ -64,18 +64,18 @@ class Token:
     """Represents a single token in the Markdown document."""
 
     # ---------- Constructors ----------#
-    def __init__(self, type: str, content: str, position: int) -> None:
+    def __init__(self, type: str, tag: str, nesting: Nesting) -> None:
         """
         Initialize a Token instance.
 
-        :param type: The type of the token (e.g., 'text', 'heading').
-        :param content: The content of the token.
-        :param position: The position of the token in the source document.
+        :param type: Type of the token, e.g. "paragraph_open\".
+        :param tag: HTML tag name, e.g. "p\".
+        :param nesting: Level change of the token in the document.
         """
 
     # ---------- Properties ----------#
     type: str
-    """Type of the token, e.g. "paragraph_open\""""
+    """Type of the token, e.g. "paragraph_open\"."""
 
     tag: str
     """HTML tag name, e.g. "p\""""
