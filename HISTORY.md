@@ -40,3 +40,8 @@
 
 ### ♻️ Refactoring
 - 0ee0d49 refactor: remove samples (MukulWaval, 2025-06-04 18:10)
+## Changelog for Version 0.0.16
+
+### 🚀 Features
+- d6e84ca feat: add token (MukulWaval, 2025-06-05 14:53)
+
