@@ -1,6 +1,8 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/functional.h>
 #include <pybind11/stl.h>
 #include "token.hpp"
+#include "ruler.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -10,16 +12,16 @@ namespace py = pybind11;
 void bind_nesting(py::module_ &m)
 {
     py::enum_<Nesting>(m, "Nesting")
-        .value("Open", Nesting::Open)
-        .value("Self", Nesting::Self)
-        .value("Close", Nesting::Close)
+        .value("OPEN", Nesting::OPEN)
+        .value("SELF", Nesting::SELF)
+        .value("CLOSE", Nesting::CLOSE)
         .export_values();
 }
 
 void bind_token(py::module_ &m)
 {
     py::class_<Token>(m, "Token")
-        .def(py::init<std::string, std::string, Nesting>())
+        .def(py::init<std::string, std::string, Nesting>(), py::arg("type"), py::arg("tag"), py::arg("nesting"))
         .def_readwrite("type", &Token::type)
         .def_readwrite("tag", &Token::tag)
         .def_readwrite("attrs", &Token::attrs)
@@ -33,11 +35,34 @@ void bind_token(py::module_ &m)
         .def_readwrite("meta", &Token::meta)
         .def_readwrite("block", &Token::block)
         .def_readwrite("hidden", &Token::hidden)
-        .def("attrIndex", &Token::attrIndex)
-        .def("attrPush", &Token::attrPush)
-        .def("attrSet", &Token::attrSet)
-        .def("attrGet", &Token::attrGet)
-        .def("attrJoin", &Token::attrJoin);
+        .def("attr_index", &Token::attrIndex, py::arg("name"))
+        .def("attr_push", &Token::attrPush, py::arg("attr_data"))
+        .def("attr_set", &Token::attrSet, py::arg("name"), py::arg("value"))
+        .def("attr_get", &Token::attrGet, py::arg("name"))
+        .def("attr_join", &Token::attrJoin, py::arg("name"), py::arg("value"));
+}
+
+void bind_rule_options(py::module_ &m)
+{
+    py::class_<RuleOptions>(m, "RuleOptions")
+        .def(py::init<>())
+        .def_readwrite("alt", &RuleOptions::alt);
+}
+
+void bind_ruler(py::module_ &m)
+{
+    using RuleFunc = std::function<void(py::object)>;
+
+    py::class_<Ruler<RuleFunc>>(m, "Ruler")
+        .def(py::init<>())
+        .def("push", &Ruler<RuleFunc>::push, py::arg("name"), py::arg("fn"), py::arg("options") = RuleOptions())
+        .def("at", &Ruler<RuleFunc>::at, py::arg("name"), py::arg("fn"), py::arg("options") = RuleOptions())
+        .def("before", &Ruler<RuleFunc>::before, py::arg("before_name"), py::arg("name"), py::arg("fn"), py::arg("options") = RuleOptions())
+        .def("after", &Ruler<RuleFunc>::after, py::arg("after_name"), py::arg("name"), py::arg("fn"), py::arg("options") = RuleOptions())
+        .def("enable", &Ruler<RuleFunc>::enable, py::arg("list"), py::arg("ignore_invalid") = false)
+        .def("disable", &Ruler<RuleFunc>::disable, py::arg("list"), py::arg("ignore_invalid") = false)
+        .def("enable_only", &Ruler<RuleFunc>::enableOnly, py::arg("list"), py::arg("ignore_invalid") = false)
+        .def("get_rules", &Ruler<RuleFunc>::getRules, py::arg("chain_name"));
 }
 
 PYBIND11_MODULE(_core, m)
@@ -89,6 +114,8 @@ PYBIND11_MODULE(_core, m)
 
     bind_token(m);
     bind_nesting(m);
+    bind_rule_options(m);
+    bind_ruler(m);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

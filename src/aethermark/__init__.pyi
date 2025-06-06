@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any
+from typing import Any, Callable
 
 """
 Aethermark - High-Performance Markdown Processing with Pybind11
@@ -51,19 +51,19 @@ class Nesting(Enum):
     Represents the nesting state of a token in the Markdown document.
 
     Attributes:
-        Open: `+1` means the tag is opening.
-        Self: `0` means the tag is self-closing.
-        Close: `-1` means the tag is closing.
+        OPEN: `+1` means the tag is opening.
+        SELF: `0` means the tag is self-closing.
+        CLOSE: `-1` means the tag is closing.
     """
 
-    Open: int
-    Self: int
-    Close: int
+    OPEN: int
+    SELF: int
+    CLOSE: int
 
 class Token:
     """Represents a single token in the Markdown document."""
 
-    # ---------- Constructors ----------#
+    # ---------- Constructors ---------- #
     def __init__(self, type: str, tag: str, nesting: Nesting) -> None:
         """
         Initialize a Token instance.
@@ -73,7 +73,7 @@ class Token:
         :param nesting: Level change of the token in the document.
         """
 
-    # ---------- Properties ----------#
+    # ---------- Properties ---------- #
     type: str
     """Type of the token, e.g. "paragraph_open\"."""
 
@@ -120,8 +120,8 @@ class Token:
     hidden: bool
     """If it's true, ignore this element when rendering. Used for tight lists to hide paragraphs."""
 
-    # ---------- Methods ----------#
-    def attrIndex(self, name: str) -> int:
+    # ---------- Methods ---------- #
+    def attr_index(self, name: str) -> int:
         """
         Search attribute index by name.
 
@@ -129,14 +129,14 @@ class Token:
         :return: Index of the attribute, or -1 if not found.
         """
 
-    def attrPush(self, attrData: tuple[str, str]) -> None:
+    def attr_push(self, attrData: tuple[str, str]) -> None:
         """
         Add a new attribute.
 
         :param attrData: Tuple of (name, value).
         """
 
-    def attrSet(self, name: str, value: str) -> None:
+    def attr_set(self, name: str, value: str) -> None:
         """
         Set or update an attribute value.
 
@@ -144,7 +144,7 @@ class Token:
         :param value: Attribute value.
         """
 
-    def attrGet(self, name: str) -> str | None:
+    def attr_get(self, name: str) -> str | None:
         """
         Get the value of an attribute by name.
 
@@ -152,11 +152,124 @@ class Token:
         :return: The attribute value, or None if not found.
         """
 
-    def attrJoin(self, name: str, value: str) -> None:
+    def attr_join(self, name: str, value: str) -> None:
         """
         Append a value to an existing attribute, separated by a space.
         If the attribute does not exist, creates it.
 
         :param name: Attribute name.
         :param value: Value to append.
+        """
+
+class RuleOptions:
+    """
+    Options for configuring rules in the Ruler.
+    """
+
+    # ---------- Properties ---------- #
+    alt: list[str]
+    """Array with names of "alternate" chains."""
+
+class Ruler:
+    """
+    Helper class, used by core, block and inline to manage sequences of functions (rules):
+    - keep rules in defined order
+    - assign the name to each rule
+    - enable/disable rules
+    - add/replace rules
+    - allow assign rules to additional named chains (in the same)
+    - caching lists of active rules
+    """
+
+    # ---------- Constructors ---------- #
+    def __init__(self) -> None:
+        """Initialize a Ruler instance."""
+
+    # ---------- Methods ---------- #
+    def push(
+        self, name: str, fn: Callable[[object], None], options: RuleOptions | None = ...
+    ) -> None:
+        """
+        Push new rule to the end of chain.
+
+        :param name: name of added rule.
+        :param fn: rule function.
+        :param options: rule options (not mandatory).
+        """
+
+    def at(
+        self, name: str, fn: Callable[[object], None], options: RuleOptions | None = ...
+    ) -> None:
+        """
+        Replace rule by name with new function & options. Throws error if name not found.
+
+        :param name: rule name to replace.
+        :param fn: new rule function.
+        :param options: new rule options (not mandatory).
+        """
+
+    def before(
+        self,
+        before_name: str,
+        name: str,
+        fn: Callable[[object], None],
+        options: RuleOptions | None = ...,
+    ) -> None:
+        """
+        Add new rule to chain before one with given name.
+
+        :params before_name: new rule will be added before this one.
+        :params name: name of added rule.
+        :params fn: rule function.
+        :params options: rule options (not mandatory).
+        """
+
+    def after(
+        self,
+        after_name: str,
+        name: str,
+        fn: Callable[[object], None],
+        options: RuleOptions | None = ...,
+    ) -> None:
+        """
+        Add new rule to chain after one with given name.
+
+        :params after_name: new rule will be added after this one.
+        :parmas name: name of added rule.
+        :params fn: rule function.
+        :parmas options: rule options (not mandatory).
+        """
+
+    def enable(self, list: list[str], ignore_invalid: bool = ...) -> list[str]:
+        """
+        Enable rules with given names. If any rule name not found - throw Error. Errors can be disabled by second param.
+
+        :params list: list of rule names to enable.
+        :params ignore_invalid: set `true` to ignore errors when rule not found.
+        :returns: list of found rule names (if no exception happened).
+        """
+
+    def disable(self, list: list[str], ignore_invalid: bool = ...) -> list[str]:
+        """
+        Disable rules with given names. If any rule name not found - throw Error. Errors can be disabled by second param.
+
+        :params list: list of rule names to enable.
+        :params ignore_invalid: set `true` to ignore errors when rule not found.
+        :returns: Returns list of found rule names (if no exception happened).
+        """
+
+    def enable_only(self, list: list[str], ignore_invalid: bool = ...) -> None:
+        """
+        Enable rules with given names, and disable everything else. If any rule name is not found - throws Error. Errors can be disabled by second param.
+
+        :params list: list of rule names to enable (whitelist).
+        :params ignore_invalid: set `true` to ignore errors when rule not found.
+        """
+
+    def get_rules(self, chain_name: str) -> list[Callable[[object], None]]:
+        """
+        It analyzes rules configuration, compiles caches if not exists and returns result.
+
+        :params chain_name: name of the chain from which rules are to be requested
+        :returns: array of active functions (rules) for given chain name.
         """
