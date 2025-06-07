@@ -6,10 +6,16 @@ project(
   LANGUAGES CXX)
 
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
-find_package(pybind11 CONFIG REQUIRED)
+find_package(pybind11 REQUIRED)
 
-python_add_library(_core MODULE src/binding.cpp src/token.cpp src/ruler.cpp
-                   WITH_SOABI)
+# === Collect source files ===
+
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+
+# === Add Python module ===
+
+python_add_library(_core MODULE ${SOURCE_FILES} WITH_SOABI)
 
 target_link_libraries(_core PRIVATE pybind11::headers)
 
