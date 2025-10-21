@@ -113,7 +113,7 @@ release-test: build-py
 install:
 	@echo "Cleaning old builds..."
 	rm -rf python/dist/*
-	build-py
+	make build-py
 	@echo "Installing Python package locally..."
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
 
