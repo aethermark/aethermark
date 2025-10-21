@@ -61,5 +61,5 @@ PYBIND11_MODULE(_aethermark, m)
                 str: Greeting string.
           )pbdoc");
 
-    m.attr("__version__") = "0.0.18";
+    m.attr("__version__") = "0.0.19";
 }

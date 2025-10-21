@@ -110,7 +110,9 @@ release-test: build-py
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m twine upload --repository testpypi dist/* --verbose
 
 # Install the built Python package locally
-install: build-py
+install: @echo "Cleaning old builds..."
+	rm -rf python/dist/*
+	build-py
 	@echo "Installing Python package locally..."
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
 
