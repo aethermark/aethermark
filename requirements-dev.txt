@@ -1,9 +1,9 @@
+setuptools
+wheel
 build
-cibuildwheel
-pre-commit
+twine
 pybind11
 pytest
 pytest-cov
-ruff
-scikit-build-core
-twine
+mypy
+types-setuptools
