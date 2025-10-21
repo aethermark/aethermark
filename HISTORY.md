@@ -29,3 +29,5 @@
 - 5c9ab17 fix: clean old builds before installation in the install target (MukulWaval, 2025-10-21 16:05)
 - c1200c5 fix: clean old builds before installation (MukulWaval, 2025-10-21 16:01)
 
+## Changelog for Version 0.0.19
+
