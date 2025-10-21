@@ -84,9 +84,20 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add HISTORY.md changelog.md .last_commit
+
           if git diff --staged --quiet; then
             echo "No changes to commit."
             exit 0
           fi
+
           git commit -m "Update changelog and HISTORY.md for version $VERSION, update .last_commit"
-          git push origin HEAD:${{ github.event.release.target_commitish }}
+
+          # Determine target branch safely
+          TARGET_BRANCH="${{ github.event.release.target_commitish }}"
+          if [ -z "$TARGET_BRANCH" ]; then
+            TARGET_BRANCH="${{ github.ref_name }}"
+          fi
+
+          echo "🚀 Pushing changelog to branch: $TARGET_BRANCH"
+          git pull --rebase origin "$TARGET_BRANCH"
+          git push origin HEAD:"$TARGET_BRANCH"
