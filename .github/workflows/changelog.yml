@@ -98,6 +98,6 @@ jobs:
             TARGET_BRANCH="${{ github.ref_name }}"
           fi
 
-          echo "🚀 Pushing changelog to branch: $TARGET_BRANCH"
+          echo "Pushing changelog to branch: $TARGET_BRANCH"
           git pull --rebase origin "$TARGET_BRANCH"
           git push origin HEAD:"$TARGET_BRANCH"

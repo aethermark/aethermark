@@ -42,7 +42,7 @@ jobs:
         run: make all
 
       - name: Build Python package
-        run: make python-build
+        run: make build-py
 
       - name: Check artifacts
         run: .venv/bin/twine check python/dist/*

@@ -46,12 +46,12 @@ jobs:
       - name: Build GoogleTest
         if: steps.gtest-cache.outputs.cache-hit != 'true'
         run: |
-          echo "🧱 Building GoogleTest..."
+          echo "Building GoogleTest..."
           cd /usr/src/gtest
           sudo cmake .
           sudo make
           sudo cp lib/*.a /usr/local/lib
-          echo "✅ GoogleTest built and cached."
+          echo "GoogleTest built and cached."
 
       - name: Ensure virtual environment
         run: |
@@ -77,16 +77,19 @@ jobs:
         run: make all
 
       - name: Run C++ tests (GoogleTest)
-        run: make check
+        run: make test-cpp
 
       - name: Build Python package
-        run: make python-build
+        run: make build-py
 
       - name: Install Python package (from dist)
-        run: make python-install
+        run: make install
 
       - name: Run Python tests (pytest)
-        run: make pytest
+        run: make test-py
+
+      - name: Run type checking (mypy)
+        run: make test-py-static-typecheck
 
       - name: Run linting & formatting
         run: make lint

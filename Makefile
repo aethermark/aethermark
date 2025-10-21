@@ -22,7 +22,7 @@ OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 REQ_FILE := requirements-dev.txt
 
 # Phony targets
-.PHONY: all clean check build venv activate pytest python-build python-upload-test python-upload python-install test
+.PHONY: all clean venv activate test test-cpp test-py test-py-static-typecheck build build-py release release-test install lint
 
 # Default target
 all: $(LIB_NAME)
@@ -36,76 +36,85 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Run pre-commit hooks and auto-fix issues
-lint: $(VENV_DIR)/bin/python
-	@echo "🧹 Running pre-commit hooks with auto-fix..."
-	@$(VENV_DIR)/bin/python -m pre_commit run --all-files --show-diff-on-failure --hook-stage manual --verbose
-
-test: check pytest
-
-# Google Test runner
-check: $(LIB_NAME)
-	@echo "🧪 Running Google Tests..."
-	@mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) $(TEST_DIR)/*.cpp $(LIB_NAME) -lgtest -lpthread -o $(OBJ_DIR)/tests
-	./$(OBJ_DIR)/tests
-
-# Rebuild everything
-build: clean all
+# Clean all build artifacts
+clean:
+	@echo "Cleaning build artifacts..."
+	rm -rf $(OBJ_DIR) $(LIB_NAME) $(PYTHON_DIST)
+	rm -rf $(PYTHON_DIR)/dist
+	rm -rf $(PYTHON_DIR)/*.egg-info
 
 # Virtual environment setup
 venv:
-	@echo "🐍 Creating virtual environment..."
+	@echo "Creating virtual environment..."
 	python3 -m venv $(VENV_DIR)
-	@echo "📦 Installing dependencies from $(REQ_FILE)..."
+	@echo "Installing dependencies from $(REQ_FILE)..."
 	$(VENV_DIR)/bin/python -m pip install --upgrade pip
 	@if [ -f $(REQ_FILE) ]; then \
 		$(VENV_DIR)/bin/python -m pip install -r $(REQ_FILE); \
 	else \
-		echo "⚠️  $(REQ_FILE) not found. Installing minimal base deps..."; \
+		echo "$(REQ_FILE) not found. Installing minimal base deps..."; \
 		$(VENV_DIR)/bin/python -m pip install setuptools wheel build twine pytest; \
 	fi
-	@echo "✅ Virtual environment ready! Activate with: source $(VENV_DIR)/bin/activate"
+	@echo "Virtual environment ready! Activate with: source $(VENV_DIR)/bin/activate"
 
 # Activation helper message
 activate:
 	@echo "To activate the environment, run:"
 	@echo "source $(VENV_DIR)/bin/activate"
 
+# Run all tests
+test: test-cpp test-py
+
+# Google Test runner
+test-cpp: $(LIB_NAME)
+	@echo "Running Google Tests..."
+	@mkdir -p $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) $(TEST_DIR)/*.cpp $(LIB_NAME) -lgtest -lpthread -o $(OBJ_DIR)/tests
+	./$(OBJ_DIR)/tests
+
 # Run Python tests
-pytest: $(VENV_DIR)/bin/python
-	@echo "🧪 Running Python tests..."
+test-py: $(VENV_DIR)/bin/python
+	@echo "Running Python tests..."
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m pytest -v
 
+test-py-static-typecheck:
+	@echo "Running mypy type checking..."
+	@if [ -d .venv ]; then \
+		. .venv/bin/activate && mypy python/quantamark; \
+	else \
+		mypy python/quantamark; \
+	fi
+
+# Rebuild everything
+build: clean all
+
 # Build Python package
-python-build: $(VENV_DIR)/bin/python
-	@echo "📦 Preparing source for build..."
+build-py: $(VENV_DIR)/bin/python
+	@echo "Preparing source for build..."
 	@cp -r src $(PYTHON_DIR)/src
 	@cp -r include $(PYTHON_DIR)/include
-	@echo "📦 Building Python package (in venv)..."
+	@echo "Building Python package (in venv)..."
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m build --sdist
-	@echo "🧹 Cleaning up copied src/include folders..."
+	@echo "Cleaning up copied src/include folders..."
 	rm -rf $(PYTHON_DIR)/src
 	rm -rf $(PYTHON_DIR)/include
 
-# Upload to Test PyPI
-python-upload-test: python-build
-	@echo "🚀 Uploading package to Test PyPI..."
-	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m twine upload --repository testpypi dist/* --verbose
-
 # Upload to PyPI
-python-upload: $(VENV_DIR)/bin/python python-build
-	@echo "🚀 Uploading package to PyPI..."
+release: $(VENV_DIR)/bin/python build-py
+	@echo "Uploading package to PyPI..."
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m twine upload dist/*
 
+# Upload to Test PyPI
+release-test: build-py
+	@echo "Uploading package to Test PyPI..."
+	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m twine upload --repository testpypi dist/* --verbose
+
 # Install the built Python package locally
-python-install: python-build
-	@echo "📥 Installing Python package locally..."
+install: build-py
+	@echo "Installing Python package locally..."
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m pip install --force-reinstall ./dist/quantamark-*.tar.gz
 
-# Clean all build artifacts
-clean:
-	@echo "🧹 Cleaning build artifacts..."
-	rm -rf $(OBJ_DIR) $(LIB_NAME) $(PYTHON_DIST)
-	rm -rf $(PYTHON_DIR)/dist
-	rm -rf $(PYTHON_DIR)/*.egg-info
+# Run pre-commit hooks and auto-fix issues
+lint: $(VENV_DIR)/bin/python
+	@echo "Running pre-commit hooks with auto-fix..."
+	@$(VENV_DIR)/bin/python -m pre_commit run --all-files --show-diff-on-failure --hook-stage manual --verbose
