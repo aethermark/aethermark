@@ -21,8 +21,10 @@ SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 REQ_FILE := requirements-dev.txt
 
+PREFIX ?= /usr/local
+
 # Phony targets
-.PHONY: all clean venv activate test test-cpp test-py test-py-static-typecheck build build-py release release-test install lint
+.PHONY: all clean venv activate test test-cpp test-py test-py-static-typecheck build build-py release release-test install install-cpp uninstall-cpp lint
 
 # Default target
 all: $(LIB_NAME)
@@ -116,6 +118,23 @@ install:
 	make build-py
 	@echo "Installing Python package locally..."
 	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
+
+# Install C++ library and headers
+install-cpp: all
+	@echo "Installing C++ library to $(PREFIX)..."
+	@mkdir -p $(PREFIX)/lib
+	@mkdir -p $(PREFIX)/include/aethermark
+	@cp $(LIB_NAME) $(PREFIX)/lib/
+	@cp -r include/aethermark/* $(PREFIX)/include/aethermark/
+	@echo "Installed headers to $(PREFIX)/include/aethermark and library to $(PREFIX)/lib"
+	@echo "You may need to run: sudo ldconfig"
+
+# Uninstall C++ library and headers
+uninstall-cpp:
+	@echo "Removing installed library from $(PREFIX)..."
+	@rm -f $(PREFIX)/lib/$(LIB_NAME)
+	@rm -rf $(PREFIX)/include/aethermark
+	@echo "Uninstalled C++ library"
 
 # Run pre-commit hooks and auto-fix issues
 lint: $(VENV_DIR)/bin/python

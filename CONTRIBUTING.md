@@ -44,6 +44,52 @@ pre-commit install
 make install
 ```
 
+## Install & Use C++ module
+
+```bash
+sudo make install-cpp
+sudo ldconfig
+```
+
+uninstalltion:
+
+```bash
+sudo uninstall-cpp
+```
+
+**Usage**:
+Add this make file:
+
+```makefile
+# Compiler and flags
+CXX := g++
+CXXFLAGS := -std=c++17 -Wall -Wextra -I/usr/local/include
+LDFLAGS := -L/usr/local/lib -laethermark
+
+# Files
+SRC := main.cpp
+TARGET := main
+
+.PHONY: all clean run
+
+# Default target: build executable
+all: $(TARGET)
+
+# Compile and link
+$(TARGET): $(SRC)
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+
+# Run the executable
+run: $(TARGET)
+	./$(TARGET)
+
+# Clean build artifacts
+clean:
+	rm -f $(TARGET)
+```
+
+Now use `make run`.
+
 ---
 
 ## Common Development Commands (via Makefile)
@@ -65,6 +111,8 @@ You can use the following `make` commands from the project root:
 | `make release`                  | Builds and uploads the package to **PyPI** using Twine.                     |
 | `make release-test`             | Builds and uploads the package to **TestPyPI** for testing.                 |
 | `make install`                  | Installs the built Python package locally into the virtual environment.     |
+| `sudo make install-cpp`         | Installs the cpp module to usr/local/lib & include                          |
+| `sudo make uninstall-cpp`       | Uninstalls the cpp module from usr/local/lib & include                      |
 | `make lint`                     | Runs all configured **pre-commit** hooks and auto-fixes issues.             |
 
 **Test PyPI Installation**
