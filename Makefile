@@ -6,7 +6,7 @@ CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude
 SRC_DIR := src
 OBJ_DIR := build
 TEST_DIR := tests
-LIB_NAME := libquantamark.a
+LIB_NAME := libaethermark.a
 PYTHON_DIR := python
 PYTHON_DIST := $(PYTHON_DIR)/dist
 
@@ -80,9 +80,9 @@ test-py: $(VENV_DIR)/bin/python
 test-py-static-typecheck:
 	@echo "Running mypy type checking..."
 	@if [ -d .venv ]; then \
-		. .venv/bin/activate && mypy python/quantamark; \
+		. .venv/bin/activate && mypy python/aethermark; \
 	else \
-		mypy python/quantamark; \
+		mypy python/aethermark; \
 	fi
 
 # Rebuild everything
@@ -112,7 +112,7 @@ release-test: build-py
 # Install the built Python package locally
 install: build-py
 	@echo "Installing Python package locally..."
-	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m pip install --force-reinstall ./dist/quantamark-*.tar.gz
+	cd $(PYTHON_DIR) && ../$(VENV_DIR)/bin/python -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
 
 # Run pre-commit hooks and auto-fix issues
 lint: $(VENV_DIR)/bin/python

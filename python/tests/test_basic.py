@@ -1,8 +1,8 @@
-import quantamark
+import aethermark
 
 
 def test_doc():
-    doc = quantamark.__doc__
+    doc = aethermark.__doc__
     assert doc is not None
-    assert "Quantamark" in doc
-    assert "Python bindings for the Quantamark C++ library" in doc
+    assert "Aethermark" in doc
+    assert "Python bindings for the Aethermark C++ library" in doc

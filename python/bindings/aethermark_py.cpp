@@ -1,13 +1,13 @@
 #include <pybind11/pybind11.h>
-#include "quantamark/quantamark.hpp"
+#include "aethermark/aethermark.hpp"
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(_quantamark, m)
+PYBIND11_MODULE(_aethermark, m)
 {
-    m.doc() = "Python bindings for the Quantamark C++ library";
+    m.doc() = "Python bindings for the Aethermark C++ library";
 
-    m.def("greet", &quantamark::greet,
+    m.def("greet", &aethermark::greet,
           R"pbdoc(
             Greet someone by name.
 

@@ -1,16 +1,16 @@
-import quantamark
+import aethermark
 
 
 def test_greet():
-    assert quantamark.greet("World") == "Hello, World from Quantamark!"
+    assert aethermark.greet("World") == "Hello, World from Aethermark!"
 
 
 def test_greet_empty():
-    assert quantamark.greet("") == "Hello,  from Quantamark!"
+    assert aethermark.greet("") == "Hello,  from Aethermark!"
 
 
 def test_greet_doc():
-    doc = quantamark.greet.__doc__
+    doc = aethermark.greet.__doc__
     assert doc is not None
     assert "Greet someone by name." in doc
     assert "Args:" in doc

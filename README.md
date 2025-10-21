@@ -8,4 +8,4 @@ sudo cp lib/\*.a /usr/lib
 
 pip install --index-url https://test.pypi.org/simple/ \
  --extra-index-url https://pypi.org/simple \
- quantamark==0.1.2
+ aethermark==0.1.2

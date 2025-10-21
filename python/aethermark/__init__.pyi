@@ -1,5 +1,5 @@
 """
-Python bindings for the Quantamark C++ library
+Python bindings for the Aethermark C++ library
 """
 
 def greet(name: str) -> str:

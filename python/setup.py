@@ -3,10 +3,10 @@ import pybind11
 
 ext_modules = [
     Extension(
-        "_quantamark",
+        "_aethermark",
         sources=[
-            "bindings/quantamark_py.cpp",
-            "src/quantamark.cpp",  # include your main library
+            "bindings/aethermark_py.cpp",
+            "src/aethermark.cpp",  # include your main library
         ],
         include_dirs=[
             "include",
@@ -18,7 +18,7 @@ ext_modules = [
 ]
 
 setup(
-    name="quantamark",
+    name="aethermark",
     version="0.1.4",
     ext_modules=ext_modules,
 )
