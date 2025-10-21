@@ -63,7 +63,7 @@ activate:
 	@echo "source $(VENV_DIR)/bin/activate"
 
 # Run all tests
-test: test-cpp test-py
+test: test-cpp test-py test-py-static-typecheck
 
 # Google Test runner
 test-cpp: $(LIB_NAME)
