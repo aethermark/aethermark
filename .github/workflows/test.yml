@@ -15,40 +15,63 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Cache APT packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: g++ cmake make libgtest-dev
+          version: 1.0 # bump this if you need to refresh apt cache
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+          cache: "pip" # built-in pip cache (works best for simple use cases)
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++ cmake make libgtest-dev
+      - name: Cache custom pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            .venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-venv-
 
-      - name: Build and install GoogleTest
+      - name: Build and install GoogleTest (cached)
+        id: gtest-cache
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/lib/libgtest.a
+          key: ${{ runner.os }}-gtest-v1
+      - name: Build GoogleTest
+        if: steps.gtest-cache.outputs.cache-hit != 'true'
         run: |
           echo "🧱 Building GoogleTest..."
           cd /usr/src/gtest
           sudo cmake .
           sudo make
-          sudo cp lib/*.a /usr/lib
-          echo "✅ GoogleTest installed."
+          sudo cp lib/*.a /usr/local/lib
+          echo "✅ GoogleTest built and cached."
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Create virtual environment & install Python dev deps
+      - name: Ensure virtual environment
         run: |
-          python -m venv .venv
+          if [ ! -d ".venv" ]; then
+            python -m venv .venv
+          fi
           source .venv/bin/activate
           pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            python/dist
+          key: ${{ runner.os }}-build-${{ hashFiles('src/**/*.cpp', 'include/**/*.h') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
 
       - name: Build C++ library
         run: make all
@@ -58,6 +81,9 @@ jobs:
 
       - name: Build Python package
         run: make python-build
+
+      - name: Install Python package (from dist)
+        run: make python-install
 
       - name: Run Python tests (pytest)
         run: make pytest
