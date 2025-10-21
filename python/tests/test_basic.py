@@ -1,5 +1,6 @@
 import quantamark
 
+
 def test_doc():
     doc = quantamark.__doc__
     assert doc is not None

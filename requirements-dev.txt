@@ -1,9 +1,10 @@
-setuptools
-wheel
 build
-twine
+mypy
+pre-commit
 pybind11
 pytest
 pytest-cov
-mypy
+setuptools
+twine
 types-setuptools
+wheel

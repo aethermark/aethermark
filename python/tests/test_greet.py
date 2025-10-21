@@ -1,10 +1,13 @@
 import quantamark
 
+
 def test_greet():
     assert quantamark.greet("World") == "Hello, World from Quantamark!"
 
+
 def test_greet_empty():
     assert quantamark.greet("") == "Hello,  from Quantamark!"
+
 
 def test_greet_doc():
     doc = quantamark.greet.__doc__

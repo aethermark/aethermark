@@ -36,6 +36,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Run pre-commit hooks and auto-fix issues
+lint: $(VENV_DIR)/bin/python
+	@echo "🧹 Running pre-commit hooks with auto-fix..."
+	@$(VENV_DIR)/bin/python -m pre_commit run --all-files --show-diff-on-failure --hook-stage manual --verbose
+
 test: check pytest
 
 # Google Test runner

@@ -6,14 +6,14 @@ ext_modules = [
         "_quantamark",
         sources=[
             "bindings/quantamark_py.cpp",
-            "src/quantamark.cpp",   # include your main library
+            "src/quantamark.cpp",  # include your main library
         ],
         include_dirs=[
             "include",
             pybind11.get_include(),
         ],
         language="c++",
-        extra_compile_args=["-std=c++17"]
+        extra_compile_args=["-std=c++17"],
     ),
 ]
 
