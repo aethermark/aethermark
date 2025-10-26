@@ -1,4 +1,4 @@
-# pylint: disable=E0611,E0401
+# pylint: disable=no-name-in-module,import-error
 """
 Aethermark - High-Performance Markdown Processing with Pybind11
 
