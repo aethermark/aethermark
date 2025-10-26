@@ -12,37 +12,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -------------------- SOURCE --------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # -------------------- APT CACHE --------------------
       - name: Cache APT packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: g++ cmake make libgtest-dev
-          version: 1.0 # bump this if you need to refresh apt cache
+          version: 1.1 # bump this if apt cache breaks
 
+      # -------------------- PYTHON SETUP --------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-          cache: "pip" # built-in pip cache (works best for simple use cases)
+          cache: "pip"
 
-      - name: Cache custom pip dependencies
+      # -------------------- PIP CACHE --------------------
+      - name: Cache pip and venv
         uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
             .venv
-          key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ hashFiles('pyproject.toml') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', 'pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-venv-
+            ${{ runner.os }}-pip-
 
-      - name: Build and install GoogleTest (cached)
+      # -------------------- BUILD GTEST --------------------
+      - name: Cache GoogleTest build
         id: gtest-cache
         uses: actions/cache@v4
         with:
           path: /usr/local/lib/libgtest.a
           key: ${{ runner.os }}-gtest-v1
+
       - name: Build GoogleTest
         if: steps.gtest-cache.outputs.cache-hit != 'true'
         run: |
@@ -53,16 +59,28 @@ jobs:
           sudo cp lib/*.a /usr/local/lib
           echo "GoogleTest built and cached."
 
+      # -------------------- VIRTUAL ENV --------------------
       - name: Ensure virtual environment
         run: |
           if [ ! -d ".venv" ]; then
             python -m venv .venv
           fi
           source .venv/bin/activate
-          pip install --upgrade pip
+          pip install --upgrade pip wheel
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pre-commit pylint
 
+      # -------------------- PRE-COMMIT CACHE --------------------
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-precommit-
+
+      # -------------------- BUILD CACHE --------------------
       - name: Cache build artifacts
         uses: actions/cache@v4
         with:
@@ -73,6 +91,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-
 
+      # -------------------- BUILD + TEST --------------------
       - name: Build C++ library
         run: make all
 
@@ -91,5 +110,9 @@ jobs:
       - name: Run type checking (mypy)
         run: make test-py-static-typecheck
 
-      - name: Run linting & formatting
-        run: make lint
+      # -------------------- LINTING --------------------
+      - name: Run linting & formatting (pre-commit)
+        run: |
+          source .venv/bin/activate
+          pre-commit install
+          pre-commit run --all-files --show-diff-on-failure --verbose
