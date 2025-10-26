@@ -1,3 +1,4 @@
+# pylint: disable=E0611,E0401
 """
 Aethermark - High-Performance Markdown Processing with Pybind11
 
@@ -44,3 +45,6 @@ Learn more at: https://github.com/aethermark/aethermark
 """
 
 from _aethermark import greet  # noqa: F401
+
+__all__ = ["greet"]
+__version__ = "0.0.19"

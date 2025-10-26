@@ -1,0 +1,7 @@
+[MASTER]
+
+[MESSAGES CONTROL]
+# leave empty so subfolder configs can override
+
+[REPORTS]
+reports=no

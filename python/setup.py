@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from setuptools import setup, Extension
 import pybind11
 
@@ -6,7 +8,7 @@ ext_modules = [
         "_aethermark",
         sources=[
             "bindings/aethermark_py.cpp",
-            "src/aethermark.cpp",  # include your main library
+            "src/aethermark.cpp",
         ],
         include_dirs=[
             "include",
