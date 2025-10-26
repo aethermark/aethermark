@@ -15,4 +15,4 @@ See: https://github.com/aethermark/aethermark
 from _aethermark import greet  # noqa: F401
 
 __all__ = ["greet"]
-__version__ = "0.0.19"
+__version__ = "0.0.20"

@@ -21,6 +21,6 @@ ext_modules = [
 
 setup(
     name="aethermark",
-    version="0.0.19",
+    version="0.0.20",
     ext_modules=ext_modules,
 )

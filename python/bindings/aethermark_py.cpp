@@ -36,5 +36,5 @@ See: https://github.com/aethermark/aethermark
                 str: Greeting string.
           )pbdoc");
 
-  m.attr("__version__") = "0.0.19";
+  m.attr("__version__") = "0.0.20";
 }
