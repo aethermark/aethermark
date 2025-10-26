@@ -9,20 +9,20 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(_aethermark, m) {
   m.doc() = R"pbdoc(
-  """
-  Aethermark - High-performance Markdown parser with AFM extensions.
+"""
+Aethermark - High-performance Markdown parser with AFM extensions.
 
-  Extends CommonMark with enhanced syntax while remaining backward-compatible.
+Extends CommonMark with enhanced syntax while remaining backward-compatible.
 
-  Example:
-      >>> import aethermark
-      >>> md = aethermark.AFMParser()
-      >>> html = md.render("**AFM** adds _native_ syntax!")
-      >>> print(html)
-      <p><strong>AFM</strong> adds <em>native</em> syntax!</p>
+Example:
+  >>> import aethermark
+  >>> md = aethermark.AFMParser()
+  >>> html = md.render("**AFM** adds _native_ syntax!")
+  >>> print(html)
+  <p><strong>AFM</strong> adds <em>native</em> syntax!</p>
 
-  See: https://github.com/aethermark/aethermark
-  """
+See: https://github.com/aethermark/aethermark
+"""
   )pbdoc";
 
   m.def("greet", &aethermark::greet,
