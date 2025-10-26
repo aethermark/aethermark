@@ -34,6 +34,11 @@ sudo cp lib/\*.a /usr/lib
 
 ```bash
 pre-commit install
+
+pre-commit install --hook-type pre-push
+
+# Test on all files once
+pre-commit run --all-files --show-diff-on-failure --hook-stage manual
 ```
 
 ---
@@ -122,6 +127,14 @@ pip install --index-url https://test.pypi.org/simple/ \
  --extra-index-url https://pypi.org/simple \
  aethermark==version
 ```
+
+## Recommendations
+
+For vs-code:
+
+- `cpplint`
+- `pylance`
+- `yapf`
 
 ---
 

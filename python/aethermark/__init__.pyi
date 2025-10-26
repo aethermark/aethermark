@@ -43,6 +43,7 @@ For projects requiring:
 Learn more at: https://github.com/aethermark/aethermark
 """
 
+
 def greet(name: str) -> str:
     """
     Greet someone by name.

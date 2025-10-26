@@ -1,41 +1,61 @@
 ci:
   autoupdate_commit_msg: "chore: update pre-commit hooks"
-  autofix_commit_msg: "style: pre-commit fixes"
+  autofix_commit_msg: "style: auto-fix via pre-commit"
 
 repos:
+  # ------------------------
+  # General hygiene
+  # ------------------------
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       - id: check-added-large-files
-      - id: check-case-conflict
       - id: check-merge-conflict
-      - id: check-symlinks
-      - id: check-yaml
-        exclude: ^conda\.recipe/meta\.yaml$
-      - id: debug-statements
       - id: end-of-file-fixer
-      - id: mixed-line-ending
-      - id: requirements-txt-fixer
       - id: trailing-whitespace
+      - id: debug-statements
+      - id: mixed-line-ending
+      - id: check-yaml
+      - id: requirements-txt-fixer
+
+  # ------------------------
+  # Python formatting (Black + Ruff)
+  # ------------------------
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        name: black-format
+        files: ^python/
+        types_or: [python]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.7.3"
     hooks:
       - id: ruff
+        name: ruff-lint
         args: ["--fix", "--show-fixes"]
-      - id: ruff-format
-        exclude: ^docs/
+        files: ^python/
+        types_or: [python]
 
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.5
+  # ------------------------
+  # Python deep static analysis
+  # ------------------------
+  - repo: local
     hooks:
-      - id: remove-tabs
-        exclude: ^(docs|Makefile)$
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        files: ^python/
 
-  - repo: https://github.com/cheshirekow/cmake-format-precommit
-    rev: v0.6.13
+  # ------------------------
+  # C++ linting (Google style)
+  # ------------------------
+  - repo: https://github.com/cpplint/cpplint
+    rev: 2.0.0
     hooks:
-      - id: cmake-format
-        additional_dependencies: [pyyaml]
-        types: [file]
-        files: (\.cmake|CMakeLists.txt)(.in)?$
+      - id: cpplint
+        name: cpplint
+        files: ^(src/|include/|python/bindings/) # only these directories

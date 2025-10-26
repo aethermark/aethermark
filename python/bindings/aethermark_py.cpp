@@ -1,11 +1,14 @@
+// Copyright 2025 Aethermark Contributors
+// All rights reserved.
+
 #include <pybind11/pybind11.h>
+
 #include "aethermark/aethermark.hpp"
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(_aethermark, m)
-{
-    m.doc() = R"pbdoc(
+PYBIND11_MODULE(_aethermark, m) {
+  m.doc() = R"pbdoc(
         Aethermark - High-Performance Markdown Processing with Pybind11
 
         Aethermark is a blazing-fast Markdown parser and renderer built with pybind11,
@@ -50,8 +53,8 @@ PYBIND11_MODULE(_aethermark, m)
         Learn more at: https://github.com/aethermark/aethermark
     )pbdoc";
 
-    m.def("greet", &aethermark::greet,
-          R"pbdoc(
+  m.def("greet", &aethermark::greet,
+        R"pbdoc(
             Greet someone by name.
 
             Args:
@@ -61,5 +64,5 @@ PYBIND11_MODULE(_aethermark, m)
                 str: Greeting string.
           )pbdoc");
 
-    m.attr("__version__") = "0.0.19";
+  m.attr("__version__") = "0.0.19";
 }

@@ -30,4 +30,3 @@
 - c1200c5 fix: clean old builds before installation (MukulWaval, 2025-10-21 16:01)
 
 ## Changelog for Version 0.0.19
-

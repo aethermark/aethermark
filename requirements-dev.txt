@@ -1,9 +1,14 @@
+black
 build
+cpplint
+identify
 mypy
 pre-commit
 pybind11
+pylint
 pytest
 pytest-cov
+ruff
 setuptools
 twine
 types-setuptools
