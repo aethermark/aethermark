@@ -71,7 +71,8 @@ test: test-cpp test-py test-py-static-typecheck
 test-cpp: $(LIB_NAME)
 	@echo "Running Google Tests..."
 	@mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) $(TEST_DIR)/*.cpp $(LIB_NAME) -lgtest -lpthread -o $(OBJ_DIR)/tests
+	$(CXX) $(CXXFLAGS) $(TEST_DIR)/*.cpp $(LIB_NAME) \
+		-lgmock -lgtest -pthread -o $(OBJ_DIR)/tests
 	./$(OBJ_DIR)/tests
 
 # Run Python tests
