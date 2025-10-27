@@ -25,7 +25,7 @@ Token::Token(std::string type, std::string tag, Nesting nesting) {
   this->hidden = false;
 }
 
-int Token::AttrIndex(std::string name) {
+int Token::AttrIndex(const std::string& name) {
   // Check null
   if (!this->attrs.has_value()) {
     return -1;
@@ -41,7 +41,7 @@ int Token::AttrIndex(std::string name) {
 }
 
 using Attr = std::pair<std::string, std::string>;
-void Token::AttrPush(std::vector<Attr> attrData) {
+void Token::AttrPush(const std::vector<Attr>& attrData) {
   // Initialize attrs if null
   if (!this->attrs.has_value()) {
     this->attrs.emplace();
@@ -51,7 +51,7 @@ void Token::AttrPush(std::vector<Attr> attrData) {
   attrs->insert(attrs->end(), attrData.begin(), attrData.end());
 }
 
-void Token::AttrSet(std::string name, std::string value) {
+void Token::AttrSet(const std::string& name, const std::string& value) {
   int index = this->AttrIndex(name);
   if (index == -1) {
     // Add new attribute
@@ -67,13 +67,13 @@ void Token::AttrSet(std::string name, std::string value) {
   }
 }
 
-std::optional<std::string> Token::AttrGet(std::string name) {
+std::optional<std::string> Token::AttrGet(const std::string& name) {
   int index = this->AttrIndex(name);
   if (index == -1) return std::nullopt;
   return this->attrs->at(index).second;
 }
 
-void Token::AttrJoin(std::string name, std::string value) {
+void Token::AttrJoin(const std::string& name, const std::string& value) {
   int index = this->AttrIndex(name);
   if (index == -1) {
     // Add new attribute

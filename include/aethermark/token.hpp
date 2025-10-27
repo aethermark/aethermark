@@ -28,36 +28,36 @@ class Token {
   /// @brief Get the attribute index by name.
   /// @param name Name of the attribute.
   /// @return Index of the attribute.
-  int AttrIndex(std::string name);
+  int AttrIndex(const std::string& name);
 
   /// @brief Push attributes to the token.
   /// @param attrData Attribute data to be pushed. ( name, value ) pairs.
-  void AttrPush(std::vector<std::pair<std::string, std::string>> attrData);
+  void AttrPush(
+      const std::vector<std::pair<std::string, std::string>>& attrData);
 
   /// @brief Set an attribute to the token. Override old value if exists.
   /// @param name Name of attribute.
   /// @param value Value of attribute.
-  void AttrSet(std::string name, std::string value);
+  void AttrSet(const std::string& name, const std::string& value);
 
   /// @brief Get the value of attribute by name, or null if it does not exist
   /// @param name Name of the attribute.
   /// @return Value of the attribute or null.
-  std::optional<std::string> AttrGet(std::string name);
+  std::optional<std::string> AttrGet(const std::string& name);
 
   /// @brief Join value to existing attribute via space.
   /// Or create new attribute if not exists. Useful to operate with token
   /// classes.
   /// @param name Name of the attribute.
   /// @param value Value of the attribute.
-  void AttrJoin(std::string name, std::string value);
+  void AttrJoin(const std::string& name, const std::string& value);
 
+  // ---------- Accessors ----------
   std::string GetType() const { return type; }
   std::string GetTag() const { return tag; }
   std::optional<std::vector<std::pair<std::string, std::string>>> GetAttrs() {
     return attrs;
   }
-
-  // ---------- Accessors ----------
   std::optional<std::vector<std::pair<float, float>>> GetMap() { return map; }
   Nesting GetNesting() const { return nesting; }
   float GetLevel() const { return level; }
