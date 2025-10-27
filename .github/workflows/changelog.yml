@@ -10,11 +10,41 @@ jobs:
   send_changelog:
     runs-on: ubuntu-latest
     steps:
+      # -------------------- SOURCE --------------------
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Full history for changelog generation
 
+      # -------------------- PYTHON SETUP --------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          cache: "pip"
+
+      # -------------------- VENV + DEPENDENCIES --------------------
+      - name: Ensure virtual environment
+        run: |
+          if [ ! -d ".venv" ]; then
+            python -m venv .venv
+          fi
+          source .venv/bin/activate
+          pip install --upgrade pip wheel
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pre-commit
+
+      # -------------------- PRE-COMMIT CACHE --------------------
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-precommit-
+
+      # -------------------- READ LAST COMMIT --------------------
       - name: Read Last Commit Hash from .last_commit
         run: |
           if [ -f .last_commit ]; then
@@ -24,11 +54,13 @@ jobs:
           fi
           echo "LAST_COMMIT_HASH=$LAST_COMMIT_HASH" >> $GITHUB_ENV
 
+      # -------------------- READ VERSION --------------------
       - name: Read Version from VERSION file
         run: |
           VERSION=$(cat VERSION)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      # -------------------- GENERATE CHANGELOG --------------------
       - name: Generate Changelog
         run: |
           echo "## Changelog for Version $VERSION" > changelog.md
@@ -69,16 +101,27 @@ jobs:
             exit 0
           fi
 
+      # -------------------- UPDATE HISTORY --------------------
       - name: Update HISTORY.md
         run: |
           cat changelog.md >> HISTORY.md
 
+      # -------------------- UPDATE LAST COMMIT --------------------
       - name: Update .last_commit file
         run: |
           NEW_LAST_COMMIT_HASH=$(git rev-parse HEAD)
           echo $NEW_LAST_COMMIT_HASH > .last_commit
           git add .last_commit
 
+      # -------------------- FIX LINE ENDINGS --------------------
+      - name: Run end-of-file-fixer (pre-commit)
+        run: |
+          source .venv/bin/activate
+          pre-commit install
+          pre-commit run end-of-file-fixer --files HISTORY.md changelog.md .last_commit || true
+          git add HISTORY.md changelog.md .last_commit
+
+      # -------------------- COMMIT AND PUSH --------------------
       - name: Commit and Push Updates
         run: |
           git config --global user.name "github-actions"
