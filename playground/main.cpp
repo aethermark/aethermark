@@ -24,6 +24,7 @@ std::string replaceDashes(std::string s) {
   return s;
 }
 
+// FIXME: This is just a playground for testing Ruler functionalities.
 int main() {
   using aethermark::RuleOptions;
   using aethermark::Ruler;

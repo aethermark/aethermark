@@ -25,16 +25,7 @@ See: https://github.com/aethermark/aethermark
 """
   )pbdoc";
 
-  m.def("greet", &aethermark::greet,
-        R"pbdoc(
-            Greet someone by name.
-
-            Args:
-                name (str): Name of the person.
-
-            Returns:
-                str: Greeting string.
-          )pbdoc");
+  // TODO(MukulWaval): Bind top level Aethermark functionalities here.
 
   m.attr("__version__") = "0.0.20";
 }

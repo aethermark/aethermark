@@ -20,7 +20,7 @@ namespace {
 
 // ---------- Insertion ----------
 
-TEST(Ruler__Insertion, PushAddsRules) {
+TEST(Ruler, PushAddsRules) {
   am::Ruler<Fn> r;
 
   r.push("a", add1);
@@ -35,7 +35,7 @@ TEST(Ruler__Insertion, PushAddsRules) {
   EXPECT_EQ(x, 3);
 }
 
-TEST(Ruler__Insertion, BeforeInsertsCorrectly) {
+TEST(Ruler, BeforeInsertsCorrectly) {
   am::Ruler<Fn> r;
 
   r.push("a", add1);
@@ -52,7 +52,7 @@ TEST(Ruler__Insertion, BeforeInsertsCorrectly) {
   EXPECT_EQ(x, ((1 + 1) * 2) + 2);
 }
 
-TEST(Ruler__Insertion, AfterInsertsCorrectly) {
+TEST(Ruler, AfterInsertsCorrectly) {
   am::Ruler<Fn> r;
 
   r.push("a", add1);
@@ -69,7 +69,7 @@ TEST(Ruler__Insertion, AfterInsertsCorrectly) {
   EXPECT_EQ(x, 6);
 }
 
-TEST(Ruler__Insertion, AtReplacesRule) {
+TEST(Ruler, AtReplacesRule) {
   am::Ruler<Fn> r;
 
   r.push("a", add1);
@@ -86,7 +86,7 @@ TEST(Ruler__Insertion, AtReplacesRule) {
 
 // ---------- EnableDisable ----------
 
-TEST(Ruler__EnableDisable, EnableDisableWork) {
+TEST(Ruler, EnableDisableWork) {
   am::Ruler<Fn> r;
 
   r.push("a", add1);
@@ -103,7 +103,7 @@ TEST(Ruler__EnableDisable, EnableDisableWork) {
   EXPECT_EQ(x, (1 + 1) * 2);
 }
 
-TEST(Ruler__EnableDisable, EnableOnlyWorks) {
+TEST(Ruler, EnableOnlyWorks) {
   am::Ruler<Fn> r;
 
   r.push("a", add1);
@@ -120,14 +120,14 @@ TEST(Ruler__EnableDisable, EnableOnlyWorks) {
   EXPECT_EQ(x, (1 + 2) * 2);
 }
 
-TEST(Ruler__EnableDisable, IgnoredInvalidEnable) {
+TEST(Ruler, IgnoredInvalidEnable) {
   am::Ruler<Fn> r;
   r.push("a", add1);
 
   EXPECT_NO_THROW(r.enable("zzz", true));
 }
 
-TEST(Ruler__EnableDisable, IgnoredInvalidDisable) {
+TEST(Ruler, IgnoredInvalidDisable) {
   am::Ruler<Fn> r;
   r.push("a", add1);
 
@@ -136,7 +136,7 @@ TEST(Ruler__EnableDisable, IgnoredInvalidDisable) {
 
 // ---------- AltChain ----------
 
-TEST(Ruler__AltChain, AltChainsWork) {
+TEST(Ruler, AltChainsWork) {
   am::Ruler<Fn> r;
 
   r.push("a", add1, {{"alt1"}});
@@ -158,7 +158,7 @@ TEST(Ruler__AltChain, AltChainsWork) {
 
 // ---------- Lookup ----------
 
-TEST(Ruler__Lookup, FindRuleWorks) {
+TEST(Ruler, FindRuleWorks) {
   am::Ruler<Fn> r;
 
   r.push("a", add1);
@@ -171,21 +171,21 @@ TEST(Ruler__Lookup, FindRuleWorks) {
   EXPECT_EQ(r.findRule("z"), nullptr);
 }
 
-TEST(Ruler__Lookup, ThrowsOnMissingAt) {
+TEST(Ruler, ThrowsOnMissingAt) {
   am::Ruler<Fn> r;
   r.push("a", add1);
 
   EXPECT_THROW(r.at("nope", add2), std::runtime_error);
 }
 
-TEST(Ruler__Lookup, ThrowsOnMissingBefore) {
+TEST(Ruler, ThrowsOnMissingBefore) {
   am::Ruler<Fn> r;
   r.push("a", add1);
 
   EXPECT_THROW(r.before("nope", "b", add2), std::runtime_error);
 }
 
-TEST(Ruler__Lookup, ThrowsOnMissingAfter) {
+TEST(Ruler, ThrowsOnMissingAfter) {
   am::Ruler<Fn> r;
   r.push("a", add1);
 

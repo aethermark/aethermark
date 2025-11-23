@@ -14,7 +14,7 @@ namespace {
 
 // ---------- Constructor & Basic State ----------
 
-TEST(Token__Constructor, InitializesMembersCorrectly) {
+TEST(Token, InitializesMembersCorrectly) {
   am::Token t("paragraph_open", "p", am::Nesting::OPENING);
 
   EXPECT_EQ(t.GetType(), "paragraph_open");
@@ -22,7 +22,7 @@ TEST(Token__Constructor, InitializesMembersCorrectly) {
   EXPECT_EQ(t.GetNesting(), am::Nesting::OPENING);
 }
 
-TEST(Token__Constructor, DefaultOptionalsAndStringsAreEmpty) {
+TEST(Token, DefaultOptionalsAndStringsAreEmpty) {
   am::Token t("a", "b", am::Nesting::SELF_CLOSING);
 
   EXPECT_FALSE(t.GetAttrs().has_value());
@@ -39,7 +39,7 @@ TEST(Token__Constructor, DefaultOptionalsAndStringsAreEmpty) {
 
 // ---------- AttrPush ----------
 
-TEST(Token__AttrPush, AddsMultipleAttributes) {
+TEST(Token, AddsMultipleAttributes) {
   am::Token t("inline", "span", am::Nesting::SELF_CLOSING);
 
   std::vector<std::pair<std::string, std::string>> pushData = {
@@ -63,7 +63,7 @@ TEST(Token__AttrPush, AddsMultipleAttributes) {
   EXPECT_EQ(c.value(), "lead");
 }
 
-TEST(Token__AttrPush, PreservesOrderAcrossMultiplePushes) {
+TEST(Token, PreservesOrderAcrossMultiplePushes) {
   am::Token t("x", "y", am::Nesting::SELF_CLOSING);
 
   t.AttrPush({{"a", "1"}, {"b", "2"}});
@@ -80,7 +80,7 @@ TEST(Token__AttrPush, PreservesOrderAcrossMultiplePushes) {
   EXPECT_EQ(attrs[offset + 3].second, "4");
 }
 
-TEST(Token__AttrPush, HandlesEmptyVectorGracefully) {
+TEST(Token, HandlesEmptyVectorGracefully) {
   am::Token t("z", "z", am::Nesting::OPENING);
   t.AttrPush({});
   // Implementation likely initializes attrs even if empty
@@ -90,7 +90,7 @@ TEST(Token__AttrPush, HandlesEmptyVectorGracefully) {
 
 // ---------- AttrIndex ----------
 
-TEST(Token__AttrIndex, ReturnsCorrectIndexAndMinusOneIfMissing) {
+TEST(Token, ReturnsCorrectIndexAndMinusOneIfMissing) {
   am::Token t("inline", "span", am::Nesting::SELF_CLOSING);
   t.AttrPush({{"class", "lead"}, {"id", "first"}});
 
@@ -99,7 +99,7 @@ TEST(Token__AttrIndex, ReturnsCorrectIndexAndMinusOneIfMissing) {
   EXPECT_EQ(t.AttrIndex("nonexistent"), -1);
 }
 
-TEST(Token__AttrIndex, HandlesDuplicateNamesAndEmptyKey) {
+TEST(Token, HandlesDuplicateNamesAndEmptyKey) {
   am::Token t("x", "y", am::Nesting::SELF_CLOSING);
   t.AttrPush({{"", ""}, {"dup", "one"}, {"dup", "two"}, {"dup", ""}});
 
@@ -109,7 +109,7 @@ TEST(Token__AttrIndex, HandlesDuplicateNamesAndEmptyKey) {
 
 // ---------- AttrGet ----------
 
-TEST(Token__AttrGet, ReturnsValueIfExists) {
+TEST(Token, ReturnsValueIfExists) {
   am::Token t("a", "b", am::Nesting::OPENING);
   t.AttrPush({{"id", "123"}});
   auto v = t.AttrGet("id");
@@ -117,12 +117,12 @@ TEST(Token__AttrGet, ReturnsValueIfExists) {
   EXPECT_EQ(v.value(), "123");
 }
 
-TEST(Token__AttrGet, ReturnsNulloptIfMissing) {
+TEST(Token, ReturnsNulloptIfMissing) {
   am::Token t("a", "b", am::Nesting::OPENING);
   EXPECT_FALSE(t.AttrGet("notfound").has_value());
 }
 
-TEST(Token__AttrGet, ReturnsFirstValueForDuplicateNames) {
+TEST(Token, ReturnsFirstValueForDuplicateNames) {
   am::Token t("a", "b", am::Nesting::OPENING);
   t.AttrPush({{"key", "v1"}, {"key", "v2"}});
   EXPECT_EQ(t.AttrGet("key").value(), "v1");
@@ -130,7 +130,7 @@ TEST(Token__AttrGet, ReturnsFirstValueForDuplicateNames) {
 
 // ---------- AttrSet ----------
 
-TEST(Token__AttrSet, UpdatesExistingAttributeValue) {
+TEST(Token, UpdatesExistingAttributeValue) {
   am::Token t("a", "b", am::Nesting::OPENING);
 
   t.AttrPush({{"k", "v1"}, {"k", "v2"}, {"other", "o"}});
@@ -150,7 +150,7 @@ TEST(Token__AttrSet, UpdatesExistingAttributeValue) {
   EXPECT_TRUE(found);
 }
 
-TEST(Token__AttrSet, AppendsIfAttributeDoesNotExist) {
+TEST(Token, AppendsIfAttributeDoesNotExist) {
   am::Token t("a", "b", am::Nesting::OPENING);
 
   // Perform AttrSet
@@ -168,7 +168,7 @@ TEST(Token__AttrSet, AppendsIfAttributeDoesNotExist) {
   EXPECT_EQ(attrs[0].second, "value");
 }
 
-TEST(Token__AttrSet, HandlesEmptyKeyAndValue) {
+TEST(Token, HandlesEmptyKeyAndValue) {
   am::Token t("x", "y", am::Nesting::OPENING);
 
   // Set attribute with empty key and value
@@ -188,34 +188,34 @@ TEST(Token__AttrSet, HandlesEmptyKeyAndValue) {
 
 // ---------- AttrJoin ----------
 
-TEST(Token__AttrJoin, CreatesNewAttributeIfMissing) {
+TEST(Token, CreatesNewAttributeIfMissing) {
   am::Token t("a", "b", am::Nesting::SELF_CLOSING);
   t.AttrJoin("class", "first");
   EXPECT_EQ(t.AttrGet("class").value(), "first");
 }
 
-TEST(Token__AttrJoin, AppendsToExistingWithSpace) {
+TEST(Token, AppendsToExistingWithSpace) {
   am::Token t("a", "b", am::Nesting::SELF_CLOSING);
   t.AttrSet("class", "one");
   t.AttrJoin("class", "two");
   EXPECT_EQ(t.AttrGet("class").value(), "one two");
 }
 
-TEST(Token__AttrJoin, WorksWithEmptyInitialValue) {
+TEST(Token, WorksWithEmptyInitialValue) {
   am::Token t("a", "b", am::Nesting::SELF_CLOSING);
   t.AttrSet("class", "");
   t.AttrJoin("class", "added");
   EXPECT_EQ(t.AttrGet("class").value(), " added");
 }
 
-TEST(Token__AttrJoin, JoinsEmptyStringAppendsSpace) {
+TEST(Token, JoinsEmptyStringAppendsSpace) {
   am::Token t("a", "b", am::Nesting::SELF_CLOSING);
   t.AttrJoin("class", "first");
   t.AttrJoin("class", "");
   EXPECT_EQ(t.AttrGet("class").value(), "first ");
 }
 
-TEST(Token__AttrJoin, HandlesTrailingSpaceInExistingValue) {
+TEST(Token, HandlesTrailingSpaceInExistingValue) {
   am::Token t("a", "b", am::Nesting::SELF_CLOSING);
   t.AttrSet("class", "a ");
   t.AttrJoin("class", "b");
@@ -225,7 +225,7 @@ TEST(Token__AttrJoin, HandlesTrailingSpaceInExistingValue) {
 
 // ---------- Getters & Setters ----------
 
-TEST(Token__Setters, ModifyScalarAndStringFieldsCorrectly) {
+TEST(Token, ModifyScalarAndStringFieldsCorrectly) {
   am::Token t("t", "g", am::Nesting::CLOSING);
 
   t.SetType("newtype");
@@ -249,7 +249,7 @@ TEST(Token__Setters, ModifyScalarAndStringFieldsCorrectly) {
   EXPECT_TRUE(t.IsHidden());
 }
 
-TEST(Token__Setters, CanAssignOptionalsAndRetrieveThem) {
+TEST(Token, CanAssignOptionalsAndRetrieveThem) {
   am::Token t("a", "b", am::Nesting::OPENING);
 
   std::vector<std::pair<std::string, std::string>> attrs = {{"k", "v"}};
@@ -266,7 +266,7 @@ TEST(Token__Setters, CanAssignOptionalsAndRetrieveThem) {
   EXPECT_TRUE(t.GetChildren().has_value());
 }
 
-TEST(Token__Setters, CanClearOptionalsUsingNullopt) {
+TEST(Token, CanClearOptionalsUsingNullopt) {
   am::Token t("a", "b", am::Nesting::OPENING);
 
   t.SetAttrs(std::nullopt);
@@ -280,7 +280,7 @@ TEST(Token__Setters, CanClearOptionalsUsingNullopt) {
 
 // ---------- Enum ----------
 
-TEST(Token__NestingEnum, ValuesAndAccessorsCorrect) {
+TEST(Token, ValuesAndAccessorsCorrect) {
   EXPECT_EQ(am::Nesting::CLOSING, -1);
   EXPECT_EQ(am::Nesting::SELF_CLOSING, 0);
   EXPECT_EQ(am::Nesting::OPENING, 1);
@@ -296,7 +296,7 @@ TEST(Token__NestingEnum, ValuesAndAccessorsCorrect) {
 
 // ---------- Stress & Robustness ----------
 
-TEST(Token__Stress, HandlesLargeNumberOfAttributes) {
+TEST(Token, HandlesLargeNumberOfAttributes) {
   am::Token t("x", "y", am::Nesting::SELF_CLOSING);
   const int N = 1000;
   std::vector<std::pair<std::string, std::string>> many;
@@ -309,7 +309,7 @@ TEST(Token__Stress, HandlesLargeNumberOfAttributes) {
   EXPECT_EQ(t.AttrGet("k500").value(), "v500");
 }
 
-TEST(Token__Stress, AttrJoinAndSetWorkRepeatedly) {
+TEST(Token, AttrJoinAndSetWorkRepeatedly) {
   am::Token t("x", "y", am::Nesting::SELF_CLOSING);
   for (int i = 0; i < 100; ++i) {
     t.AttrJoin("class", std::to_string(i));

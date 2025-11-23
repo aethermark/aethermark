@@ -7,8 +7,6 @@
 
 namespace aethermark {
 
-std::string greet(const std::string& name) {
-  return "Hello, " + name + " from Aethermark!";
-}
+// TODO(MukulWaval): Implement top level Aethermark functionalities here.
 
 }  // namespace aethermark
