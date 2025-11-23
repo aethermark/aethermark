@@ -1,3 +1,5 @@
+// NOLINT (copyright/legal)
+
 #include <gtest/gtest.h>
 
 #include "aethermark/aethermark.hpp"
