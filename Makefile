@@ -23,8 +23,11 @@ REQ_FILE := requirements-dev.txt
 
 PREFIX ?= /usr/local
 
+PLAY_SRC = playground/main.cpp
+PLAY_BIN = playground/play
+
 # Phony targets
-.PHONY: all clean venv activate test test-cpp test-py test-py-static-typecheck build build-py release release-test install install-cpp uninstall-cpp lint
+.PHONY: all clean venv activate test test-cpp test-py test-py-static-typecheck build build-py release release-test install install-cpp uninstall-cpp lint play debug
 
 # Default target
 all: $(LIB_NAME)
@@ -140,3 +143,10 @@ uninstall-cpp:
 lint: $(VENV_DIR)/bin/python
 	@echo "Running pre-commit hooks with auto-fix..."
 	@$(VENV_DIR)/bin/python -m pre_commit run --all-files --show-diff-on-failure --hook-stage manual --verbose
+
+play:
+	$(CXX) $(CXXFLAGS) -Iinclude $(PLAY_SRC) -L. -laethermark -o $(PLAY_BIN)
+	@echo "Run: ./$(PLAY_BIN)"
+
+debug:
+	$(CXX) $(CXXFLAGS) -g -Iinclude $(PLAY_SRC) -L. -laethermark -o $(PLAY_BIN)
