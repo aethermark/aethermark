@@ -1,6 +1,7 @@
 # Compiler and flags
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude
+CXXFLAGS_DEBUG := -std=c++17 -Wall -Wextra -g -Iinclude -O0
 
 # Directories
 SRC_DIR := src
@@ -16,8 +17,11 @@ PYTHON := $(VENV_DIR)/bin/python
 PIP := $(PYTHON) -m pip
 PYTEST := $(PYTHON) -m pytest
 
+# Recursive wildcard
+rwildcard = $(foreach d,$(wildcard $1/*),$(call rwildcard,$d,$2)) $(filter $(subst *,%,$2),$1)
+
 # Source and object files
-SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+SRCS := $(call rwildcard,$(SRC_DIR),*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 REQ_FILE := requirements-dev.txt
 
@@ -27,7 +31,8 @@ PLAY_SRC = playground/main.cpp
 PLAY_BIN = playground/play
 
 # Phony targets
-.PHONY: all clean venv activate test test-cpp test-py test-py-static-typecheck build build-py release release-test install install-cpp uninstall-cpp lint play debug
+.PHONY: all clean venv activate test test-cpp test-py test-py-static-typecheck build \
+        build-py release release-test install install-cpp uninstall-cpp lint play debug
 
 # Default target
 all: $(LIB_NAME)
@@ -38,8 +43,11 @@ $(LIB_NAME): $(OBJS)
 
 # Compile object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Alias for debug scripts
+lib: $(LIB_NAME)
 
 # Clean all build artifacts
 clean:
@@ -144,9 +152,16 @@ lint: $(VENV_DIR)/bin/python
 	@echo "Running pre-commit hooks with auto-fix..."
 	@$(VENV_DIR)/bin/python -m pre_commit run --all-files --show-diff-on-failure --hook-stage manual --verbose
 
+# Run playground binary
 play:
-	$(CXX) $(CXXFLAGS) -Iinclude $(PLAY_SRC) -L. -laethermark -o $(PLAY_BIN)
+	$(CXX) $(CXXFLAGS) -Iinclude $(PLAY_SRC) \
+		-L. -laethermark \
+		-o $(PLAY_BIN)
 	@echo "Run: ./$(PLAY_BIN)"
 
-debug:
-	$(CXX) $(CXXFLAGS) -g -Iinclude $(PLAY_SRC) -L. -laethermark -o $(PLAY_BIN)
+# Full debug rebuild
+debug: clean
+	$(MAKE) CXXFLAGS="$(CXXFLAGS_DEBUG)" lib
+	g++ $(CXXFLAGS_DEBUG) playground/main.cpp \
+		-L. -laethermark \
+		-o playground/play
