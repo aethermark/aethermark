@@ -53,6 +53,7 @@ class Token {
   void AttrJoin(const std::string& name, const std::string& value);
 
   // ---------- Accessors ----------
+
   std::string GetType() const { return type; }
   std::string GetTag() const { return tag; }
   std::optional<std::vector<std::pair<std::string, std::string>>> GetAttrs() {
@@ -69,6 +70,7 @@ class Token {
   bool IsHidden() const { return hidden; }
 
   // ---------- Mutators ----------
+
   void SetType(const std::string& t) { type = t; }
   void SetTag(const std::string& t) { tag = t; }
   void SetAttrs(

@@ -1,10 +1,12 @@
 // NOLINT(legal/copyright)
 
-#include <aethermark/ruler.hpp>  // NOLINT(build/include_order)
-#include <algorithm>             // NOLINT(build/include_order)
-#include <functional>            // NOLINT(build/include_order)
-#include <iostream>              // NOLINT(build/include_order)
-#include <string>                // NOLINT(build/include_order)
+#include <aethermark/aethermark.hpp>   // NOLINT(build/include_order)
+#include <aethermark/parser_core.hpp>  // NOLINT(build/include_order)
+#include <aethermark/ruler.hpp>        // NOLINT(build/include_order)
+#include <algorithm>                   // NOLINT(build/include_order)
+#include <functional>                  // NOLINT(build/include_order)
+#include <iostream>                    // NOLINT(build/include_order)
+#include <string>                      // NOLINT(build/include_order)
 
 using Fn = std::function<std::string(std::string)>;
 
@@ -29,42 +31,14 @@ int main() {
   using aethermark::RuleOptions;
   using aethermark::Ruler;
 
-  Ruler<Fn> r;
+  aethermark::Core coreParser = aethermark::Core();
 
-  // Add some rules to play with
-  r.push("trim", trim);
-  r.push("upper", toUpper);
-  r.push("dashes", replaceDashes, RuleOptions{{"alt_dashes"}});
+  std::string src = "This is   a - sample\n\ncore parser   input.";
+  aethermark::Aethermark md = aethermark::Aethermark();
+  std::any env = std::any(1);
 
-  std::string input = "   hello-world  ";
-  std::string out = input;
+  std::cout << "Starting core parser processing...\n";
 
-  std::cout << "Input: '" << input << "'\n";
-
-  // Apply default chain
-  for (auto& fn : r.getRules("")) {
-    out = fn(out);
-  }
-
-  std::cout << "Default chain output: '" << out << "'\n";
-
-  // Apply alternate chain
-  std::string altOut = input;
-  for (auto& fn : r.getRules("alt_dashes")) {
-    altOut = fn(altOut);
-  }
-
-  std::cout << "Alt chain output: '" << altOut << "'\n";
-
-  // Touch replace — try replacing a rule
-  r.at("trim", [](std::string s) { return "[TRIMMED]" + trim(s); });
-
-  std::string replaced = input;
-  for (auto& fn : r.getRules("")) {
-    replaced = fn(replaced);
-  }
-
-  std::cout << "After replacing 'trim': '" << replaced << "'\n";
-
-  return 0;
+  aethermark::StateCore state = aethermark::StateCore(src, md, env);
+  coreParser.process(state);
 }
