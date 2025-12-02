@@ -178,9 +178,9 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
 
   // Open token
   Token& open = state.push("blockquote_open", "blockquote", Nesting::OPENING);
-  open.SetMarkup(">");
-  open.SetMap(std::optional<std::pair<float, float>>(
-      {static_cast<float>(startLine), 0}));
+  open.markup = ">";
+  open.map = std::optional<std::pair<float, float>>(
+      {static_cast<float>(startLine), 0});
 
   // TODO(MukulWaval): try to eliminate this variable by making sure the tokens
   // vector does not keep invalidating references
@@ -191,10 +191,10 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
 
   // Close token
   Token& close = state.push("blockquote_close", "blockquote", Nesting::CLOSING);
-  close.SetMarkup(">");
+  close.markup = ">";
 
   // Fix map end
-  state.tokens[openIndex].SetMapAt(1, static_cast<float>(state.line));
+  state.tokens[openIndex].map->second = static_cast<float>(state.line);
   state.lineMax = oldLineMax;
   state.parentType = oldParent;
   state.blkIndent = oldIndent;
@@ -268,13 +268,13 @@ bool rules_paragraph(StateBlock& state, int startLine, int endLine,
 
   // Build tokens
   Token& token_open = state.push("paragraph_open", "p", Nesting::OPENING);
-  token_open.SetMap(
-      std::optional<std::pair<float, float>>({startLine, state.line}));
+  token_open.map =
+      std::optional<std::pair<float, float>>({startLine, state.line});
 
   Token& token_inline = state.push("inline", "", Nesting::SELF_CLOSING);
-  token_inline.SetContent(content);
-  token_inline.SetMap(
-      std::optional<std::pair<float, float>>({startLine, state.line}));
+  token_inline.content = content;
+  token_inline.map =
+      std::optional<std::pair<float, float>>({startLine, state.line});
 
   state.push("paragraph_close", "p", Nesting::CLOSING);
 
