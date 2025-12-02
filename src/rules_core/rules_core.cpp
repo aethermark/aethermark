@@ -3,6 +3,7 @@
 
 #include "aethermark/rules_core/rules_core.hpp"
 
+#include <deque>
 #include <optional>
 #include <regex>
 #include <string>
@@ -12,7 +13,7 @@
 namespace aethermark {
 
 using mapType = std::pair<float, float>;
-using childrenType = std::optional<std::vector<Token>>;
+using childrenType = std::optional<std::deque<Token>>;
 
 void rule_block(StateCore& state) {  // NOLINT(runtime/references)
   Token t = Token("", "", Nesting::SELF_CLOSING);
@@ -28,7 +29,7 @@ void rule_block(StateCore& state) {  // NOLINT(runtime/references)
 }
 
 void rule_inline(StateCore& state) {  // NOLINT(runtime/references)
-  const std::vector<Token>& tokens = state.tokens;
+  const std::deque<Token>& tokens = state.tokens;
 
   // Parse inline
   for (int i = 0, l = tokens.size(); i < l; ++i) {
@@ -60,7 +61,7 @@ void rule_smartquotes(StateCore& state) {}  // NOLINT(runtime/references)
 
 void rule_text_join(StateCore& state) {  // NOLINT(runtime/references)
   int curr, last;
-  std::vector<Token> blockTokens = state.tokens;
+  std::deque<Token> blockTokens = state.tokens;
   int l = blockTokens.size();
 
   for (int j = 0; j < l; j++) {
@@ -68,7 +69,7 @@ void rule_text_join(StateCore& state) {  // NOLINT(runtime/references)
       continue;
     }
 
-    std::optional<std::vector<Token>> tokens = blockTokens[j].children;
+    std::optional<std::deque<Token>> tokens = blockTokens[j].children;
     int max;
     if (!tokens.has_value()) {
       max = 0;

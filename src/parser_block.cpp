@@ -3,6 +3,7 @@
 
 #include "aethermark/parser_block.hpp"
 
+#include <deque>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -115,7 +116,7 @@ void ParserBlock::tokenize(StateBlock& state, int startLine, int endLine) {
 // NOLINTBEGIN(whitespace/indent_namespace)
 
 void ParserBlock::parse(const std::string& src, Aethermark& md, std::any env,
-                        std::vector<Token>& outTokens) {
+                        std::deque<Token>& outTokens) {
   // NOLINTEND
 
   if (src.empty()) {

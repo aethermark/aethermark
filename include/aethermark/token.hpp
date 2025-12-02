@@ -4,6 +4,7 @@
 #pragma once
 
 #include <any>
+#include <deque>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -82,7 +83,7 @@ class Token {
   float level;
 
   /// @brief An array of child nodes (inline and img tokens)
-  std::optional<std::vector<Token>> children;
+  std::optional<std::deque<Token>> children;
 
   /// @brief Contents of the tag. If it is a self-closing tag (code, html,
   /// fence, etc.)

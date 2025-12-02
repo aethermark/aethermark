@@ -4,6 +4,7 @@
 #pragma once
 
 #include <any>
+#include <deque>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@ class StateBlock {
   StateBlock(const std::string& src,
              Aethermark& md,  // NOLINT(runtime/references)
              std::any env,
-             std::vector<Token>& tokens);  // NOLINT(runtime/references)
+             std::deque<Token>& tokens);  // NOLINT(runtime/references)
   // NOLINTEND
 
   std::string src;
@@ -33,7 +34,7 @@ class StateBlock {
   std::any env;
 
   // tokens stream (block-level)
-  std::vector<Token>& tokens;
+  std::deque<Token>& tokens;
 
   // line metadata
   std::vector<int> bMarks;   // beginning offsets

@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <any>
+#include <deque>
 #include <string>
 #include <utility>
 #include <vector>
@@ -14,7 +15,7 @@ namespace aethermark {
 // NOLINTBEGIN(whitespace/indent_namespace)
 
 StateBlock::StateBlock(const std::string& src_, Aethermark& md_, std::any env_,
-                       std::vector<Token>& tokens_)
+                       std::deque<Token>& tokens_)
     : src(src_), md(md_), env(env_), tokens(tokens_) {
   // NOLINTEND
   size_t estimated_lines = std::count(src.begin(), src.end(), '\n') + 4;

@@ -5,6 +5,7 @@
 
 #include "aethermark/aethermark.hpp"
 
+#include <deque>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -103,13 +104,13 @@ Aethermark& Aethermark::configure(const std::string& preset) {
 //   return *this;
 // }
 
-std::vector<Token> Aethermark::parse(const std::string& src, std::any env) {
+std::deque<Token> Aethermark::parse(const std::string& src, std::any env) {
   StateCore state(src, *this, env);
   coreParser.process(state);
   return state.tokens;
 }
 
-std::vector<Token> Aethermark::parseInline(
+std::deque<Token> Aethermark::parseInline(
     const std::string& src,  // NOLINT(whitespace/indent_namespace)
     std::any env) {          // NOLINT(whitespace/indent_namespace)
   StateCore state(src, *this, env);

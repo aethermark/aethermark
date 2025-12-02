@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <any>
+#include <deque>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -16,7 +17,7 @@ using TableRow = std::vector<std::string>;
 using TableData = std::vector<TableRow>;
 
 inline void printTable(const TableData& data, const TableRow& headers);
-inline void print(const std::vector<aethermark::Token>& tokens);
+inline void print(const std::deque<aethermark::Token>& tokens);
 inline std::string repeat(const std::string& str, size_t times);
 inline std::string center(const std::string& str, size_t width);
 
@@ -25,7 +26,7 @@ int main() {
   aethermark::Aethermark md;
   std::any env;
 
-  std::vector<aethermark::Token> tokens;
+  std::deque<aethermark::Token> tokens;
 
   md.blockParser.parse(src, md, env, tokens);
 
@@ -34,7 +35,7 @@ int main() {
   return 0;
 }
 
-inline void print(const std::vector<aethermark::Token>& tokens) {
+inline void print(const std::deque<aethermark::Token>& tokens) {
   TableData rows;
   TableRow headers = {
       "Index", "Type", "Content", "Tag", "Map", "Nesting",
@@ -45,14 +46,14 @@ inline void print(const std::vector<aethermark::Token>& tokens) {
     TableRow row;
 
     row.push_back(std::to_string(i));
-    row.push_back(token.GetType());
-    row.push_back(token.GetContent() != "" ? token.GetContent() : "-");
-    row.push_back(token.GetTag());
+    row.push_back(token.type);
+    row.push_back(token.content != "" ? token.content : "-");
+    row.push_back(token.tag);
 
-    if (token.GetMap()) {
+    if (token.map) {
       std::string mapStr =
-          "[" + std::to_string(static_cast<int>(token.GetMap()->first)) + ", " +
-          std::to_string(static_cast<int>(token.GetMap()->second)) + "] ";
+          "[" + std::to_string(static_cast<int>(token.map->first)) + ", " +
+          std::to_string(static_cast<int>(token.map->second)) + "] ";
       row.push_back(mapStr);
     } else {
       row.push_back("-");
@@ -60,7 +61,7 @@ inline void print(const std::vector<aethermark::Token>& tokens) {
 
     std::string nesting;
 
-    switch (token.GetNesting()) {
+    switch (token.nesting) {
       case aethermark::Nesting::OPENING:
         nesting = "OPENING";
         break;
