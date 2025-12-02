@@ -19,6 +19,12 @@
 
 namespace aethermark {
 
+// TODO(MukulWaval): Add default move, copy constructors and destructors for all
+// clasess
+// TODO(MukulWaval): Add documentation for all classes
+// TODO(MukulWaval): Optimize the use of std::vector
+// TODO(MukulWaval): Remove all unnecessary comments from all files
+
 Aethermark::Aethermark()
     : /*inlineParser(), blockParser(),*/  // NOLINT(whitespace/indent_namespace)
       coreParser(),                       // NOLINT(whitespace/indent_namespace)
