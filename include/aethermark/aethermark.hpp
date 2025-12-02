@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-// #include "aethermark/parser_block.hpp"
+#include "aethermark/parser_block.hpp"
 #include "aethermark/parser_core.hpp"
 // #include "aethermark/parser_inline.hpp"
 // #include "aethermark/renderer.hpp"
@@ -30,6 +30,8 @@ struct Options {
   std::function<std::string(const std::string&, const std::string&,
                             const std::string&)>
       highlight = nullptr;
+
+  int maxNesting = 20;
 };
 
 using ParserCore = Core;
@@ -38,7 +40,7 @@ class Aethermark {
  public:
   // core components
   // ParserInline inlineParser;
-  // ParserBlock blockParser;
+  ParserBlock blockParser;
   ParserCore coreParser;
   // Renderer renderer;
 
