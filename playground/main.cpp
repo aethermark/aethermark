@@ -1,44 +1,27 @@
-// NOLINT(legal/copyright)
+#include <any>
+#include <string>
+#include <vector>
 
-#include <aethermark/aethermark.hpp>   // NOLINT(build/include_order)
-#include <aethermark/parser_core.hpp>  // NOLINT(build/include_order)
-#include <aethermark/ruler.hpp>        // NOLINT(build/include_order)
-#include <algorithm>                   // NOLINT(build/include_order)
-#include <functional>                  // NOLINT(build/include_order)
-#include <iostream>                    // NOLINT(build/include_order)
-#include <string>                      // NOLINT(build/include_order)
+#include "aethermark/aethermark.hpp"
+#include "aethermark/parser_block.hpp"
+#include "aethermark/token.hpp"
 
-using Fn = std::function<std::string(std::string)>;
-
-std::string trim(std::string s) {
-  while (!s.empty() && isspace(s.front())) s.erase(s.begin());
-  while (!s.empty() && isspace(s.back())) s.pop_back();
-  return s;
-}
-
-std::string toUpper(std::string s) {
-  std::transform(s.begin(), s.end(), s.begin(), ::toupper);
-  return s;
-}
-
-std::string replaceDashes(std::string s) {
-  std::replace(s.begin(), s.end(), '-', ' ');
-  return s;
-}
-
-// FIXME: This is just a playground for testing Ruler functionalities.
 int main() {
-  using aethermark::RuleOptions;
-  using aethermark::Ruler;
+  std::string src = "> Blockquotes can also be nested...";
+  aethermark::Aethermark md;
+  std::any env;
 
-  aethermark::Core coreParser = aethermark::Core();
+  std::vector<aethermark::Token> tokens;
 
-  std::string src = "This is   a - sample\n\ncore parser   input.";
-  aethermark::Aethermark md = aethermark::Aethermark();
-  std::any env = std::any(1);
+  // Option 1: use parse (recommended)
+  md.blockParser.parse(src, md, env, tokens);
 
-  std::cout << "Starting core parser processing...\n";
+  // Option 2: manually create state (less common)
+  /*
+  aethermark::ParserBlock parser;
+  aethermark::StateBlock state(src, md, env, tokens);
+  parser.tokenize(state, 0, state.lineMax);
+  */
 
-  aethermark::StateCore state = aethermark::StateCore(src, md, env);
-  coreParser.process(state);
+  return 0;
 }
