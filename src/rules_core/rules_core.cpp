@@ -24,6 +24,7 @@ void rule_block(StateCore& state) {  // NOLINT(runtime/references)
     t.children = childrenType({});
     state.tokens.push_back(t);
   } else {
+    // TODO(MukulWaval): uncomment once block parser is complete
     // state.md.blockParser.parse(state.src, state.md, state.env, state.tokens);
   }
 }
@@ -35,6 +36,7 @@ void rule_inline(StateCore& state) {  // NOLINT(runtime/references)
   for (int i = 0, l = tokens.size(); i < l; ++i) {
     const Token& tok = tokens[i];
     if (tok.type == "inline") {
+      // TODO(MukulWaval): uncomment once inline parser is complete
       // state.md.inlineParser.parse(tok.GetContent(), state.md, state.env,
       // state.tokens);
     }
