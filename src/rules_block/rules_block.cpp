@@ -181,6 +181,9 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
   open.SetMarkup(">");
   open.SetMap(std::optional<std::pair<float, float>>(
       {static_cast<float>(startLine), 0}));
+
+  // TODO(MukulWaval): try to eliminate this variable by making sure the tokens
+  // vector does not keep invalidating references
   size_t openIndex = state.tokens.size() - 1;
 
   // Inner contents
