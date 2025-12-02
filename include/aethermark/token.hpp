@@ -81,6 +81,24 @@ class Token {
   void SetMap(const std::optional<std::vector<std::pair<float, float>>>& m) {
     map = m;
   }
+  // TODO(MukulWaval): Write tests for SetMapAt and SetMapAt overloads
+  void SetMapAt(size_t index, const std::pair<float, float>& value) {
+    // If map is not initialized, create it
+    if (!map) {
+      map.emplace();
+    }
+
+    // Expand the vector if needed
+    if (map->size() <= index) {
+      map->resize(index + 1, {0.0f, 0.0f});
+    }
+
+    // Set the value
+    (*map)[index] = value;
+  }
+  void SetMapAt(size_t index, float a, float b) {
+    SetMapAt(index, std::make_pair(a, b));
+  }
   void SetNesting(Nesting n) { nesting = n; }
   void SetLevel(float l) { level = l; }
   void SetChildren(const std::optional<std::vector<Token>>& c) { children = c; }
