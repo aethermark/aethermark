@@ -2,6 +2,8 @@
 // All rights reserved.
 
 #pragma once
+
+#include <any>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -148,7 +150,8 @@ class Token {
   /// tokens
   std::string info;
 
-  // TODO(MukulWaval): Add meta field
+  /// @brief A place for plugins to store an arbitrary data.
+  std::any meta;
 
   /// @brief True for block-level tokens, false for inline tokens.
   /// Used in renderer to calculate line breaks.
