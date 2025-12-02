@@ -3,6 +3,7 @@
 
 #pragma once
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -59,10 +60,10 @@ class Token {
   std::optional<std::vector<std::pair<std::string, std::string>>> GetAttrs() {
     return attrs;
   }
-  std::optional<std::vector<std::pair<float, float>>> GetMap() { return map; }
+  std::optional<std::pair<float, float>> GetMap() const { return map; }
   Nesting GetNesting() const { return nesting; }
   float GetLevel() const { return level; }
-  std::optional<std::vector<Token>> GetChildren() { return children; }
+  std::optional<std::vector<Token>> GetChildren() const { return children; }
   std::string GetContent() const { return content; }
   std::string GetMarkup() const { return markup; }
   std::string GetInfo() const { return info; }
@@ -78,26 +79,22 @@ class Token {
           a) {
     attrs = a;
   }
-  void SetMap(const std::optional<std::vector<std::pair<float, float>>>& m) {
-    map = m;
-  }
+  void SetMap(const std::optional<std::pair<float, float>>& m) { map = m; }
   // TODO(MukulWaval): Write tests for SetMapAt and SetMapAt overloads
-  void SetMapAt(size_t index, const std::pair<float, float>& value) {
-    // If map is not initialized, create it
-    if (!map) {
-      map.emplace();
+  void SetMapAt(int index, const float& value) {
+    if (!map.has_value()) {
+      // initialize with zeros if map is empty
+      map = std::pair<float, float>{0.0f, 0.0f};
     }
 
-    // Expand the vector if needed
-    if (map->size() <= index) {
-      map->resize(index + 1, {0.0f, 0.0f});
+    if (index == 0) {
+      map->first = value;
+    } else if (index == 1) {
+      map->second = value;
+    } else {
+      // Out-of-range index (only 0 or 1 allowed)
+      throw std::out_of_range("Token::SetMapAt index must be 0 or 1");
     }
-
-    // Set the value
-    (*map)[index] = value;
-  }
-  void SetMapAt(size_t index, float a, float b) {
-    SetMapAt(index, std::make_pair(a, b));
   }
   void SetNesting(Nesting n) { nesting = n; }
   void SetLevel(float l) { level = l; }
@@ -120,7 +117,7 @@ class Token {
   std::optional<std::vector<std::pair<std::string, std::string>>> attrs;
 
   /// @brief Source map info. Format: `[ line_begin, line_end ]`
-  std::optional<std::vector<std::pair<float, float>>> map;
+  std::optional<std::pair<float, float>> map;
 
   /// @brief Level change in the token.
   Nesting nesting;

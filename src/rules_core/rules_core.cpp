@@ -3,13 +3,15 @@
 
 #include "aethermark/rules_core/rules_core.hpp"
 
+#include <optional>
 #include <regex>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace aethermark {
 
-using mapType = std::vector<std::pair<float, float>>;
+using mapType = std::pair<float, float>;
 using childrenType = std::optional<std::vector<Token>>;
 
 void rule_block(StateCore& state) {  // NOLINT(runtime/references)
@@ -17,7 +19,7 @@ void rule_block(StateCore& state) {  // NOLINT(runtime/references)
   if (state.inlineMode) {
     Token t = Token("inline", "", Nesting::SELF_CLOSING);
     t.SetContent(state.src);
-    t.SetMap(mapType({{0, 1}}));
+    t.SetMap(mapType({0, 1}));
     t.SetChildren(childrenType({}));
     state.tokens.push_back(t);
   } else {
