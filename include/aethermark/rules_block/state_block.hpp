@@ -55,7 +55,7 @@ class StateBlock {
   int level = 0;
 
   // methods
-  Token push(const std::string& type, const std::string& tag, Nesting nesting);
+  Token& push(const std::string& type, const std::string& tag, Nesting nesting);
 
   bool isEmpty(int line) const;
 

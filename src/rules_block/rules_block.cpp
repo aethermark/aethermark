@@ -3,6 +3,7 @@
 
 #include "aethermark/rules_block/rules_block.hpp"
 
+#include <string>
 #include <vector>
 
 #include "aethermark/aethermark.hpp"
@@ -12,6 +13,25 @@
 namespace aethermark {
 
 // NOLINTBEGIN(runtime/references)
+
+static inline std::string trim(const std::string& s) {
+  if (s.empty()) return s;
+
+  size_t start = 0;
+  while (start < s.size() &&
+         std::isspace(static_cast<unsigned char>(s[start]))) {
+    start++;
+  }
+
+  if (start == s.size()) return "";
+
+  size_t end = s.size() - 1;
+  while (end > start && std::isspace(static_cast<unsigned char>(s[end]))) {
+    end--;
+  }
+
+  return s.substr(start, end - start + 1);
+}
 
 // FIXME: Implement all block rules
 bool rules_blockquote(StateBlock& state, int startLine, int endLine,
@@ -46,9 +66,7 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
   bool lastLineEmpty = false;
   int nextLine;
 
-  // -----------------------------
-  // SEARCH FOR END OF BLOCKQUOTE
-  // -----------------------------
+  // Search
   for (nextLine = startLine; nextLine < endLine; nextLine++) {
     bool isOutdented = state.sCount[nextLine] < state.blkIndent;
 
@@ -158,26 +176,22 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
   int oldIndent = state.blkIndent;
   state.blkIndent = 0;
 
-  // -----------------------------
-  // OPEN BLOCKQUOTE TOKEN
-  // -----------------------------
-  Token open = state.push("blockquote_open", "blockquote", Nesting::OPENING);
+  // Open token
+  Token& open = state.push("blockquote_open", "blockquote", Nesting::OPENING);
   open.SetMarkup(">");
-  open.SetMapAt(0, static_cast<float>(startLine), 0.0f);
+  open.SetMap(std::optional<std::pair<float, float>>(
+      {static_cast<float>(startLine), 0}));
+  size_t openIndex = state.tokens.size() - 1;
 
-  // -----------------------------
-  // TOKENIZE INNER CONTENT
-  // -----------------------------
+  // Inner contents
   state.md.blockParser.tokenize(state, startLine, nextLine);
 
-  // -----------------------------
-  // CLOSE BLOCKQUOTE TOKEN
-  // -----------------------------
-  Token close = state.push("blockquote_close", "blockquote", Nesting::CLOSING);
+  // Close token
+  Token& close = state.push("blockquote_close", "blockquote", Nesting::CLOSING);
   close.SetMarkup(">");
 
   // Fix map end
-  open.SetMapAt(1, static_cast<float>(state.line), 0.0f);
+  state.tokens[openIndex].SetMapAt(1, static_cast<float>(state.line));
   state.lineMax = oldLineMax;
   state.parentType = oldParent;
   state.blkIndent = oldIndent;
@@ -212,7 +226,59 @@ bool rules_lheading(StateBlock& state, int startLine, int endLine,
 bool rules_list(StateBlock& state, int startLine, int endLine, bool silent) {}
 
 bool rules_paragraph(StateBlock& state, int startLine, int endLine,
-                     bool silent) {}  // NOLINT(whitespace/indent_namespace)
+                     bool silent) {  // NOLINT(whitespace/indent_namespace)
+  // If this is an empty line → not a paragraph
+  if (state.isEmpty(startLine)) return false;
+
+  auto terminatorRules = state.md.blockParser.ruler.getRules("paragraph");
+
+  ParentType oldParentType = state.parentType;
+  state.parentType = ParentType::Paragraph;
+
+  int nextLine = startLine + 1;
+
+  // Move line-by-line until we find a terminator
+  for (; nextLine < endLine && !state.isEmpty(nextLine); nextLine++) {
+    // Code-indented line after a paragraph = lazy continuation
+    if (state.sCount[nextLine] - state.blkIndent > 3) continue;
+
+    // Blockquote marker quirk (negative indent)
+    if (state.sCount[nextLine] < 0) continue;
+
+    // Run terminator rules
+    bool terminate = false;
+    for (auto& rule : terminatorRules) {
+      if (rule(state, nextLine, endLine, true)) {
+        terminate = true;
+        break;
+      }
+    }
+    if (terminate) break;
+  }
+
+  // Extract raw paragraph text
+  std::string content =
+      state.getLines(startLine, nextLine, state.blkIndent, false);
+  content = trim(content);  // your string helper
+
+  state.line = nextLine;
+
+  // Build tokens
+  Token& token_open = state.push("paragraph_open", "p", Nesting::OPENING);
+  token_open.SetMap(
+      std::optional<std::pair<float, float>>({startLine, state.line}));
+
+  Token& token_inline = state.push("inline", "", Nesting::SELF_CLOSING);
+  token_inline.SetContent(content);
+  token_inline.SetMap(
+      std::optional<std::pair<float, float>>({startLine, state.line}));
+
+  state.push("paragraph_close", "p", Nesting::CLOSING);
+
+  state.parentType = oldParentType;
+
+  return true;
+}
 
 bool rules_reference(StateBlock& state, int startLine, int endLine,
                      bool silent) {}  // NOLINT(whitespace/indent_namespace)
