@@ -62,58 +62,6 @@ class Token {
   /// @param value Value of the attribute.
   void AttrJoin(const std::string& name, const std::string& value);
 
-  // ---------- Accessors ----------
-
-  std::string GetType() const { return type; }
-  std::string GetTag() const { return tag; }
-  std::optional<std::vector<std::pair<std::string, std::string>>> GetAttrs() {
-    return attrs;
-  }
-  std::optional<std::pair<float, float>> GetMap() const { return map; }
-  Nesting GetNesting() const { return nesting; }
-  float GetLevel() const { return level; }
-  std::optional<std::vector<Token>> GetChildren() const { return children; }
-  std::string GetContent() const { return content; }
-  std::string GetMarkup() const { return markup; }
-  std::string GetInfo() const { return info; }
-  bool IsBlock() const { return block; }
-  bool IsHidden() const { return hidden; }
-
-  // ---------- Mutators ----------
-
-  void SetType(const std::string& t) { type = t; }
-  void SetTag(const std::string& t) { tag = t; }
-  void SetAttrs(
-      const std::optional<std::vector<std::pair<std::string, std::string>>>&
-          a) {
-    attrs = a;
-  }
-  void SetMap(const std::optional<std::pair<float, float>>& m) { map = m; }
-  void SetMapAt(int index, const float& value) {
-    if (!map.has_value()) {
-      // initialize with zeros if map is empty
-      map = std::pair<float, float>{0.0f, 0.0f};
-    }
-
-    if (index == 0) {
-      map->first = value;
-    } else if (index == 1) {
-      map->second = value;
-    } else {
-      // Out-of-range index (only 0 or 1 allowed)
-      throw std::out_of_range("Token::SetMapAt index must be 0 or 1");
-    }
-  }
-  void SetNesting(Nesting n) { nesting = n; }
-  void SetLevel(float l) { level = l; }
-  void SetChildren(const std::optional<std::vector<Token>>& c) { children = c; }
-  void SetContent(const std::string& c) { content = c; }
-  void SetMarkup(const std::string& m) { markup = m; }
-  void SetInfo(const std::string& i) { info = i; }
-  void SetBlock(bool b) { block = b; }
-  void SetHidden(bool h) { hidden = h; }
-
- private:
   /// @brief Type of the token, e.g. "paragraph_open".
   std::string type;
 

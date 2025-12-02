@@ -18,9 +18,9 @@ void rule_block(StateCore& state) {  // NOLINT(runtime/references)
   Token t = Token("", "", Nesting::SELF_CLOSING);
   if (state.inlineMode) {
     Token t = Token("inline", "", Nesting::SELF_CLOSING);
-    t.SetContent(state.src);
-    t.SetMap(mapType({0, 1}));
-    t.SetChildren(childrenType({}));
+    t.content = state.src;
+    t.map = mapType({0, 1});
+    t.children = childrenType({});
     state.tokens.push_back(t);
   } else {
     // state.md.blockParser.parse(state.src, state.md, state.env, state.tokens);
@@ -33,7 +33,7 @@ void rule_inline(StateCore& state) {  // NOLINT(runtime/references)
   // Parse inline
   for (int i = 0, l = tokens.size(); i < l; ++i) {
     const Token& tok = tokens[i];
-    if (tok.GetType() == "inline") {
+    if (tok.type == "inline") {
       // state.md.inlineParser.parse(tok.GetContent(), state.md, state.env,
       // state.tokens);
     }
@@ -64,11 +64,11 @@ void rule_text_join(StateCore& state) {  // NOLINT(runtime/references)
   int l = blockTokens.size();
 
   for (int j = 0; j < l; j++) {
-    if (blockTokens[j].GetType() == "inline") {
+    if (blockTokens[j].type == "inline") {
       continue;
     }
 
-    std::optional<std::vector<Token>> tokens = blockTokens[j].GetChildren();
+    std::optional<std::vector<Token>> tokens = blockTokens[j].children;
     int max;
     if (!tokens.has_value()) {
       max = 0;
@@ -78,10 +78,10 @@ void rule_text_join(StateCore& state) {  // NOLINT(runtime/references)
 
     for (curr = 0, last = 0; curr < max; curr++) {
       // collapse two adjacent text nodes
-      if (tokens->at(curr).GetType() == "text" && curr + 1 < max &&
-          tokens->at(curr + 1).GetType() == "text") {
-        tokens->at(curr + 1).SetContent(tokens->at(curr).GetContent() +
-                                        tokens->at(curr + 1).GetContent());
+      if (tokens->at(curr).type == "text" && curr + 1 < max &&
+          tokens->at(curr + 1).type == "text") {
+        tokens->at(curr + 1).content =
+            tokens->at(curr).content + tokens->at(curr + 1).content;
       } else {
         if (curr != last) {
           tokens->at(last) = tokens->at(curr);
