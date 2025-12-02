@@ -20,6 +20,13 @@ enum Nesting {
 /// @brief Represents a token in the Aethermark markdown flavor.
 class Token {
  public:
+  Token() = default;
+  Token(const Token&) = default;
+  Token(Token&&) noexcept = default;
+  Token& operator=(const Token&) = default;
+  Token& operator=(Token&&) noexcept = default;
+  ~Token() = default;
+
   /// @brief Constructs a new Token.
   /// @param type Type of the token.
   /// @param tag Tag of the token.

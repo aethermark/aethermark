@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <any>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace aethermark {
@@ -83,12 +84,12 @@ StateBlock::StateBlock(const std::string& src_, Aethermark& md_, std::any env_,
 
 // NOLINTBEGIN(whitespace/indent_namespace)
 
-Token StateBlock::push(const std::string& type, const std::string& tag,
-                       Nesting nesting) {
+Token& StateBlock::push(const std::string& type, const std::string& tag,
+                        Nesting nesting) {
   // NOLINTEND
 
-  // Create token
-  Token token(type, tag, nesting);
+  tokens.emplace_back(type, tag, nesting);
+  Token& token = tokens.back();
   token.SetBlock(true);
 
   // Handle nesting
@@ -103,9 +104,6 @@ Token StateBlock::push(const std::string& type, const std::string& tag,
     // opening tag -> increase level after assigning
     level++;
   }
-
-  // Add to token stream
-  tokens.push_back(token);
 
   return token;
 }
