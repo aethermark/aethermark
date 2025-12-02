@@ -4,6 +4,7 @@
 #pragma once
 
 #include <any>
+#include <deque>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@ class StateCore {
   std::any env;
 
   /// @brief List of tokens generated during parsing
-  std::vector<Token> tokens;
+  std::deque<Token> tokens;
 
   /// @brief Whether the state is for inline mode
   bool inlineMode = false;

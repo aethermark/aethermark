@@ -4,6 +4,7 @@
 #pragma once
 
 #include <any>
+#include <deque>
 #include <functional>
 #include <string>
 #include <vector>
@@ -34,7 +35,7 @@ class ParserBlock {
 
   // Process the input string fully and push tokens into outTokens
   void parse(const std::string& str, Aethermark& md, std::any env,
-             std::vector<Token>& outTokens);
+             std::deque<Token>& outTokens);
   // NOLINTEND
 
   using State = StateBlock;

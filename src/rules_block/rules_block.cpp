@@ -182,10 +182,6 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
   open.map = std::optional<std::pair<float, float>>(
       {static_cast<float>(startLine), 0});
 
-  // TODO(MukulWaval): try to eliminate this variable by making sure the tokens
-  // vector does not keep invalidating references
-  size_t openIndex = state.tokens.size() - 1;
-
   // Inner contents
   state.md.blockParser.tokenize(state, startLine, nextLine);
 
@@ -194,7 +190,7 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
   close.markup = ">";
 
   // Fix map end
-  state.tokens[openIndex].map->second = static_cast<float>(state.line);
+  open.map->second = static_cast<float>(state.line);
   state.lineMax = oldLineMax;
   state.parentType = oldParent;
   state.blkIndent = oldIndent;

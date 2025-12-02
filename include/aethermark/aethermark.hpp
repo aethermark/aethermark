@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <deque>
 #include <functional>
 #include <memory>
 #include <string>
@@ -62,8 +63,8 @@ class Aethermark {
                       bool ignoreInvalid = false);
 
   // parse
-  std::vector<Token> parse(const std::string& src, std::any env);
-  std::vector<Token> parseInline(const std::string& src, std::any env);
+  std::deque<Token> parse(const std::string& src, std::any env);
+  std::deque<Token> parseInline(const std::string& src, std::any env);
 
   // render
   std::string render(const std::string& src, std::any env = nullptr);
