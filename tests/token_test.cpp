@@ -17,52 +17,24 @@ namespace {
 TEST(Token, InitializesMembersCorrectly) {
   am::Token t("paragraph_open", "p", am::Nesting::OPENING);
 
-  EXPECT_EQ(t.GetType(), "paragraph_open");
-  EXPECT_EQ(t.GetTag(), "p");
-  EXPECT_EQ(t.GetNesting(), am::Nesting::OPENING);
+  EXPECT_EQ(t.type, "paragraph_open");
+  EXPECT_EQ(t.tag, "p");
+  EXPECT_EQ(t.nesting, am::Nesting::OPENING);
 }
 
 TEST(Token, DefaultOptionalsAndStringsAreEmpty) {
   am::Token t("a", "b", am::Nesting::SELF_CLOSING);
 
-  EXPECT_FALSE(t.GetAttrs().has_value());
-  EXPECT_FALSE(t.GetMap().has_value());
-  EXPECT_FALSE(t.GetChildren().has_value());
+  EXPECT_FALSE(t.attrs.has_value());
+  EXPECT_FALSE(t.map.has_value());
+  EXPECT_FALSE(t.children.has_value());
 
-  EXPECT_EQ(t.GetContent(), "");
-  EXPECT_EQ(t.GetMarkup(), "");
-  EXPECT_EQ(t.GetInfo(), "");
-  EXPECT_EQ(t.GetLevel(), 0.0f);
-  EXPECT_FALSE(t.IsBlock());
-  EXPECT_FALSE(t.IsHidden());
-}
-
-TEST(Token, MutatorsWorkCorrectly) {
-  am::Token t("x", "y", am::Nesting::CLOSING);
-
-  t.SetType("new_type");
-  t.SetTag("new_tag");
-  t.SetLevel(2.5f);
-  t.SetBlock(true);
-  t.SetHidden(true);
-
-  EXPECT_EQ(t.GetType(), "new_type");
-  EXPECT_EQ(t.GetTag(), "new_tag");
-  EXPECT_EQ(t.GetLevel(), 2.5f);
-  EXPECT_TRUE(t.IsBlock());
-  EXPECT_TRUE(t.IsHidden());
-
-  t.SetMap(std::nullopt);
-  EXPECT_FALSE(t.GetMap().has_value());
-
-  t.SetMap(std::make_pair(3.0f, 4.0f));
-  EXPECT_EQ(t.GetMap()->first, 3.0f);
-  EXPECT_EQ(t.GetMap()->second, 4.0f);
-
-  t.SetMapAt(0, 5.0f);
-  t.SetMapAt(1, 6.0f);
-  EXPECT_EQ(t.GetMap()->first, 5.0f);
-  EXPECT_EQ(t.GetMap()->second, 6.0f);
+  EXPECT_EQ(t.content, "");
+  EXPECT_EQ(t.markup, "");
+  EXPECT_EQ(t.info, "");
+  EXPECT_EQ(t.level, 0.0f);
+  EXPECT_FALSE(t.block);
+  EXPECT_FALSE(t.hidden);
 }
 
 // ---------- AttrPush ----------
@@ -74,8 +46,8 @@ TEST(Token, AddsMultipleAttributes) {
       {"class", "lead"}, {"id", "first"}, {"data-x", "42"}};
   t.AttrPush(pushData);
 
-  ASSERT_TRUE(t.GetAttrs().has_value());
-  auto attrs = t.GetAttrs().value();
+  ASSERT_TRUE(t.attrs.has_value());
+  auto attrs = t.attrs.value();
 
   // Ignore possible leading empty attribute
   size_t offset = (!attrs.empty() && attrs[0].first.empty()) ? 1 : 0;
@@ -98,7 +70,7 @@ TEST(Token, PreservesOrderAcrossMultiplePushes) {
   t.AttrPush({{"c", "3"}});
   t.AttrPush({{"a", "4"}});
 
-  auto attrs = t.GetAttrs().value();
+  auto attrs = t.attrs.value();
   size_t offset = (!attrs.empty() && attrs[0].first.empty()) ? 1 : 0;
   ASSERT_GE(attrs.size(), 4u + offset);
 
@@ -111,9 +83,8 @@ TEST(Token, PreservesOrderAcrossMultiplePushes) {
 TEST(Token, HandlesEmptyVectorGracefully) {
   am::Token t("z", "z", am::Nesting::OPENING);
   t.AttrPush({});
-  // Implementation likely initializes attrs even if empty
-  EXPECT_TRUE(t.GetAttrs().has_value());
-  EXPECT_TRUE(t.GetAttrs()->empty());
+  EXPECT_TRUE(t.attrs.has_value());
+  EXPECT_TRUE(t.attrs->empty());
 }
 
 // ---------- AttrIndex ----------
@@ -164,8 +135,7 @@ TEST(Token, UpdatesExistingAttributeValue) {
   t.AttrPush({{"k", "v1"}, {"k", "v2"}, {"other", "o"}});
   t.AttrSet("k", "vNew");
 
-  auto attrs = t.GetAttrs().value();
-  // size_t offset = (!attrs.empty() && attrs[0].first.empty()) ? 1 : 0;
+  auto attrs = t.attrs.value();
 
   // Last duplicate may be updated or cleared
   bool found = false;
@@ -185,7 +155,7 @@ TEST(Token, AppendsIfAttributeDoesNotExist) {
   t.AttrSet("new", "value");
 
   // Safely get the optional first
-  auto optAttrs = t.GetAttrs();
+  auto optAttrs = t.attrs;
   ASSERT_TRUE(optAttrs.has_value()) << "attrs should be initialized by AttrSet";
 
   // Access the vector safely
@@ -203,7 +173,7 @@ TEST(Token, HandlesEmptyKeyAndValue) {
   t.AttrSet("", "");
 
   // Safely get the optional
-  auto optAttrs = t.GetAttrs();
+  auto optAttrs = t.attrs;
   ASSERT_TRUE(optAttrs.has_value()) << "attrs should be initialized by AttrSet";
 
   // Access the vector safely
@@ -251,61 +221,6 @@ TEST(Token, HandlesTrailingSpaceInExistingValue) {
   EXPECT_TRUE(t.AttrGet("class").value().find("b") != std::string::npos);
 }
 
-// ---------- Getters & Setters ----------
-
-TEST(Token, ModifyScalarAndStringFieldsCorrectly) {
-  am::Token t("t", "g", am::Nesting::CLOSING);
-
-  t.SetType("newtype");
-  t.SetTag("div");
-  t.SetLevel(5.0f);
-  t.SetNesting(am::Nesting::OPENING);
-  t.SetContent("content");
-  t.SetMarkup("*");
-  t.SetInfo("info");
-  t.SetBlock(true);
-  t.SetHidden(true);
-
-  EXPECT_EQ(t.GetType(), "newtype");
-  EXPECT_EQ(t.GetTag(), "div");
-  EXPECT_EQ(t.GetLevel(), 5.0f);
-  EXPECT_EQ(t.GetNesting(), am::Nesting::OPENING);
-  EXPECT_EQ(t.GetContent(), "content");
-  EXPECT_EQ(t.GetMarkup(), "*");
-  EXPECT_EQ(t.GetInfo(), "info");
-  EXPECT_TRUE(t.IsBlock());
-  EXPECT_TRUE(t.IsHidden());
-}
-
-TEST(Token, CanAssignOptionalsAndRetrieveThem) {
-  am::Token t("a", "b", am::Nesting::OPENING);
-
-  std::vector<std::pair<std::string, std::string>> attrs = {{"k", "v"}};
-  std::pair<float, float> map = {1.0f, 2.0f};
-  std::vector<am::Token> children = {
-      am::Token("inline", "span", am::Nesting::SELF_CLOSING)};
-
-  t.SetAttrs(attrs);
-  t.SetMap(map);
-  t.SetChildren(children);
-
-  EXPECT_TRUE(t.GetAttrs().has_value());
-  EXPECT_TRUE(t.GetMap().has_value());
-  EXPECT_TRUE(t.GetChildren().has_value());
-}
-
-TEST(Token, CanClearOptionalsUsingNullopt) {
-  am::Token t("a", "b", am::Nesting::OPENING);
-
-  t.SetAttrs(std::nullopt);
-  t.SetMap(std::nullopt);
-  t.SetChildren(std::nullopt);
-
-  EXPECT_FALSE(t.GetAttrs().has_value());
-  EXPECT_FALSE(t.GetMap().has_value());
-  EXPECT_FALSE(t.GetChildren().has_value());
-}
-
 // ---------- Enum ----------
 
 TEST(Token, ValuesAndAccessorsCorrect) {
@@ -317,9 +232,9 @@ TEST(Token, ValuesAndAccessorsCorrect) {
   am::Token t2("t", "g", am::Nesting::SELF_CLOSING);
   am::Token t3("t", "g", am::Nesting::OPENING);
 
-  EXPECT_EQ(t1.GetNesting(), am::Nesting::CLOSING);
-  EXPECT_EQ(t2.GetNesting(), am::Nesting::SELF_CLOSING);
-  EXPECT_EQ(t3.GetNesting(), am::Nesting::OPENING);
+  EXPECT_EQ(t1.nesting, am::Nesting::CLOSING);
+  EXPECT_EQ(t2.nesting, am::Nesting::SELF_CLOSING);
+  EXPECT_EQ(t3.nesting, am::Nesting::OPENING);
 }
 
 // ---------- Stress & Robustness ----------

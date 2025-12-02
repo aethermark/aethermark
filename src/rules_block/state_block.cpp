@@ -90,7 +90,7 @@ Token& StateBlock::push(const std::string& type, const std::string& tag,
 
   tokens.emplace_back(type, tag, nesting);
   Token& token = tokens.back();
-  token.SetBlock(true);
+  token.block = true;
 
   // Handle nesting
   if (static_cast<int>(nesting) < 0) {
@@ -98,7 +98,7 @@ Token& StateBlock::push(const std::string& type, const std::string& tag,
     level--;
   }
 
-  token.SetLevel(level);
+  token.level = level;
 
   if (static_cast<int>(nesting) > 0) {
     // opening tag -> increase level after assigning
