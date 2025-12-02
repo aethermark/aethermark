@@ -28,9 +28,13 @@ int main() {
 
   std::deque<aethermark::Token> tokens;
 
-  md.blockParser.parse(src, md, env, tokens);
+  aethermark::StateCore state = aethermark::StateCore(src, md, env);
 
-  print(tokens);
+  md.coreParser.process(state);
+
+  // md.blockParser.parse(src, md, env, tokens);
+
+  print(state.tokens);
 
   return 0;
 }

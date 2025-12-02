@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 
+#include "aethermark/aethermark.hpp"
+
 namespace aethermark {
 
 using mapType = std::pair<float, float>;
@@ -24,8 +26,7 @@ void rule_block(StateCore& state) {  // NOLINT(runtime/references)
     t.children = childrenType({});
     state.tokens.push_back(t);
   } else {
-    // TODO(MukulWaval): uncomment once block parser is complete
-    // state.md.blockParser.parse(state.src, state.md, state.env, state.tokens);
+    state.md.blockParser.parse(state.src, state.md, state.env, state.tokens);
   }
 }
 
@@ -47,11 +48,11 @@ void rule_inline(StateCore& state) {  // NOLINT(runtime/references)
 void rule_linkify(StateCore& state) {}  // NOLINT(runtime/references)
 
 void rule_normalize(StateCore& state) {  // NOLINT(runtime/references)
-  std::regex NEWLINE_RE("\r\n?|\n/g");
-  std::regex NULL_RE("\0/g");
+  std::regex NEWLINE_RE(R"(\r\n?|\n)");
+  std::regex NULL_RE(std::string("\x00", 1));
 
   std::string str = std::regex_replace(state.src, NEWLINE_RE, "\n");
-  str = std::regex_replace(str, NULL_RE, "\uFFFD");
+  str = std::regex_replace(str, NULL_RE, "\xEF\xBF\xBD");
   state.src = str;
 }
 
