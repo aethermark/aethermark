@@ -37,6 +37,34 @@ TEST(Token, DefaultOptionalsAndStringsAreEmpty) {
   EXPECT_FALSE(t.IsHidden());
 }
 
+TEST(Token, MutatorsWorkCorrectly) {
+  am::Token t("x", "y", am::Nesting::CLOSING);
+
+  t.SetType("new_type");
+  t.SetTag("new_tag");
+  t.SetLevel(2.5f);
+  t.SetBlock(true);
+  t.SetHidden(true);
+
+  EXPECT_EQ(t.GetType(), "new_type");
+  EXPECT_EQ(t.GetTag(), "new_tag");
+  EXPECT_EQ(t.GetLevel(), 2.5f);
+  EXPECT_TRUE(t.IsBlock());
+  EXPECT_TRUE(t.IsHidden());
+
+  t.SetMap(std::nullopt);
+  EXPECT_FALSE(t.GetMap().has_value());
+
+  t.SetMap(std::make_pair(3.0f, 4.0f));
+  EXPECT_EQ(t.GetMap()->first, 3.0f);
+  EXPECT_EQ(t.GetMap()->second, 4.0f);
+
+  t.SetMapAt(0, 5.0f);
+  t.SetMapAt(1, 6.0f);
+  EXPECT_EQ(t.GetMap()->first, 5.0f);
+  EXPECT_EQ(t.GetMap()->second, 6.0f);
+}
+
 // ---------- AttrPush ----------
 
 TEST(Token, AddsMultipleAttributes) {
@@ -253,7 +281,7 @@ TEST(Token, CanAssignOptionalsAndRetrieveThem) {
   am::Token t("a", "b", am::Nesting::OPENING);
 
   std::vector<std::pair<std::string, std::string>> attrs = {{"k", "v"}};
-  std::vector<std::pair<float, float>> map = {{1.0f, 2.0f}};
+  std::pair<float, float> map = {1.0f, 2.0f};
   std::vector<am::Token> children = {
       am::Token("inline", "span", am::Nesting::SELF_CLOSING)};
 
