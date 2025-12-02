@@ -80,7 +80,6 @@ class Token {
     attrs = a;
   }
   void SetMap(const std::optional<std::pair<float, float>>& m) { map = m; }
-  // TODO(MukulWaval): Write tests for SetMapAt and SetMapAt overloads
   void SetMapAt(int index, const float& value) {
     if (!map.has_value()) {
       // initialize with zeros if map is empty
