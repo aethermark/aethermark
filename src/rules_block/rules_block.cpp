@@ -22,15 +22,11 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
 
   const int oldLineMax = state.lineMax;
 
-  // If indented too far (more than 3 spaces) → code block
-  if (state.sCount[startLine] - state.blkIndent >= 4) {
-    return false;
-  }
+  // If indented too far (more than 3 spaces) -> not a blockquote
+  if (state.sCount[startLine] - state.blkIndent >= 4) return false;
 
   // Must start with '>'
-  if (state.src[pos] != '>') {
-    return false;
-  }
+  if (state.src[pos] != '>') return false;
 
   if (silent) return true;
 
@@ -207,7 +203,7 @@ bool rules_list(StateBlock& state, int startLine, int endLine, bool silent) {}
 
 bool rules_paragraph(StateBlock& state, int startLine, int endLine,
                      bool silent) {  // NOLINT(whitespace/indent_namespace)
-  // If this is an empty line → not a paragraph
+  // If this is an empty line -> not a paragraph
   if (state.isEmpty(startLine)) return false;
 
   auto terminatorRules = state.md.blockParser.ruler.getRules("paragraph");

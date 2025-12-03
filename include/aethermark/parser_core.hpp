@@ -15,10 +15,11 @@ class Core {
  public:
   Core();
 
-  /// @brief Ruler instance holding core rules
+  /// @brief Ruler instance holding core rules.
   Ruler<RuleCore> ruler;
 
-  /// @brief Execute the core rule chain
+  /// @brief Execute the core rule chain.
+  /// @param state State for the parser.
   void process(StateCore& state);  // NOLINT(runtime/references)
 };
 

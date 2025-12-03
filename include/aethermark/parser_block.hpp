@@ -24,16 +24,23 @@ class ParserBlock {
  public:
   ParserBlock();
 
-  // Ruler with block-level rules
+  /// @brief Ruler with block-level rules.
   Ruler<RuleBlock> ruler;
 
-  // Generate tokens for input range
+  /// @brief Generate tokens for input range.
+  /// @param state Reference to the parser state.
+  /// @param startLine Index of the starting line.
+  /// @param endLine Index of the ending line.
   void tokenize(StateBlock& state,  // NOLINT(runtime/references)
                 int startLine, int endLine);
 
   // NOLINTBEGIN(runtime/references)
 
-  // Process the input string fully and push tokens into outTokens
+  /// @brief Process the input string fully and push tokens into outTokens.
+  /// @param str Source text.
+  /// @param md Reference to the parser.
+  /// @param env Environment for parser.
+  /// @param outTokens Token output list.
   void parse(const std::string& str, Aethermark& md, std::any env,
              std::deque<Token>& outTokens);
   // NOLINTEND
