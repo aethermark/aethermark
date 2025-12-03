@@ -8,7 +8,6 @@
 
 #include "aethermark/aethermark.hpp"
 #include "aethermark/parser_block.hpp"
-#include "aethermark/rules_block/state_block.hpp"
 #include "aethermark/utils.hpp"
 
 namespace aethermark {
@@ -91,7 +90,7 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
       // Consume leading whitespace
       while (pos < max) {
         unsigned char ch = state.src[pos];
-        if (StateBlock::isSpace(static_cast<int>(ch))) {
+        if (isSpace(static_cast<int>(ch))) {
           if (ch == '\t') {
             offset +=
                 4 -
