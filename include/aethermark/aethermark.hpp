@@ -18,65 +18,87 @@
 
 namespace aethermark {
 
+/// @brief Configuration object for Aethermark.
 struct Options {
+  /// @brief HTML.
   bool html = false;
-  bool xhtmlOut = false;
+
+  /// @brief XHTML out.
+  bool xhtml_out = false;
+
+  /// @brief Breaks.
   bool breaks = false;
-  std::string langPrefix = "language-";
+
+  /// @brief Language prefix for CSS.
+  std::string lang_prefix = "language-";
+
+  /// @brief Linkify.
   bool linkify = false;
+
+  /// @brief Typographer.
   bool typographer = false;
 
+  /// @brief List of quotes.
   std::vector<std::string> quotes = {"“", "”", "‘", "’"};
 
+  /// @brief Highlight function.
   std::function<std::string(const std::string&, const std::string&,
                             const std::string&)>
       highlight = nullptr;
 
-  int maxNesting = 20;
+  /// @brief Maximum nesting.
+  int max_nesting = 20;
 };
 
-using ParserCore = Core;
-
+/// @brief Main entry for Aethermark.
 class Aethermark {
  public:
-  // core components
-  // ParserInline inlineParser;
-  ParserBlock blockParser;
-  ParserCore coreParser;
+  /// @brief Main instance of inline parser.
+  // ParserInline inline_parser;
+
+  /// @brief Main instance of block parser.
+  ParserBlock block_parser;
+
+  /// @brief Main instance of core parser.
+  ParserCore core_parser;
+
+  /// @brief Main instance of renderer.
   // Renderer renderer;
 
+  /// @brief Confgurations of processor.
   Options options;
 
+  // TODO(MukulWaval): complete documentation.
   Aethermark();
   explicit Aethermark(const Options& opts);
 
   // configure options on existing instance
-  Aethermark& set(const Options& opts);
+  Aethermark& Set(const Options& opts);
 
   // presets: "default", "zero", "commonmark"
-  Aethermark& configure(const std::string& preset);
+  Aethermark& Configure(const std::string& preset);
 
   // enable/disable rules: dispatch into block/core/inline
-  Aethermark& enable(const std::vector<std::string>& list,
-                     bool ignoreInvalid = false);
-  Aethermark& disable(const std::vector<std::string>& list,
-                      bool ignoreInvalid = false);
+  Aethermark& Enable(const std::vector<std::string>& list,
+                     bool ignore_invalid = false);
+  Aethermark& Disable(const std::vector<std::string>& list,
+                      bool ignore_invalid = false);
 
   // parse
-  std::deque<Token> parse(const std::string& src, std::any env);
-  std::deque<Token> parseInline(const std::string& src, std::any env);
+  std::deque<Token> Parse(const std::string& src, std::any env);
+  std::deque<Token> ParseInline(const std::string& src, std::any env);
 
   // render
-  std::string render(const std::string& src, std::any env = nullptr);
-  std::string renderInline(const std::string& src, std::any env = nullptr);
+  std::string Render(const std::string& src, std::any env = nullptr);
+  std::string RenderInline(const std::string& src, std::any env = nullptr);
 
   // link handling (placeholder for now)
-  bool validateLink(const std::string& url) const;
-  std::string normalizeLink(const std::string& url) const;
-  std::string normalizeLinkText(const std::string& url) const;
+  bool ValidateLink(const std::string& url) const;
+  std::string NormalizeLink(const std::string& url) const;
+  std::string NormalizeLinkText(const std::string& url) const;
 
   // plugins
-  Aethermark& use(std::function<void(Aethermark&)> plugin);
+  Aethermark& Use(std::function<void(Aethermark&)> plugin);
 };
 
 }  // namespace aethermark

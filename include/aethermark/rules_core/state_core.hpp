@@ -11,8 +11,10 @@
 #include "aethermark/token.hpp"
 
 namespace aethermark {
+
 class Aethermark;
 
+/// @brief Represents the state object in the core parsing stage.
 class StateCore {
  public:
   /// @brief Constructs a new core state object.
@@ -33,12 +35,10 @@ class StateCore {
   std::deque<Token> tokens;
 
   /// @brief Whether the state is for inline mode.
-  bool inlineMode = false;
+  bool inline_mode = false;
 
   /// @brief Reference to the main Aethermark instance.
   Aethermark& md;  // NOLINT(runtime/references)
-
-  using TokenType = Token;
 };
 
 }  // namespace aethermark

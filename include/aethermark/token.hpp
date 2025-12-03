@@ -15,9 +15,9 @@ namespace aethermark {
 
 /// @brief Represents the type of nesting type of a token.
 enum Nesting {
-  CLOSING = -1,      ///< Represents a closing token.
-  SELF_CLOSING = 0,  ///< Represents a self-closing token.
-  OPENING = 1,       ///< Represents an opening token.
+  kClosing = -1,     ///< Represents a closing token.
+  kSelfClosing = 0,  ///< Represents a self-closing token.
+  kOpening = 1,      ///< Represents an opening token.
 };
 
 /// @brief Represents a token in the Aethermark markdown flavor.
@@ -42,9 +42,9 @@ class Token {
   int AttrIndex(const std::string& name);
 
   /// @brief Push attributes to the token.
-  /// @param attrData Attribute data to be pushed. ( name, value ) pairs.
+  /// @param attr_data Attribute data to be pushed. ( name, value ) pairs.
   void AttrPush(
-      const std::vector<std::pair<std::string, std::string>>& attrData);
+      const std::vector<std::pair<std::string, std::string>>& attr_data);
 
   /// @brief Set an attribute to the token. Override old value if exists.
   /// @param name Name of attribute.

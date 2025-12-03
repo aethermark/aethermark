@@ -7,18 +7,18 @@
 
 namespace aethermark {
 
-void rule_block(StateCore& state);  // NOLINT(runtime/references)
+void RuleBlock(StateCore& state);  // NOLINT(runtime/references)
 
-void rule_inline(StateCore& state);  // NOLINT(runtime/references)
+void RuleInline(StateCore& state);  // NOLINT(runtime/references)
 
-void rule_linkify(StateCore& state);  // NOLINT(runtime/references)
+void RuleLinkify(StateCore& state);  // NOLINT(runtime/references)
 
-void rule_normalize(StateCore& state);  // NOLINT(runtime/references)
+void RuleNormalize(StateCore& state);  // NOLINT(runtime/references)
 
-void rule_replace(StateCore& state);  // NOLINT(runtime/references)
+void RuleReplace(StateCore& state);  // NOLINT(runtime/references)
 
-void rule_smartquotes(StateCore& state);  // NOLINT(runtime/references)
+void RuleSmartquotes(StateCore& state);  // NOLINT(runtime/references)
 
-void rule_text_join(StateCore& state);  // NOLINT(runtime/references)
+void RuleTextJoin(StateCore& state);  // NOLINT(runtime/references)
 
 }  // namespace aethermark

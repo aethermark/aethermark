@@ -7,8 +7,20 @@
 
 namespace aethermark {
 
-std::string trim(const std::string& s);
+/// @brief Utility class for miscellaneous methods
+class Utils {
+ public:
+  Utils() = delete;
 
-bool isSpace(int ch);
+  /// @brief Remove leading and trailing whitespace.
+  /// @param s The given string.
+  /// @return String without leading or trailing whitespace.
+  static std::string Trim(const std::string& s);
+
+  /// @brief Whether a character is "space" or not.
+  /// @param ch The given character
+  /// @return `true` if "space".
+  static bool IsSpace(int ch);
+};
 
 }  // namespace aethermark

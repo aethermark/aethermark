@@ -18,8 +18,10 @@ namespace aethermark {
 
 class Aethermark;
 
+/// @brief Alias for rule functions of the `ParserBlock`.
 using RuleBlock = std::function<bool(StateBlock&, int, int, bool)>;
 
+/// @brief Parser for the block parsing stage.
 class ParserBlock {
  public:
   ParserBlock();
@@ -29,10 +31,10 @@ class ParserBlock {
 
   /// @brief Generate tokens for input range.
   /// @param state Reference to the parser state.
-  /// @param startLine Index of the starting line.
-  /// @param endLine Index of the ending line.
-  void tokenize(StateBlock& state,  // NOLINT(runtime/references)
-                int startLine, int endLine);
+  /// @param start_line Index of the starting line.
+  /// @param end_line Index of the ending line.
+  void Tokenize(StateBlock& state,  // NOLINT(runtime/references)
+                int start_line, int end_line);
 
   // NOLINTBEGIN(runtime/references)
 
@@ -40,12 +42,10 @@ class ParserBlock {
   /// @param str Source text.
   /// @param md Reference to the parser.
   /// @param env Environment for parser.
-  /// @param outTokens Token output list.
-  void parse(const std::string& str, Aethermark& md, std::any env,
-             std::deque<Token>& outTokens);
+  /// @param out_tokens Token output list.
+  void Parse(const std::string& str, Aethermark& md, std::any env,
+             std::deque<Token>& out_tokens);
   // NOLINTEND
-
-  using State = StateBlock;
 };
 
 }  // namespace aethermark

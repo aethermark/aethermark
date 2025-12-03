@@ -30,7 +30,7 @@ int main() {
 
   aethermark::StateCore state = aethermark::StateCore(src, md, env);
 
-  md.coreParser.process(state);
+  md.core_parser.Process(state);
 
   // md.blockParser.parse(src, md, env, tokens);
 

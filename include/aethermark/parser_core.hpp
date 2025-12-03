@@ -8,19 +8,20 @@
 
 namespace aethermark {
 
+/// @brief Alias for rule functions of the `ParserCore`.
 using RuleCore = std::function<void(StateCore&)>;
-using State = StateCore;
 
-class Core {
+/// @brief Parser for the core parsing stage.
+class ParserCore {
  public:
-  Core();
+  ParserCore();
 
   /// @brief Ruler instance holding core rules.
   Ruler<RuleCore> ruler;
 
   /// @brief Execute the core rule chain.
   /// @param state State for the parser.
-  void process(StateCore& state);  // NOLINT(runtime/references)
+  void Process(StateCore& state);  // NOLINT(runtime/references)
 };
 
 }  // namespace aethermark

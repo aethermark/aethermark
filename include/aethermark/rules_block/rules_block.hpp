@@ -9,29 +9,31 @@ namespace aethermark {
 
 // NOLINTBEGIN(runtime/references)
 
-bool rule_blockquote(StateBlock& state, int startLine, int endLine,
-                     bool silent);
+bool RuleBlockquote(StateBlock& state, int start_line, int end_line,
+                    bool silent);
 
-bool rule_code(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleCode(StateBlock& state, int start_line, int end_line, bool silent);
 
-bool rule_fence(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleFence(StateBlock& state, int start_line, int end_line, bool silent);
 
-bool rule_heading(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleHeading(StateBlock& state, int start_line, int end_line, bool silent);
 
-bool rule_hr(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleHr(StateBlock& state, int start_line, int end_line, bool silent);
 
-bool rule_html_block(StateBlock& state, int startLine, int endLine,
-                     bool silent);
+bool RuleHtmlBlock(StateBlock& state, int start_line, int end_line,
+                   bool silent);
 
-bool rule_lheading(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleLheading(StateBlock& state, int start_line, int end_line, bool silent);
 
-bool rule_list(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleList(StateBlock& state, int start_line, int end_line, bool silent);
 
-bool rule_paragraph(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleParagraph(StateBlock& state, int start_line, int end_line,
+                   bool silent);
 
-bool rule_reference(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleReference(StateBlock& state, int start_line, int end_line,
+                   bool silent);
 
-bool rule_table(StateBlock& state, int startLine, int endLine, bool silent);
+bool RuleTable(StateBlock& state, int start_line, int end_line, bool silent);
 
 // NOLINTEND
 

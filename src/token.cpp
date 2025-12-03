@@ -41,14 +41,14 @@ int Token::AttrIndex(const std::string& name) {
 }
 
 using Attr = std::pair<std::string, std::string>;
-void Token::AttrPush(const std::vector<Attr>& attrData) {
+void Token::AttrPush(const std::vector<Attr>& attr_data) {
   // Initialize attrs if null
   if (!this->attrs.has_value()) {
     this->attrs.emplace();
   }
 
   // Push attributes
-  attrs->insert(attrs->end(), attrData.begin(), attrData.end());
+  attrs->insert(attrs->end(), attr_data.begin(), attr_data.end());
 }
 
 void Token::AttrSet(const std::string& name, const std::string& value) {
