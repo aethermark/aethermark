@@ -14,7 +14,7 @@
 
 namespace aethermark {
 
-void RuleBlock(StateCore& state) {  // NOLINT(runtime/references)
+void CoreRules::RuleBlock(StateCore& state) {  // NOLINT(runtime/references)
   Token t = Token("", "", Nesting::kSelfClosing);
   if (state.inline_mode) {
     Token t = Token("inline", "", Nesting::kSelfClosing);
@@ -27,7 +27,7 @@ void RuleBlock(StateCore& state) {  // NOLINT(runtime/references)
   }
 }
 
-void RuleInline(StateCore& state) {  // NOLINT(runtime/references)
+void CoreRules::RuleInline(StateCore& state) {  // NOLINT(runtime/references)
   const std::deque<Token>& tokens = state.tokens;
 
   // Parse inline
@@ -42,9 +42,9 @@ void RuleInline(StateCore& state) {  // NOLINT(runtime/references)
 }
 
 // FIXME: implement linkify rule
-void RuleLinkify(StateCore& state) {}  // NOLINT(runtime/references)
+void CoreRules::RuleLinkify(StateCore& state) {}  // NOLINT(runtime/references)
 
-void RuleNormalize(StateCore& state) {  // NOLINT(runtime/references)
+void CoreRules::RuleNormalize(StateCore& state) {  // NOLINT(runtime/references)
   const std::regex kNewlineRe(R"(\r\n?|\n)");
   const std::regex kNullRe(std::string("\x00", 1));
 
@@ -54,12 +54,13 @@ void RuleNormalize(StateCore& state) {  // NOLINT(runtime/references)
 }
 
 // FIXME: implement replacements rule
-void RuleReplace(StateCore& state) {}  // NOLINT(runtime/references)
+void CoreRules::RuleReplace(StateCore& state) {}  // NOLINT(runtime/references)
 
 // FIXME: implement smartquotes rule
-void RuleSmartquotes(StateCore& state) {}  // NOLINT(runtime/references)
+void CoreRules::RuleSmartquotes(StateCore& state) {
+}  // NOLINT(runtime/references)
 
-void RuleTextJoin(StateCore& state) {  // NOLINT(runtime/references)
+void CoreRules::RuleTextJoin(StateCore& state) {  // NOLINT(runtime/references)
   int curr, last;
   std::deque<Token> block_tokens = state.tokens;
   int l = block_tokens.size();

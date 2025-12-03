@@ -15,8 +15,8 @@ namespace aethermark {
 // NOLINTBEGIN(runtime/references)
 
 // FIXME: Implement all block rules
-bool RuleBlockquote(StateBlock& state, int startLine, int endLine,
-                    bool silent) {
+bool BlockRules::RuleBlockquote(StateBlock& state, int startLine, int endLine,
+                                bool silent) {
   int pos = state.b_marks[startLine] + state.t_shift[startLine];
   int max = state.e_marks[startLine];
 
@@ -185,22 +185,29 @@ bool RuleBlockquote(StateBlock& state, int startLine, int endLine,
   return true;
 }
 
-bool RuleCode(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleCode(StateBlock& state, int startLine, int endLine,
+                          bool silent) {}
 
-bool RuleFence(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleFence(StateBlock& state, int startLine, int endLine,
+                           bool silent) {}
 
-bool RuleHeading(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleHeading(StateBlock& state, int startLine, int endLine,
+                             bool silent) {}
 
-bool RuleHr(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleHr(StateBlock& state, int startLine, int endLine,
+                        bool silent) {}
 
-bool RuleHtmlBlock(StateBlock& state, int startLine, int endLine, bool silent) {
-}
+bool BlockRules::RuleHtmlBlock(StateBlock& state, int startLine, int endLine,
+                               bool silent) {}
 
-bool RuleLheading(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleLheading(StateBlock& state, int startLine, int endLine,
+                              bool silent) {}
 
-bool RuleList(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleList(StateBlock& state, int startLine, int endLine,
+                          bool silent) {}
 
-bool RuleParagraph(StateBlock& state, int startLine, int endLine, bool silent) {
+bool BlockRules::RuleParagraph(StateBlock& state, int startLine, int endLine,
+                               bool silent) {
   // If this is an empty line -> not a paragraph
   if (state.IsEmpty(startLine)) return false;
 
@@ -254,10 +261,11 @@ bool RuleParagraph(StateBlock& state, int startLine, int endLine, bool silent) {
   return true;
 }
 
-bool RuleReference(StateBlock& state, int startLine, int endLine, bool silent) {
-}
+bool BlockRules::RuleReference(StateBlock& state, int startLine, int endLine,
+                               bool silent) {}
 
-bool RuleTable(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleTable(StateBlock& state, int startLine, int endLine,
+                           bool silent) {}
 
 // NOLINTEND
 

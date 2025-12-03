@@ -7,18 +7,24 @@
 
 namespace aethermark {
 
-void RuleBlock(StateCore& state);  // NOLINT(runtime/references)
+/// @brief Static class for all the core parser rules.
+class CoreRules {
+ public:
+  CoreRules() = delete;
 
-void RuleInline(StateCore& state);  // NOLINT(runtime/references)
+  static void RuleBlock(StateCore& state);  // NOLINT(runtime/references)
 
-void RuleLinkify(StateCore& state);  // NOLINT(runtime/references)
+  static void RuleInline(StateCore& state);  // NOLINT(runtime/references)
 
-void RuleNormalize(StateCore& state);  // NOLINT(runtime/references)
+  static void RuleLinkify(StateCore& state);  // NOLINT(runtime/references)
 
-void RuleReplace(StateCore& state);  // NOLINT(runtime/references)
+  static void RuleNormalize(StateCore& state);  // NOLINT(runtime/references)
 
-void RuleSmartquotes(StateCore& state);  // NOLINT(runtime/references)
+  static void RuleReplace(StateCore& state);  // NOLINT(runtime/references)
 
-void RuleTextJoin(StateCore& state);  // NOLINT(runtime/references)
+  static void RuleSmartquotes(StateCore& state);  // NOLINT(runtime/references)
+
+  static void RuleTextJoin(StateCore& state);  // NOLINT(runtime/references)
+};
 
 }  // namespace aethermark

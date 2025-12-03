@@ -11,10 +11,13 @@
 namespace aethermark {
 
 static const std::vector<std::pair<std::string, RuleCore>> core_rules = {
-    {"normalize", RuleNormalize},  {"block", RuleBlock},
-    {"inline", RuleInline},        {"linkify", RuleLinkify},
-    {"replacements", RuleReplace}, {"smartquotes", RuleSmartquotes},
-    {"text_join", RuleTextJoin},
+    {"normalize", CoreRules::RuleNormalize},
+    {"block", CoreRules::RuleBlock},
+    {"inline", CoreRules::RuleInline},
+    {"linkify", CoreRules::RuleLinkify},
+    {"replacements", CoreRules::RuleReplace},
+    {"smartquotes", CoreRules::RuleSmartquotes},
+    {"text_join", CoreRules::RuleTextJoin},
 };
 
 ParserCore::ParserCore() : ruler{} {

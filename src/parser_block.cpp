@@ -18,20 +18,29 @@ namespace aethermark {
 
 static const std::vector<
     std::tuple<std::string, RuleBlock, std::vector<std::string>>>
-    block_rules = {
-        {"table", RuleTable, {"paragraph", "reference"}},
-        {"code", RuleCode, {}},
-        {"fence", RuleFence, {"paragraph", "reference", "blockquote", "list"}},
-        {"blockquote",
-         RuleBlockquote,
-         {"paragraph", "reference", "blockquote", "list"}},
-        {"hr", RuleHr, {"paragraph", "reference", "blockquote", "list"}},
-        {"list", RuleList, {"paragraph", "reference", "blockquote"}},
-        {"reference", RuleReference, {}},
-        {"html_block", RuleHtmlBlock, {"paragraph", "reference", "blockquote"}},
-        {"heading", RuleHeading, {"paragraph", "reference", "blockquote"}},
-        {"lheading", RuleLheading, {}},
-        {"paragraph", RuleParagraph, {}}};
+    block_rules = {{"table", BlockRules::RuleTable, {"paragraph", "reference"}},
+                   {"code", BlockRules::RuleCode, {}},
+                   {"fence",
+                    BlockRules::RuleFence,
+                    {"paragraph", "reference", "blockquote", "list"}},
+                   {"blockquote",
+                    BlockRules::RuleBlockquote,
+                    {"paragraph", "reference", "blockquote", "list"}},
+                   {"hr",
+                    BlockRules::RuleHr,
+                    {"paragraph", "reference", "blockquote", "list"}},
+                   {"list",
+                    BlockRules::RuleList,
+                    {"paragraph", "reference", "blockquote"}},
+                   {"reference", BlockRules::RuleReference, {}},
+                   {"html_block",
+                    BlockRules::RuleHtmlBlock,
+                    {"paragraph", "reference", "blockquote"}},
+                   {"heading",
+                    BlockRules::RuleHeading,
+                    {"paragraph", "reference", "blockquote"}},
+                   {"lheading", BlockRules::RuleLheading, {}},
+                   {"paragraph", BlockRules::RuleParagraph, {}}};
 
 ParserBlock::ParserBlock() : ruler() {
   for (const auto& [name, fn, alts] : block_rules) {
