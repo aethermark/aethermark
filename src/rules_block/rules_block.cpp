@@ -15,40 +15,40 @@ namespace aethermark {
 // NOLINTBEGIN(runtime/references)
 
 // FIXME: Implement all block rules
-bool rules_blockquote(StateBlock& state, int startLine, int endLine,
-                      bool silent) {
-  int pos = state.bMarks[startLine] + state.tShift[startLine];
-  int max = state.eMarks[startLine];
+bool BlockRules::RuleBlockquote(StateBlock& state, int startLine, int endLine,
+                                bool silent) {
+  int pos = state.b_marks[startLine] + state.t_shift[startLine];
+  int max = state.e_marks[startLine];
 
-  const int oldLineMax = state.lineMax;
+  const int oldline_max = state.line_max;
 
   // If indented too far (more than 3 spaces) -> not a blockquote
-  if (state.sCount[startLine] - state.blkIndent >= 4) return false;
+  if (state.s_count[startLine] - state.blk_indent >= 4) return false;
 
   // Must start with '>'
   if (state.src[pos] != '>') return false;
 
   if (silent) return true;
 
-  std::vector<int> oldBMarks;
-  std::vector<int> oldBSCount;
-  std::vector<int> oldSCount;
-  std::vector<int> oldTShift;
+  std::vector<int> old_b_marks;
+  std::vector<int> old_bs_count;
+  std::vector<int> old_s_count;
+  std::vector<int> old_t_shift;
 
-  auto terminators = state.md.blockParser.ruler.getRules("blockquote");
+  auto terminators = state.md.block_parser.ruler.GetRules("blockquote");
 
-  ParentType oldParent = state.parentType;
-  state.parentType = ParentType::Blockquote;
+  ParentType old_parent = state.parent_type;
+  state.parent_type = ParentType::kBlockquote;
 
-  bool lastLineEmpty = false;
-  int nextLine;
+  bool last_line_empty = false;
+  int next_line;
 
   // Search
-  for (nextLine = startLine; nextLine < endLine; nextLine++) {
-    bool isOutdented = state.sCount[nextLine] < state.blkIndent;
+  for (next_line = startLine; next_line < endLine; next_line++) {
+    bool is_outdented = state.s_count[next_line] < state.blk_indent;
 
-    pos = state.bMarks[nextLine] + state.tShift[nextLine];
-    max = state.eMarks[nextLine];
+    pos = state.b_marks[next_line] + state.t_shift[next_line];
+    max = state.e_marks[next_line];
 
     if (pos >= max) {
       // Empty line outside blockquote
@@ -56,41 +56,41 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
     }
 
     // If the line starts with '>' and not outdented
-    if (state.src[pos] == '>' && !isOutdented) {
+    if (state.src[pos] == '>' && !is_outdented) {
       pos++;
 
-      int initial = state.sCount[nextLine] + 1;
-      bool spaceAfterMarker = false;
-      bool adjustTab = false;
+      int initial = state.s_count[next_line] + 1;
+      bool space_after_marker = false;
+      bool adjust_tab = false;
 
       // Optional space after >
       if (pos < max && state.src[pos] == ' ') {
         pos++;
         initial++;
-        spaceAfterMarker = true;
+        space_after_marker = true;
       } else if (pos < max && state.src[pos] == '\t') {
-        spaceAfterMarker = true;
-        if ((state.bsCount[nextLine] + initial) % 4 == 3) {
+        space_after_marker = true;
+        if ((state.bs_count[next_line] + initial) % 4 == 3) {
           pos++;
           initial++;
         } else {
-          adjustTab = true;
+          adjust_tab = true;
         }
       }
 
       int offset = initial;
 
-      oldBMarks.push_back(state.bMarks[nextLine]);
-      state.bMarks[nextLine] = pos;
+      old_b_marks.push_back(state.b_marks[next_line]);
+      state.b_marks[next_line] = pos;
 
       // Consume leading whitespace
       while (pos < max) {
         unsigned char ch = state.src[pos];
-        if (isSpace(static_cast<int>(ch))) {
+        if (Utils::IsSpace(static_cast<int>(ch))) {
           if (ch == '\t') {
             offset +=
                 4 -
-                (offset + state.bsCount[nextLine] + (adjustTab ? 1 : 0)) % 4;
+                (offset + state.bs_count[next_line] + (adjust_tab ? 1 : 0)) % 4;
           } else {
             offset++;
           }
@@ -100,131 +100,136 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
         pos++;
       }
 
-      lastLineEmpty = (pos >= max);
+      last_line_empty = (pos >= max);
 
-      oldBSCount.push_back(state.bsCount[nextLine]);
-      state.bsCount[nextLine] =
-          state.sCount[nextLine] + 1 + (spaceAfterMarker ? 1 : 0);
+      old_bs_count.push_back(state.bs_count[next_line]);
+      state.bs_count[next_line] =
+          state.s_count[next_line] + 1 + (space_after_marker ? 1 : 0);
 
-      oldSCount.push_back(state.sCount[nextLine]);
-      state.sCount[nextLine] = offset - initial;
+      old_s_count.push_back(state.s_count[next_line]);
+      state.s_count[next_line] = offset - initial;
 
-      oldTShift.push_back(state.tShift[nextLine]);
-      state.tShift[nextLine] = pos - state.bMarks[nextLine];
+      old_t_shift.push_back(state.t_shift[next_line]);
+      state.t_shift[next_line] = pos - state.b_marks[next_line];
 
       continue;
     }
 
     // Case 2: last line was empty
-    if (lastLineEmpty) break;
+    if (last_line_empty) break;
 
     // Case 3: terminator rule
     bool terminate = false;
     for (auto& rule : terminators) {
-      if (rule(state, nextLine, endLine, true)) {
+      if (rule(state, next_line, endLine, true)) {
         terminate = true;
         break;
       }
     }
 
     if (terminate) {
-      state.lineMax = nextLine;
+      state.line_max = next_line;
 
-      if (state.blkIndent != 0) {
-        oldBMarks.push_back(state.bMarks[nextLine]);
-        oldBSCount.push_back(state.bsCount[nextLine]);
-        oldTShift.push_back(state.tShift[nextLine]);
-        oldSCount.push_back(state.sCount[nextLine]);
+      if (state.blk_indent != 0) {
+        old_b_marks.push_back(state.b_marks[next_line]);
+        old_bs_count.push_back(state.bs_count[next_line]);
+        old_t_shift.push_back(state.t_shift[next_line]);
+        old_s_count.push_back(state.s_count[next_line]);
 
-        state.sCount[nextLine] -= state.blkIndent;
+        state.s_count[next_line] -= state.blk_indent;
       }
 
       break;
     }
 
-    oldBMarks.push_back(state.bMarks[nextLine]);
-    oldBSCount.push_back(state.bsCount[nextLine]);
-    oldTShift.push_back(state.tShift[nextLine]);
-    oldSCount.push_back(state.sCount[nextLine]);
+    old_b_marks.push_back(state.b_marks[next_line]);
+    old_bs_count.push_back(state.bs_count[next_line]);
+    old_t_shift.push_back(state.t_shift[next_line]);
+    old_s_count.push_back(state.s_count[next_line]);
 
-    state.sCount[nextLine] = -1;  // paragraph continuation
+    state.s_count[next_line] = -1;  // paragraph continuation
   }
 
-  int oldIndent = state.blkIndent;
-  state.blkIndent = 0;
+  int old_indent = state.blk_indent;
+  state.blk_indent = 0;
 
   // Open token
-  Token& open = state.push("blockquote_open", "blockquote", Nesting::OPENING);
+  Token& open = state.Push("blockquote_open", "blockquote", Nesting::kOpening);
   open.markup = ">";
   open.map = std::optional<std::pair<float, float>>(
       {static_cast<float>(startLine), 0});
 
   // Inner contents
-  state.md.blockParser.tokenize(state, startLine, nextLine);
+  state.md.block_parser.Tokenize(state, startLine, next_line);
 
   // Close token
-  Token& close = state.push("blockquote_close", "blockquote", Nesting::CLOSING);
+  Token& close =
+      state.Push("blockquote_close", "blockquote", Nesting::kClosing);
   close.markup = ">";
 
   // Fix map end
   open.map->second = static_cast<float>(state.line);
-  state.lineMax = oldLineMax;
-  state.parentType = oldParent;
-  state.blkIndent = oldIndent;
+  state.line_max = oldline_max;
+  state.parent_type = old_parent;
+  state.blk_indent = old_indent;
 
   // Restore offsets
-  for (int i = 0; i < static_cast<int>(oldTShift.size()); i++) {
+  for (int i = 0; i < static_cast<int>(old_t_shift.size()); i++) {
     int line = startLine + i;
-    state.bMarks[line] = oldBMarks[i];
-    state.tShift[line] = oldTShift[i];
-    state.sCount[line] = oldSCount[i];
-    state.bsCount[line] = oldBSCount[i];
+    state.b_marks[line] = old_b_marks[i];
+    state.t_shift[line] = old_t_shift[i];
+    state.s_count[line] = old_s_count[i];
+    state.bs_count[line] = old_bs_count[i];
   }
 
   return true;
 }
 
-bool rules_code(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleCode(StateBlock& state, int startLine, int endLine,
+                          bool silent) {}
 
-bool rules_fence(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleFence(StateBlock& state, int startLine, int endLine,
+                           bool silent) {}
 
-bool rules_heading(StateBlock& state, int startLine, int endLine, bool silent) {
-}
+bool BlockRules::RuleHeading(StateBlock& state, int startLine, int endLine,
+                             bool silent) {}
 
-bool rules_hr(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleHr(StateBlock& state, int startLine, int endLine,
+                        bool silent) {}
 
-bool rules_html_block(StateBlock& state, int startLine, int endLine,
-                      bool silent) {}
+bool BlockRules::RuleHtmlBlock(StateBlock& state, int startLine, int endLine,
+                               bool silent) {}
 
-bool rules_lheading(StateBlock& state, int startLine, int endLine,
-                    bool silent) {}
+bool BlockRules::RuleLheading(StateBlock& state, int startLine, int endLine,
+                              bool silent) {}
 
-bool rules_list(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleList(StateBlock& state, int startLine, int endLine,
+                          bool silent) {}
 
-bool rules_paragraph(StateBlock& state, int startLine, int endLine,
-                     bool silent) {
+bool BlockRules::RuleParagraph(StateBlock& state, int startLine, int endLine,
+                               bool silent) {
   // If this is an empty line -> not a paragraph
-  if (state.isEmpty(startLine)) return false;
+  if (state.IsEmpty(startLine)) return false;
 
-  auto terminatorRules = state.md.blockParser.ruler.getRules("paragraph");
+  auto terminator_rules = state.md.block_parser.ruler.GetRules("paragraph");
 
-  ParentType oldParentType = state.parentType;
-  state.parentType = ParentType::Paragraph;
+  ParentType old_parent_type = state.parent_type;
+  state.parent_type = ParentType::kParagraph;
 
-  int nextLine = startLine + 1;
+  int next_line = startLine + 1;
 
   // Move line-by-line until we find a terminator
-  for (; nextLine < endLine && !state.isEmpty(nextLine); nextLine++) {
+  for (; next_line < endLine && !state.IsEmpty(next_line); next_line++) {
     // Code-indented line after a paragraph = lazy continuation
-    if (state.sCount[nextLine] - state.blkIndent > 3) continue;
+    if (state.s_count[next_line] - state.blk_indent > 3) continue;
 
     // Blockquote marker quirk (negative indent)
-    if (state.sCount[nextLine] < 0) continue;
+    if (state.s_count[next_line] < 0) continue;
 
     // Run terminator rules
     bool terminate = false;
-    for (auto& rule : terminatorRules) {
-      if (rule(state, nextLine, endLine, true)) {
+    for (RuleBlock& rule : terminator_rules) {
+      if (rule(state, next_line, endLine, true)) {
         terminate = true;
         break;
       }
@@ -234,32 +239,33 @@ bool rules_paragraph(StateBlock& state, int startLine, int endLine,
 
   // Extract raw paragraph text
   std::string content =
-      state.getLines(startLine, nextLine, state.blkIndent, false);
-  content = trim(content);  // your string helper
+      state.GetLines(startLine, next_line, state.blk_indent, false);
+  content = Utils::Trim(content);
 
-  state.line = nextLine;
+  state.line = next_line;
 
   // Build tokens
-  Token& token_open = state.push("paragraph_open", "p", Nesting::OPENING);
+  Token& token_open = state.Push("paragraph_open", "p", Nesting::kOpening);
   token_open.map =
       std::optional<std::pair<float, float>>({startLine, state.line});
 
-  Token& token_inline = state.push("inline", "", Nesting::SELF_CLOSING);
+  Token& token_inline = state.Push("inline", "", Nesting::kSelfClosing);
   token_inline.content = content;
   token_inline.map =
       std::optional<std::pair<float, float>>({startLine, state.line});
 
-  state.push("paragraph_close", "p", Nesting::CLOSING);
+  state.Push("paragraph_close", "p", Nesting::kClosing);
 
-  state.parentType = oldParentType;
+  state.parent_type = old_parent_type;
 
   return true;
 }
 
-bool rules_reference(StateBlock& state, int startLine, int endLine,
-                     bool silent) {}
+bool BlockRules::RuleReference(StateBlock& state, int startLine, int endLine,
+                               bool silent) {}
 
-bool rules_table(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool BlockRules::RuleTable(StateBlock& state, int startLine, int endLine,
+                           bool silent) {}
 
 // NOLINTEND
 

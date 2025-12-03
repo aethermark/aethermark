@@ -7,34 +7,47 @@
 
 namespace aethermark {
 
-// NOLINTBEGIN(runtime/references)
+/// @brief Static class for all the block parser rules.
+class BlockRules {
+ public:
+  BlockRules() = delete;
 
-bool rules_blockquote(StateBlock& state, int startLine, int endLine,
-                      bool silent);
+  // NOLINTBEGIN(runtime/references)
 
-bool rules_code(StateBlock& state, int startLine, int endLine, bool silent);
+  static bool RuleBlockquote(StateBlock& state, int start_line, int end_line,
+                             bool silent);
 
-bool rules_fence(StateBlock& state, int startLine, int endLine, bool silent);
+  static bool RuleCode(StateBlock& state, int start_line, int end_line,
+                       bool silent);
 
-bool rules_heading(StateBlock& state, int startLine, int endLine, bool silent);
+  static bool RuleFence(StateBlock& state, int start_line, int end_line,
+                        bool silent);
 
-bool rules_hr(StateBlock& state, int startLine, int endLine, bool silent);
+  static bool RuleHeading(StateBlock& state, int start_line, int end_line,
+                          bool silent);
 
-bool rules_html_block(StateBlock& state, int startLine, int endLine,
-                      bool silent);
-
-bool rules_lheading(StateBlock& state, int startLine, int endLine, bool silent);
-
-bool rules_list(StateBlock& state, int startLine, int endLine, bool silent);
-
-bool rules_paragraph(StateBlock& state, int startLine, int endLine,
+  static bool RuleHr(StateBlock& state, int start_line, int end_line,
                      bool silent);
 
-bool rules_reference(StateBlock& state, int startLine, int endLine,
-                     bool silent);
+  static bool RuleHtmlBlock(StateBlock& state, int start_line, int end_line,
+                            bool silent);
 
-bool rules_table(StateBlock& state, int startLine, int endLine, bool silent);
+  static bool RuleLheading(StateBlock& state, int start_line, int end_line,
+                           bool silent);
 
-// NOLINTEND
+  static bool RuleList(StateBlock& state, int start_line, int end_line,
+                       bool silent);
+
+  static bool RuleParagraph(StateBlock& state, int start_line, int end_line,
+                            bool silent);
+
+  static bool RuleReference(StateBlock& state, int start_line, int end_line,
+                            bool silent);
+
+  static bool RuleTable(StateBlock& state, int start_line, int end_line,
+                        bool silent);
+
+  // NOLINTEND
+};
 
 }  // namespace aethermark

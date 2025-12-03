@@ -14,23 +14,20 @@
 
 namespace aethermark {
 
-using mapType = std::pair<float, float>;
-using childrenType = std::optional<std::deque<Token>>;
-
-void rule_block(StateCore& state) {  // NOLINT(runtime/references)
-  Token t = Token("", "", Nesting::SELF_CLOSING);
-  if (state.inlineMode) {
-    Token t = Token("inline", "", Nesting::SELF_CLOSING);
+void CoreRules::RuleBlock(StateCore& state) {  // NOLINT(runtime/references)
+  Token t = Token("", "", Nesting::kSelfClosing);
+  if (state.inline_mode) {
+    Token t = Token("inline", "", Nesting::kSelfClosing);
     t.content = state.src;
-    t.map = mapType({0, 1});
-    t.children = childrenType({});
+    t.map = std::pair<float, float>({0, 1});
+    t.children = std::optional<std::deque<Token>>({});
     state.tokens.push_back(t);
   } else {
-    state.md.blockParser.parse(state.src, state.md, state.env, state.tokens);
+    state.md.block_parser.Parse(state.src, state.md, state.env, state.tokens);
   }
 }
 
-void rule_inline(StateCore& state) {  // NOLINT(runtime/references)
+void CoreRules::RuleInline(StateCore& state) {  // NOLINT(runtime/references)
   const std::deque<Token>& tokens = state.tokens;
 
   // Parse inline
@@ -45,34 +42,35 @@ void rule_inline(StateCore& state) {  // NOLINT(runtime/references)
 }
 
 // FIXME: implement linkify rule
-void rule_linkify(StateCore& state) {}  // NOLINT(runtime/references)
+void CoreRules::RuleLinkify(StateCore& state) {}  // NOLINT(runtime/references)
 
-void rule_normalize(StateCore& state) {  // NOLINT(runtime/references)
-  std::regex NEWLINE_RE(R"(\r\n?|\n)");
-  std::regex NULL_RE(std::string("\x00", 1));
+void CoreRules::RuleNormalize(StateCore& state) {  // NOLINT(runtime/references)
+  const std::regex kNewlineRe(R"(\r\n?|\n)");
+  const std::regex kNullRe(std::string("\x00", 1));
 
-  std::string str = std::regex_replace(state.src, NEWLINE_RE, "\n");
-  str = std::regex_replace(str, NULL_RE, "\xEF\xBF\xBD");
+  std::string str = std::regex_replace(state.src, kNewlineRe, "\n");
+  str = std::regex_replace(str, kNullRe, "\xEF\xBF\xBD");
   state.src = str;
 }
 
 // FIXME: implement replacements rule
-void rule_replace(StateCore& state) {}  // NOLINT(runtime/references)
+void CoreRules::RuleReplace(StateCore& state) {}  // NOLINT(runtime/references)
 
 // FIXME: implement smartquotes rule
-void rule_smartquotes(StateCore& state) {}  // NOLINT(runtime/references)
+void CoreRules::RuleSmartquotes(StateCore& state) {
+}  // NOLINT(runtime/references)
 
-void rule_text_join(StateCore& state) {  // NOLINT(runtime/references)
+void CoreRules::RuleTextJoin(StateCore& state) {  // NOLINT(runtime/references)
   int curr, last;
-  std::deque<Token> blockTokens = state.tokens;
-  int l = blockTokens.size();
+  std::deque<Token> block_tokens = state.tokens;
+  int l = block_tokens.size();
 
   for (int j = 0; j < l; j++) {
-    if (blockTokens[j].type == "inline") {
+    if (block_tokens[j].type == "inline") {
       continue;
     }
 
-    std::optional<std::deque<Token>> tokens = blockTokens[j].children;
+    std::optional<std::deque<Token>> tokens = block_tokens[j].children;
     int max;
     if (!tokens.has_value()) {
       max = 0;

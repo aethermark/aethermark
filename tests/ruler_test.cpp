@@ -1,12 +1,12 @@
 // NOLINT (copyright/legal)
 
+#include "aethermark/ruler.hpp"
+
 #include <gtest/gtest.h>
 
 #include <functional>
 #include <string>
 #include <vector>
-
-#include "aethermark/ruler.hpp"
 
 using Fn = std::function<void(int&)>;
 namespace am = aethermark;
@@ -23,10 +23,10 @@ namespace {
 TEST(Ruler, PushAddsRules) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1);
-  r.push("b", add2);
+  r.Push("a", add1);
+  r.Push("b", add2);
 
-  auto rules = r.getRules("");
+  auto rules = r.GetRules("");
 
   ASSERT_EQ(rules.size(), 2);
   int x = 0;
@@ -38,12 +38,12 @@ TEST(Ruler, PushAddsRules) {
 TEST(Ruler, BeforeInsertsCorrectly) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1);
-  r.push("c", add2);
+  r.Push("a", add1);
+  r.Push("c", add2);
 
-  r.before("c", "b", mul2);
+  r.Before("c", "b", mul2);
 
-  auto rules = r.getRules("");
+  auto rules = r.GetRules("");
 
   ASSERT_EQ(rules.size(), 3);
 
@@ -55,12 +55,12 @@ TEST(Ruler, BeforeInsertsCorrectly) {
 TEST(Ruler, AfterInsertsCorrectly) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1);
-  r.push("c", add2);
+  r.Push("a", add1);
+  r.Push("c", add2);
 
-  r.after("a", "b", mul2);
+  r.After("a", "b", mul2);
 
-  auto rules = r.getRules("");
+  auto rules = r.GetRules("");
 
   ASSERT_EQ(rules.size(), 3);
 
@@ -72,12 +72,12 @@ TEST(Ruler, AfterInsertsCorrectly) {
 TEST(Ruler, AtReplacesRule) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1);
-  r.push("b", add2);
+  r.Push("a", add1);
+  r.Push("b", add2);
 
-  r.at("a", mul2);
+  r.At("a", mul2);
 
-  auto rules = r.getRules("");
+  auto rules = r.GetRules("");
 
   int x = 2;
   rules[0](x);
@@ -89,13 +89,13 @@ TEST(Ruler, AtReplacesRule) {
 TEST(Ruler, EnableDisableWork) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1);
-  r.push("b", add2);
-  r.push("c", mul2);
+  r.Push("a", add1);
+  r.Push("b", add2);
+  r.Push("c", mul2);
 
-  r.disable("b");
+  r.Disable("b");
 
-  auto rules = r.getRules("");
+  auto rules = r.GetRules("");
   ASSERT_EQ(rules.size(), 2);
 
   int x = 1;
@@ -106,13 +106,13 @@ TEST(Ruler, EnableDisableWork) {
 TEST(Ruler, EnableOnlyWorks) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1);
-  r.push("b", add2);
-  r.push("c", mul2);
+  r.Push("a", add1);
+  r.Push("b", add2);
+  r.Push("c", mul2);
 
-  r.enableOnly({"b", "c"});
+  r.EnableOnly({"b", "c"});
 
-  auto rules = r.getRules("");
+  auto rules = r.GetRules("");
   ASSERT_EQ(rules.size(), 2);
 
   int x = 1;
@@ -122,16 +122,16 @@ TEST(Ruler, EnableOnlyWorks) {
 
 TEST(Ruler, IgnoredInvalidEnable) {
   am::Ruler<Fn> r;
-  r.push("a", add1);
+  r.Push("a", add1);
 
-  EXPECT_NO_THROW(r.enable("zzz", true));
+  EXPECT_NO_THROW(r.Enable("zzz", true));
 }
 
 TEST(Ruler, IgnoredInvalidDisable) {
   am::Ruler<Fn> r;
-  r.push("a", add1);
+  r.Push("a", add1);
 
-  EXPECT_NO_THROW(r.disable("zzz", true));
+  EXPECT_NO_THROW(r.Disable("zzz", true));
 }
 
 // ---------- AltChain ----------
@@ -139,13 +139,13 @@ TEST(Ruler, IgnoredInvalidDisable) {
 TEST(Ruler, AltChainsWork) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1, {{"alt1"}});
-  r.push("b", add2, {{"alt2"}});
-  r.push("c", mul2, {{"alt1"}});
+  r.Push("a", add1, {{"alt1"}});
+  r.Push("b", add2, {{"alt2"}});
+  r.Push("c", mul2, {{"alt1"}});
 
-  auto alt1 = r.getRules("alt1");
-  auto alt2 = r.getRules("alt2");
-  auto def = r.getRules("");
+  auto alt1 = r.GetRules("alt1");
+  auto alt2 = r.GetRules("alt2");
+  auto def = r.GetRules("");
 
   ASSERT_EQ(alt1.size(), 2);
   ASSERT_EQ(alt2.size(), 1);
@@ -161,35 +161,35 @@ TEST(Ruler, AltChainsWork) {
 TEST(Ruler, FindRuleWorks) {
   am::Ruler<Fn> r;
 
-  r.push("a", add1);
-  r.push("b", add2);
+  r.Push("a", add1);
+  r.Push("b", add2);
 
-  auto* rule = r.findRule("b");
+  auto* rule = r.FindRule("b");
   ASSERT_NE(rule, nullptr);
   EXPECT_EQ(rule->name, "b");
 
-  EXPECT_EQ(r.findRule("z"), nullptr);
+  EXPECT_EQ(r.FindRule("z"), nullptr);
 }
 
 TEST(Ruler, ThrowsOnMissingAt) {
   am::Ruler<Fn> r;
-  r.push("a", add1);
+  r.Push("a", add1);
 
-  EXPECT_THROW(r.at("nope", add2), std::runtime_error);
+  EXPECT_THROW(r.At("nope", add2), std::runtime_error);
 }
 
 TEST(Ruler, ThrowsOnMissingBefore) {
   am::Ruler<Fn> r;
-  r.push("a", add1);
+  r.Push("a", add1);
 
-  EXPECT_THROW(r.before("nope", "b", add2), std::runtime_error);
+  EXPECT_THROW(r.Before("nope", "b", add2), std::runtime_error);
 }
 
 TEST(Ruler, ThrowsOnMissingAfter) {
   am::Ruler<Fn> r;
-  r.push("a", add1);
+  r.Push("a", add1);
 
-  EXPECT_THROW(r.after("nope", "b", add2), std::runtime_error);
+  EXPECT_THROW(r.After("nope", "b", add2), std::runtime_error);
 }
 
 }  // namespace

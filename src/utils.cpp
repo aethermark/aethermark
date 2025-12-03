@@ -7,7 +7,7 @@
 
 namespace aethermark {
 
-std::string trim(const std::string& s) {
+std::string Utils::Trim(const std::string& s) {
   if (s.empty()) return s;
 
   size_t start = 0;
@@ -26,6 +26,6 @@ std::string trim(const std::string& s) {
   return s.substr(start, end - start + 1);
 }
 
-bool isSpace(int ch) { return ch == 0x20 || ch == 0x09; }
+bool Utils::IsSpace(int ch) { return ch == 0x20 || ch == 0x09; }
 
 }  // namespace aethermark

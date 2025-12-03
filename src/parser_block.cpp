@@ -16,48 +16,57 @@
 
 namespace aethermark {
 
-using List =
-    std::vector<std::tuple<std::string, RuleBlock, std::vector<std::string>>>;
-static const List block_rules = {
-    {"table", rules_table, {"paragraph", "reference"}},
-    {"code", rules_code, {}},
-    {"fence", rules_fence, {"paragraph", "reference", "blockquote", "list"}},
-    {"blockquote",
-     rules_blockquote,
-     {"paragraph", "reference", "blockquote", "list"}},
-    {"hr", rules_hr, {"paragraph", "reference", "blockquote", "list"}},
-    {"list", rules_list, {"paragraph", "reference", "blockquote"}},
-    {"reference", rules_reference, {}},
-    {"html_block", rules_html_block, {"paragraph", "reference", "blockquote"}},
-    {"heading", rules_heading, {"paragraph", "reference", "blockquote"}},
-    {"lheading", rules_lheading, {}},
-    {"paragraph", rules_paragraph, {}}};
+static const std::vector<
+    std::tuple<std::string, RuleBlock, std::vector<std::string>>>
+    block_rules = {{"table", BlockRules::RuleTable, {"paragraph", "reference"}},
+                   {"code", BlockRules::RuleCode, {}},
+                   {"fence",
+                    BlockRules::RuleFence,
+                    {"paragraph", "reference", "blockquote", "list"}},
+                   {"blockquote",
+                    BlockRules::RuleBlockquote,
+                    {"paragraph", "reference", "blockquote", "list"}},
+                   {"hr",
+                    BlockRules::RuleHr,
+                    {"paragraph", "reference", "blockquote", "list"}},
+                   {"list",
+                    BlockRules::RuleList,
+                    {"paragraph", "reference", "blockquote"}},
+                   {"reference", BlockRules::RuleReference, {}},
+                   {"html_block",
+                    BlockRules::RuleHtmlBlock,
+                    {"paragraph", "reference", "blockquote"}},
+                   {"heading",
+                    BlockRules::RuleHeading,
+                    {"paragraph", "reference", "blockquote"}},
+                   {"lheading", BlockRules::RuleLheading, {}},
+                   {"paragraph", BlockRules::RuleParagraph, {}}};
 
 ParserBlock::ParserBlock() : ruler() {
   for (const auto& [name, fn, alts] : block_rules) {
     RuleOptions opts;
     opts.alt = alts;
-    ruler.push(name, fn, opts);
+    ruler.Push(name, fn, opts);
   }
 }
 
-void ParserBlock::tokenize(StateBlock& state, int startLine, int endLine) {
+void ParserBlock::Tokenize(StateBlock& state, int startLine, int endLine) {
   // Get rule list
-  const auto& rules = ruler.getRules("");
+  const auto& rules = ruler.GetRules("");
   const int len = static_cast<int>(rules.size());
-  const int maxNesting = state.md.options.maxNesting;
+  const int maxNesting = state.md.options.max_nesting;
 
   int line = startLine;
   bool hasEmptyLines = false;
 
   while (line < endLine) {
     // Skip empty lines
-    state.line = state.skipEmptyLines(line);
+    state.line = state.SkipEmptyLines(line);
     line = state.line;
     if (line >= endLine) break;
 
     // Termination for nested blocks (quotes, lists, etc.)
-    if (state.sCount[line] < state.blkIndent) {
+    if (state.s_count[line] < state.blk_indent) {
       break;
     }
 
@@ -91,14 +100,14 @@ void ParserBlock::tokenize(StateBlock& state, int startLine, int endLine) {
     state.tight = !hasEmptyLines;
 
     // Paragraphs sometimes consume the trailing newline
-    if (state.isEmpty(state.line - 1)) {
+    if (state.IsEmpty(state.line - 1)) {
       hasEmptyLines = true;
     }
 
     line = state.line;
 
     // If next line is empty, mark it
-    if (line < endLine && state.isEmpty(line)) {
+    if (line < endLine && state.IsEmpty(line)) {
       hasEmptyLines = true;
       ++line;
       state.line = line;
@@ -106,7 +115,7 @@ void ParserBlock::tokenize(StateBlock& state, int startLine, int endLine) {
   }
 }
 
-void ParserBlock::parse(const std::string& src, Aethermark& md, std::any env,
+void ParserBlock::Parse(const std::string& src, Aethermark& md, std::any env,
                         std::deque<Token>& outTokens) {
   if (src.empty()) {
     return;
@@ -116,7 +125,7 @@ void ParserBlock::parse(const std::string& src, Aethermark& md, std::any env,
   StateBlock state(src, md, env, outTokens);
 
   // Kick off block tokenization
-  tokenize(state, state.line, state.lineMax);
+  Tokenize(state, state.line, state.line_max);
 }
 
 }  // namespace aethermark

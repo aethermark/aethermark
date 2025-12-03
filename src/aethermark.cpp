@@ -25,25 +25,25 @@ namespace aethermark {
 
 Aethermark::Aethermark()
     : /*inlineParser(), blockParser(),*/
-      coreParser(),
+      core_parser(),
       /* renderer(), */ options() {
-  configure("default");
+  Configure("default");
 }
 
 Aethermark::Aethermark(const Options& opts)
     : /*inlineParser(), blockParser(),*/
-      coreParser(),
+      core_parser(),
       /* renderer(), */ options(opts) {
-  configure("default");
-  set(opts);
+  Configure("default");
+  Set(opts);
 }
 
-Aethermark& Aethermark::set(const Options& opts) {
+Aethermark& Aethermark::Set(const Options& opts) {
   options = opts;
   return *this;
 }
 
-Aethermark& Aethermark::configure(const std::string& preset) {
+Aethermark& Aethermark::Configure(const std::string& preset) {
   // TODO(MukulWaval): load presets from C++ equivalents of cfg_default /
   // cfg_zero / cfg_commonmark For now, accept only "default"
   if (preset != "default" && preset != "zero" && preset != "commonmark") {
@@ -108,17 +108,17 @@ Aethermark& Aethermark::configure(const std::string& preset) {
 //   return *this;
 // }
 
-std::deque<Token> Aethermark::parse(const std::string& src, std::any env) {
+std::deque<Token> Aethermark::Parse(const std::string& src, std::any env) {
   StateCore state(src, *this, env);
-  coreParser.process(state);
+  core_parser.Process(state);
   return state.tokens;
 }
 
-std::deque<Token> Aethermark::parseInline(const std::string& src,
+std::deque<Token> Aethermark::ParseInline(const std::string& src,
                                           std::any env) {
   StateCore state(src, *this, env);
-  state.inlineMode = true;
-  coreParser.process(state);
+  state.inline_mode = true;
+  core_parser.Process(state);
   return state.tokens;
 }
 
@@ -155,17 +155,17 @@ std::deque<Token> Aethermark::parseInline(const std::string& src,
 //   return true;
 // }
 
-std::string Aethermark::normalizeLink(const std::string& url) const {
+std::string Aethermark::NormalizeLink(const std::string& url) const {
   // TODO(MukulWaval): add proper mdurl + punycode equivalent
   return url;
 }
 
-std::string Aethermark::normalizeLinkText(const std::string& url) const {
+std::string Aethermark::NormalizeLinkText(const std::string& url) const {
   // TODO(MukulWaval): add proper unicode/punycode normalization
   return url;
 }
 
-Aethermark& Aethermark::use(std::function<void(Aethermark&)> plugin) {
+Aethermark& Aethermark::Use(std::function<void(Aethermark&)> plugin) {
   plugin(*this);
   return *this;
 }

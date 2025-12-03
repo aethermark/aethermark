@@ -11,20 +11,23 @@
 namespace aethermark {
 
 static const std::vector<std::pair<std::string, RuleCore>> core_rules = {
-    {"normalize", rule_normalize},  {"block", rule_block},
-    {"inline", rule_inline},        {"linkify", rule_linkify},
-    {"replacements", rule_replace}, {"smartquotes", rule_smartquotes},
-    {"text_join", rule_text_join},
+    {"normalize", CoreRules::RuleNormalize},
+    {"block", CoreRules::RuleBlock},
+    {"inline", CoreRules::RuleInline},
+    {"linkify", CoreRules::RuleLinkify},
+    {"replacements", CoreRules::RuleReplace},
+    {"smartquotes", CoreRules::RuleSmartquotes},
+    {"text_join", CoreRules::RuleTextJoin},
 };
 
-Core::Core() : ruler{} {
+ParserCore::ParserCore() : ruler{} {
   for (auto& [name, fn] : core_rules) {
-    ruler.push(name, fn);
+    ruler.Push(name, fn);
   }
 }
 
-void Core::process(StateCore& state) {
-  std::vector<RuleCore> rules = this->ruler.getRules("");
+void ParserCore::Process(StateCore& state) {
+  std::vector<RuleCore> rules = this->ruler.GetRules("");
   for (int i = 0, l = rules.size(); i < l; i++) {
     rules[i](state);
   }

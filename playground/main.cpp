@@ -30,7 +30,7 @@ int main() {
 
   aethermark::StateCore state = aethermark::StateCore(src, md, env);
 
-  md.coreParser.process(state);
+  md.core_parser.Process(state);
 
   // md.blockParser.parse(src, md, env, tokens);
 
@@ -66,13 +66,13 @@ inline void print(const std::deque<aethermark::Token>& tokens) {
     std::string nesting;
 
     switch (token.nesting) {
-      case aethermark::Nesting::OPENING:
+      case aethermark::Nesting::kOpening:
         nesting = "OPENING";
         break;
-      case aethermark::Nesting::CLOSING:
+      case aethermark::Nesting::kClosing:
         nesting = "CLOSING";
         break;
-      case aethermark::Nesting::SELF_CLOSING:
+      case aethermark::Nesting::kSelfClosing:
         nesting = "SELF_CLOSING";
         break;
       default:
