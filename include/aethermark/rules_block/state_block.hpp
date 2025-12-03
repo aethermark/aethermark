@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-// #include "aethermark/aethermark.hpp"
 #include "aethermark/token.hpp"
+#include "aethermark/utils.hpp"
 
 namespace aethermark {
 
@@ -20,8 +20,6 @@ enum class ParentType { Blockquote, List, Root, Paragraph, Reference };
 class StateBlock {
  public:
   // NOLINTBEGIN(whitespace/indent_namespace)
-
-  static inline bool isSpace(int ch) { return ch == 0x20 || ch == 0x09; }
 
   StateBlock(const std::string& src,
              Aethermark& md,  // NOLINT(runtime/references)
