@@ -19,8 +19,6 @@ enum class ParentType { Blockquote, List, Root, Paragraph, Reference };
 
 class StateBlock {
  public:
-  // NOLINTBEGIN(whitespace/indent_namespace)
-
   /// @brief Constructs a new block state object.
   /// @param src Document source.
   /// @param md Reference to the parser.
@@ -30,8 +28,6 @@ class StateBlock {
              Aethermark& md,  // NOLINT(runtime/references)
              std::any env,
              std::deque<Token>& tokens);  // NOLINT(runtime/references)
-
-  // NOLINTEND
 
   /// @brief Source string.
   std::string src;

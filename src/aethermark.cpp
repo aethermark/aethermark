@@ -1,5 +1,3 @@
-// NOLINT(whitespace/indent_namespace)
-
 // Copyright 2025 Aethermark Contributors
 // All rights reserved.
 
@@ -26,16 +24,16 @@ namespace aethermark {
 // TODO(MukulWaval): Remove all unnecessary comments from all files
 
 Aethermark::Aethermark()
-    : /*inlineParser(), blockParser(),*/  // NOLINT(whitespace/indent_namespace)
-      coreParser(),                       // NOLINT(whitespace/indent_namespace)
-      /* renderer(), */ options() {       // NOLINT(whitespace/indent_namespace)
+    : /*inlineParser(), blockParser(),*/
+      coreParser(),
+      /* renderer(), */ options() {
   configure("default");
 }
 
 Aethermark::Aethermark(const Options& opts)
-    : /*inlineParser(), blockParser(),*/  // NOLINT(whitespace/indent_namespace)
-      coreParser(),                       // NOLINT(whitespace/indent_namespace)
-      /* renderer(), */ options(opts) {   // NOLINT(whitespace/indent_namespace)
+    : /*inlineParser(), blockParser(),*/
+      coreParser(),
+      /* renderer(), */ options(opts) {
   configure("default");
   set(opts);
 }
@@ -116,9 +114,8 @@ std::deque<Token> Aethermark::parse(const std::string& src, std::any env) {
   return state.tokens;
 }
 
-std::deque<Token> Aethermark::parseInline(
-    const std::string& src,  // NOLINT(whitespace/indent_namespace)
-    std::any env) {          // NOLINT(whitespace/indent_namespace)
+std::deque<Token> Aethermark::parseInline(const std::string& src,
+                                          std::any env) {
   StateCore state(src, *this, env);
   state.inlineMode = true;
   coreParser.process(state);

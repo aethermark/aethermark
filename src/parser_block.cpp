@@ -16,29 +16,22 @@
 
 namespace aethermark {
 
-// NOLINTBEGIN(whitespace/indent_namespace)
-
-static const std::vector<
-    std::tuple<std::string, RuleBlock, std::vector<std::string>>>
-    block_rules = {
-        {"table", rules_table, {"paragraph", "reference"}},
-        {"code", rules_code, {}},
-        {"fence",
-         rules_fence,
-         {"paragraph", "reference", "blockquote", "list"}},
-        {"blockquote",
-         rules_blockquote,
-         {"paragraph", "reference", "blockquote", "list"}},
-        {"hr", rules_hr, {"paragraph", "reference", "blockquote", "list"}},
-        {"list", rules_list, {"paragraph", "reference", "blockquote"}},
-        {"reference", rules_reference, {}},
-        {"html_block",
-         rules_html_block,
-         {"paragraph", "reference", "blockquote"}},
-        {"heading", rules_heading, {"paragraph", "reference", "blockquote"}},
-        {"lheading", rules_lheading, {}},
-        {"paragraph", rules_paragraph, {}}};
-// NOLINTEND
+using List =
+    std::vector<std::tuple<std::string, RuleBlock, std::vector<std::string>>>;
+static const List block_rules = {
+    {"table", rules_table, {"paragraph", "reference"}},
+    {"code", rules_code, {}},
+    {"fence", rules_fence, {"paragraph", "reference", "blockquote", "list"}},
+    {"blockquote",
+     rules_blockquote,
+     {"paragraph", "reference", "blockquote", "list"}},
+    {"hr", rules_hr, {"paragraph", "reference", "blockquote", "list"}},
+    {"list", rules_list, {"paragraph", "reference", "blockquote"}},
+    {"reference", rules_reference, {}},
+    {"html_block", rules_html_block, {"paragraph", "reference", "blockquote"}},
+    {"heading", rules_heading, {"paragraph", "reference", "blockquote"}},
+    {"lheading", rules_lheading, {}},
+    {"paragraph", rules_paragraph, {}}};
 
 ParserBlock::ParserBlock() : ruler() {
   for (const auto& [name, fn, alts] : block_rules) {
@@ -113,12 +106,8 @@ void ParserBlock::tokenize(StateBlock& state, int startLine, int endLine) {
   }
 }
 
-// NOLINTBEGIN(whitespace/indent_namespace)
-
 void ParserBlock::parse(const std::string& src, Aethermark& md, std::any env,
                         std::deque<Token>& outTokens) {
-  // NOLINTEND
-
   if (src.empty()) {
     return;
   }

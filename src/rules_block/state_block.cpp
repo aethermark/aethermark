@@ -12,12 +12,9 @@
 
 namespace aethermark {
 
-// NOLINTBEGIN(whitespace/indent_namespace)
-
 StateBlock::StateBlock(const std::string& src_, Aethermark& md_, std::any env_,
                        std::deque<Token>& tokens_)
     : src(src_), md(md_), env(env_), tokens(tokens_) {
-  // NOLINTEND
   size_t estimated_lines = std::count(src.begin(), src.end(), '\n') + 4;
 
   bMarks.reserve(estimated_lines);
@@ -83,12 +80,8 @@ StateBlock::StateBlock(const std::string& src_, Aethermark& md_, std::any env_,
   lineMax = static_cast<int>(bMarks.size()) - 1;
 }
 
-// NOLINTBEGIN(whitespace/indent_namespace)
-
 Token& StateBlock::push(const std::string& type, const std::string& tag,
                         Nesting nesting) {
-  // NOLINTEND
-
   tokens.emplace_back(type, tag, nesting);
   Token& token = tokens.back();
   token.block = true;
@@ -162,11 +155,8 @@ int StateBlock::skipCharsBack(int pos, int code, int min) const {
   return pos;
 }
 
-// NOLINTBEGIN(whitespace/indent_namespace)
-
 std::string StateBlock::getLines(int begin, int end, int indent,
                                  bool keepLastLF) const {
-  // NOLINTEND
   if (begin >= end) return "";
 
   std::vector<std::string> out;
