@@ -54,10 +54,10 @@ void ParserBlock::Tokenize(StateBlock& state, int startLine, int endLine) {
   // Get rule list
   const std::vector<RuleBlock>& rules = ruler.GetRules("");
   const int len = static_cast<int>(rules.size());
-  const int maxNesting = state.md.options.max_nesting;
+  const int max_nesting = state.md.options.max_nesting;
 
   int line = startLine;
-  bool hasEmptyLines = false;
+  bool has_empty_lines = false;
 
   while (line < endLine) {
     // Skip empty lines
@@ -71,12 +71,12 @@ void ParserBlock::Tokenize(StateBlock& state, int startLine, int endLine) {
     }
 
     // Max nesting level reached → bail out
-    if (state.level >= maxNesting) {
+    if (state.level >= max_nesting) {
       state.line = endLine;
       break;
     }
 
-    const int prevLine = state.line;
+    const int prev_line = state.line;
     bool matched = false;
 
     // Try all block rules
@@ -84,7 +84,7 @@ void ParserBlock::Tokenize(StateBlock& state, int startLine, int endLine) {
       const RuleBlock& rule = rules[i];
       if (rule(state, line, endLine, false)) {
         matched = true;
-        if (state.line <= prevLine) {
+        if (state.line <= prev_line) {
           throw std::runtime_error("block rule didn't increment state.line");
         }
         break;
@@ -97,18 +97,18 @@ void ParserBlock::Tokenize(StateBlock& state, int startLine, int endLine) {
     }
 
     // Update state.tight (same logic as JS)
-    state.tight = !hasEmptyLines;
+    state.tight = !has_empty_lines;
 
     // Paragraphs sometimes consume the trailing newline
     if (state.IsEmpty(state.line - 1)) {
-      hasEmptyLines = true;
+      has_empty_lines = true;
     }
 
     line = state.line;
 
     // If next line is empty, mark it
     if (line < endLine && state.IsEmpty(line)) {
-      hasEmptyLines = true;
+      has_empty_lines = true;
       ++line;
       state.line = line;
     }
