@@ -62,7 +62,7 @@ void Token::AttrSet(const std::string& name, const std::string& value) {
     return;
   }
   // Override existing attribute
-  for (auto& a : *attrs) {
+  for (std::pair<std::string, std::string>& a : *attrs) {
     if (a.first == name) a.second = value;
   }
 }

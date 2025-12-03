@@ -35,7 +35,8 @@ bool BlockRules::RuleBlockquote(StateBlock& state, int start_line, int end_line,
   std::vector<int> old_s_count;
   std::vector<int> old_t_shift;
 
-  auto terminators = state.md.block_parser.ruler.GetRules("blockquote");
+  std::vector<RuleBlock> terminators =
+      state.md.block_parser.ruler.GetRules("blockquote");
 
   ParentType old_parent = state.parent_type;
   state.parent_type = ParentType::kBlockquote;
@@ -120,7 +121,7 @@ bool BlockRules::RuleBlockquote(StateBlock& state, int start_line, int end_line,
 
     // Case 3: terminator rule
     bool terminate = false;
-    for (auto& rule : terminators) {
+    for (RuleBlock& rule : terminators) {
       if (rule(state, next_line, end_line, true)) {
         terminate = true;
         break;
@@ -211,7 +212,8 @@ bool BlockRules::RuleParagraph(StateBlock& state, int start_line, int end_line,
   // If this is an empty line -> not a paragraph
   if (state.IsEmpty(start_line)) return false;
 
-  auto terminator_rules = state.md.block_parser.ruler.GetRules("paragraph");
+  std::vector<RuleBlock> terminator_rules =
+      state.md.block_parser.ruler.GetRules("paragraph");
 
   ParentType old_parent_type = state.parent_type;
   state.parent_type = ParentType::kParagraph;

@@ -207,7 +207,7 @@ std::string StateBlock::GetLines(int begin, int end, int indent,
   std::string result;
   result.reserve(64 * (end - begin));  // speed
 
-  for (auto& s : out) result += s;
+  for (std::string& s : out) result += s;
 
   return result;
 }
