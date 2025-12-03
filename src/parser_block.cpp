@@ -16,22 +16,24 @@
 
 namespace aethermark {
 
-using List =
-    std::vector<std::tuple<std::string, RuleBlock, std::vector<std::string>>>;
-static const List block_rules = {
-    {"table", rules_table, {"paragraph", "reference"}},
-    {"code", rules_code, {}},
-    {"fence", rules_fence, {"paragraph", "reference", "blockquote", "list"}},
-    {"blockquote",
-     rules_blockquote,
-     {"paragraph", "reference", "blockquote", "list"}},
-    {"hr", rules_hr, {"paragraph", "reference", "blockquote", "list"}},
-    {"list", rules_list, {"paragraph", "reference", "blockquote"}},
-    {"reference", rules_reference, {}},
-    {"html_block", rules_html_block, {"paragraph", "reference", "blockquote"}},
-    {"heading", rules_heading, {"paragraph", "reference", "blockquote"}},
-    {"lheading", rules_lheading, {}},
-    {"paragraph", rules_paragraph, {}}};
+static const std::vector<
+    std::tuple<std::string, RuleBlock, std::vector<std::string>>>
+    block_rules = {
+        {"table", rule_table, {"paragraph", "reference"}},
+        {"code", rule_code, {}},
+        {"fence", rule_fence, {"paragraph", "reference", "blockquote", "list"}},
+        {"blockquote",
+         rule_blockquote,
+         {"paragraph", "reference", "blockquote", "list"}},
+        {"hr", rule_hr, {"paragraph", "reference", "blockquote", "list"}},
+        {"list", rule_list, {"paragraph", "reference", "blockquote"}},
+        {"reference", rule_reference, {}},
+        {"html_block",
+         rule_html_block,
+         {"paragraph", "reference", "blockquote"}},
+        {"heading", rule_heading, {"paragraph", "reference", "blockquote"}},
+        {"lheading", rule_lheading, {}},
+        {"paragraph", rule_paragraph, {}}};
 
 ParserBlock::ParserBlock() : ruler() {
   for (const auto& [name, fn, alts] : block_rules) {

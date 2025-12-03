@@ -15,8 +15,8 @@ namespace aethermark {
 // NOLINTBEGIN(runtime/references)
 
 // FIXME: Implement all block rules
-bool rules_blockquote(StateBlock& state, int startLine, int endLine,
-                      bool silent) {
+bool rule_blockquote(StateBlock& state, int startLine, int endLine,
+                     bool silent) {
   int pos = state.bMarks[startLine] + state.tShift[startLine];
   int max = state.eMarks[startLine];
 
@@ -184,25 +184,24 @@ bool rules_blockquote(StateBlock& state, int startLine, int endLine,
   return true;
 }
 
-bool rules_code(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool rule_code(StateBlock& state, int startLine, int endLine, bool silent) {}
 
-bool rules_fence(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool rule_fence(StateBlock& state, int startLine, int endLine, bool silent) {}
 
-bool rules_heading(StateBlock& state, int startLine, int endLine, bool silent) {
+bool rule_heading(StateBlock& state, int startLine, int endLine, bool silent) {}
+
+bool rule_hr(StateBlock& state, int startLine, int endLine, bool silent) {}
+
+bool rule_html_block(StateBlock& state, int startLine, int endLine,
+                     bool silent) {}
+
+bool rule_lheading(StateBlock& state, int startLine, int endLine, bool silent) {
 }
 
-bool rules_hr(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool rule_list(StateBlock& state, int startLine, int endLine, bool silent) {}
 
-bool rules_html_block(StateBlock& state, int startLine, int endLine,
-                      bool silent) {}
-
-bool rules_lheading(StateBlock& state, int startLine, int endLine,
-                    bool silent) {}
-
-bool rules_list(StateBlock& state, int startLine, int endLine, bool silent) {}
-
-bool rules_paragraph(StateBlock& state, int startLine, int endLine,
-                     bool silent) {
+bool rule_paragraph(StateBlock& state, int startLine, int endLine,
+                    bool silent) {
   // If this is an empty line -> not a paragraph
   if (state.isEmpty(startLine)) return false;
 
@@ -256,10 +255,10 @@ bool rules_paragraph(StateBlock& state, int startLine, int endLine,
   return true;
 }
 
-bool rules_reference(StateBlock& state, int startLine, int endLine,
-                     bool silent) {}
+bool rule_reference(StateBlock& state, int startLine, int endLine,
+                    bool silent) {}
 
-bool rules_table(StateBlock& state, int startLine, int endLine, bool silent) {}
+bool rule_table(StateBlock& state, int startLine, int endLine, bool silent) {}
 
 // NOLINTEND
 
