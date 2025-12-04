@@ -82,13 +82,13 @@ if(BUILD_PYTHON)
     file(GLOB_RECURSE PYBIND_SRC "${PROJECT_SOURCE_DIR}/python/bindings/*.cpp")
 
     # Build Python extension module
-    pybind11_add_module(aethermark_py ${PYBIND_SRC})
+    pybind11_add_module(_aethermark ${PYBIND_SRC})
 
     # Link with core library
-    target_link_libraries(aethermark_py PRIVATE aethermark)
+    target_link_libraries(_aethermark PRIVATE aethermark)
 
     # Include directory for aethermark headers
-    target_include_directories(aethermark_py PRIVATE ${PROJECT_SOURCE_DIR}/include)
+    target_include_directories(_aethermark PRIVATE ${PROJECT_SOURCE_DIR}/include)
 endif()
 
 file(GLOB_RECURSE PUBLIC_HEADERS

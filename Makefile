@@ -44,7 +44,7 @@ test:
 	$(MAKE) clean
 	$(MAKE) BUILD_TESTS=ON BUILD_PYTHON=ON build
 	@mkdir -p python/aethermark
-	@cp $(BUILD_DIR)/aethermark_py*.so python/aethermark/_aethermark.so
+	@cp $(BUILD_DIR)/_aethermark*.so python/aethermark/_aethermark.so
 	@cd python && ../$(PYTHON) -m build --sdist
 	@cd python && ../$(PYTHON) -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
 	@cd python && ../$(PYTHON) -m pytest -v
@@ -97,7 +97,7 @@ activate:
 build-python-ext:
 	$(MAKE) BUILD_PYTHON=ON build
 	@mkdir -p python/aethermark
-	@cp $(BUILD_DIR)/aethermark_py*.so python/aethermark/_aethermark.so
+	@cp $(BUILD_DIR)/_aethermark*.so python/aethermark/_aethermark.so
 
 test-py:
 	$(MAKE) clean

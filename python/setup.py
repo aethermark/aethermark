@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="aethermark",
-    version="0.0.20",
+    version="0.0.22",
     packages=find_packages(),
     include_package_data=True,
 )

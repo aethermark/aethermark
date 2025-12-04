@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aethermark"
-version = "0.0.21"
+version = "0.0.22"
 description = "Aethermark: A high-performance Markdown parser with AFM support."
 readme = "README.md"
 license = "MIT"

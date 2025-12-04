@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 
 #include "aethermark/aethermark.hpp"
+#include "aethermark/greet.hpp"
 
 namespace py = pybind11;
 
@@ -27,5 +28,15 @@ See: https://github.com/aethermark/aethermark
 
   // TODO(MukulWaval): Bind top level Aethermark functionalities here.
 
-  m.attr("__version__") = "0.0.20";
+  m.def("greet", &aethermark::Greet, R"pbdoc(
+            Greet someone by name.
+
+            Args:
+                name (str): Name of the person.
+
+            Returns:
+                str: Greeting string.
+          )pbdoc");
+
+  m.attr("__version__") = "0.0.22";
 }
