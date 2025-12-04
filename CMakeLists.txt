@@ -48,12 +48,23 @@ endif()
 if(BUILD_TESTS)
     enable_testing()
     find_package(GTest REQUIRED)
+    include(GoogleTest)
 
+    # Collect all test sources
     file(GLOB TEST_SRC "${PROJECT_SOURCE_DIR}/tests/*.cpp")
+
+    # Single executable for all tests
     add_executable(unit_tests ${TEST_SRC})
     target_link_libraries(unit_tests PRIVATE aethermark GTest::GTest GTest::Main pthread)
-    add_test(NAME unit_tests COMMAND unit_tests)
+    target_include_directories(unit_tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+    # Discover all TEST() and TEST_F() cases
+    gtest_discover_tests(unit_tests
+        DISCOVERY_TIMEOUT 5
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
 endif()
+
 
 # ==============================
 # Python bindings via pybind11
@@ -78,6 +89,11 @@ if(BUILD_PYTHON)
     target_include_directories(aethermark_py PRIVATE ${PROJECT_SOURCE_DIR}/include)
 endif()
 
+file(GLOB_RECURSE PUBLIC_HEADERS
+    "${PROJECT_SOURCE_DIR}/include/aethermark/*.hpp"
+    "${PROJECT_SOURCE_DIR}/include/aethermark/*.tpp"
+)
+set_target_properties(aethermark PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
 # ==============================
 # Installation

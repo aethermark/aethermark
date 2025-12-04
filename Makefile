@@ -43,12 +43,13 @@ install-cpp:
 
 uninstall-cpp:
 	@echo "Running CMake uninstall script..."
-	@cd $(BUILD_DIR) && \
-		(if [ -f uninstall.cmake ]; then cmake -P uninstall.cmake; \
-		else echo "No uninstall.cmake found"; fi)
+	@cd $(BUILD_DIR) && cmake -P ../uninstall.cmake
 
 play:
-	cd $(BUILD_DIR) && ./playground
+	@mkdir -p $(BUILD_DIR)
+	@cd $(BUILD_DIR) && cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAYGROUND=ON ..
+	@cd $(BUILD_DIR) && cmake --build . --config Debug
+	@cd $(BUILD_DIR) && ./playground
 
 # ==========================
 # Python / venv
@@ -74,7 +75,7 @@ build-python-ext:
 	@cp $(BUILD_DIR)/aethermark_py*.so python/aethermark/_aethermark.so
 
 test-py:
-	cd python && $(PYTHON) -m pytest -v
+	cd python && ../$(PYTHON) -m pytest -v
 
 test-py-static-typecheck:
 	$(PYTHON) -m mypy python/aethermark
