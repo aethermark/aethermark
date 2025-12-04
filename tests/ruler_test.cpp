@@ -30,8 +30,8 @@ TEST(Ruler, PushAddsRules) {
 
   ASSERT_EQ(rules.size(), 2);
   int x = 0;
-  rules[0](x);
-  rules[1](x);
+  rules[0].second(x);
+  rules[1].second(x);
   EXPECT_EQ(x, 3);
 }
 
@@ -48,7 +48,7 @@ TEST(Ruler, BeforeInsertsCorrectly) {
   ASSERT_EQ(rules.size(), 3);
 
   int x = 1;
-  for (auto& fn : rules) fn(x);
+  for (auto& fn : rules) fn.second(x);
   EXPECT_EQ(x, ((1 + 1) * 2) + 2);
 }
 
@@ -65,7 +65,7 @@ TEST(Ruler, AfterInsertsCorrectly) {
   ASSERT_EQ(rules.size(), 3);
 
   int x = 1;
-  for (auto& fn : rules) fn(x);
+  for (auto& fn : rules) fn.second(x);
   EXPECT_EQ(x, 6);
 }
 
@@ -80,7 +80,7 @@ TEST(Ruler, AtReplacesRule) {
   auto rules = r.GetRules("");
 
   int x = 2;
-  rules[0](x);
+  rules[0].second(x);
   EXPECT_EQ(x, 4);
 }
 
@@ -99,7 +99,7 @@ TEST(Ruler, EnableDisableWork) {
   ASSERT_EQ(rules.size(), 2);
 
   int x = 1;
-  for (auto& fn : rules) fn(x);
+  for (auto& fn : rules) fn.second(x);
   EXPECT_EQ(x, (1 + 1) * 2);
 }
 
@@ -116,7 +116,7 @@ TEST(Ruler, EnableOnlyWorks) {
   ASSERT_EQ(rules.size(), 2);
 
   int x = 1;
-  for (auto& fn : rules) fn(x);
+  for (auto& fn : rules) fn.second(x);
   EXPECT_EQ(x, (1 + 2) * 2);
 }
 
@@ -152,7 +152,7 @@ TEST(Ruler, AltChainsWork) {
   ASSERT_EQ(def.size(), 3);
 
   int x = 1;
-  for (auto& fn : alt1) fn(x);
+  for (auto& fn : alt1) fn.second(x);
   EXPECT_EQ(x, (1 + 1) * 2);
 }
 

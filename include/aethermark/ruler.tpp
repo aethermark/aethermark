@@ -35,9 +35,10 @@ void Ruler<T>::Compile() const {
   chains.push_back("");  // default chain
 
   // collect unique alt-chains
-  for (const Rule<T>& r : rules_) {
+  for (typename std::vector<Rule<T>>::const_reference r : rules_) {
     if (!r.enabled) continue;
-    for (const std::string& alt : r.alt) {
+
+    for (typename std::vector<std::string>::const_reference alt : r.alt) {
       if (std::find(chains.begin(), chains.end(), alt) == chains.end()) {
         chains.push_back(alt);
       }
@@ -47,22 +48,23 @@ void Ruler<T>::Compile() const {
   cache_.clear();
 
   // build cache for each chain
-  for (const std::string& chain : chains) {
-    std::vector<T> seq;
+  for (typename std::vector<std::string>::const_reference chain : chains) {
+    std::vector<std::pair<std::string, T>> seq;
 
-    for (const Rule<T>& r : rules_) {
+    for (typename std::vector<Rule<T>>::const_reference r : rules_) {
       if (!r.enabled) continue;
 
       if (!chain.empty()) {
-        // if chain != "" then rule must include this chain
-        if (std::find(r.alt.begin(), r.alt.end(), chain) == r.alt.end())
+        // rule must include this chain
+        if (std::find(r.alt.begin(), r.alt.end(), chain) == r.alt.end()) {
           continue;
+        }
       }
 
-      seq.push_back(r.fn);
+      seq.push_back(std::pair<std::string, T>(r.name, r.fn));
     }
 
-    cache_[chain] = std::move(seq);
+    cache_[chain] = seq;
   }
 }
 
@@ -176,7 +178,8 @@ std::vector<std::string> Ruler<T>::Disable(const std::string& name,
 }
 
 template <typename T>
-std::vector<T> Ruler<T>::GetRules(const std::string& chainName) const {
+std::vector<std::pair<std::string, T>> Ruler<T>::GetRules(
+    const std::string& chainName) const {
   if (cache_.empty()) Compile();
 
   auto it = cache_.find(chainName);

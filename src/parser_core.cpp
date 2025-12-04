@@ -27,9 +27,10 @@ ParserCore::ParserCore() : ruler{} {
 }
 
 void ParserCore::Process(StateCore& state) {
-  std::vector<RuleCore> rules = this->ruler.GetRules("");
+  std::vector<std::pair<std::string, RuleCore>> rules =
+      this->ruler.GetRules("");
   for (int i = 0, l = rules.size(); i < l; i++) {
-    rules[i](state);
+    rules[i].second(state);
   }
 }
 

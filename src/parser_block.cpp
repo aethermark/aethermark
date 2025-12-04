@@ -52,7 +52,8 @@ ParserBlock::ParserBlock() : ruler() {
 
 void ParserBlock::Tokenize(StateBlock& state, int startLine, int endLine) {
   // Get rule list
-  const std::vector<RuleBlock>& rules = ruler.GetRules("");
+  const std::vector<std::pair<std::string, RuleBlock>>& rules =
+      ruler.GetRules("");
   const int len = static_cast<int>(rules.size());
   const int max_nesting = state.md.options.max_nesting;
 
@@ -81,7 +82,7 @@ void ParserBlock::Tokenize(StateBlock& state, int startLine, int endLine) {
 
     // Try all block rules
     for (int i = 0; i < len; ++i) {
-      const RuleBlock& rule = rules[i];
+      const RuleBlock& rule = rules[i].second;
       if (rule(state, line, endLine, false)) {
         matched = true;
         if (state.line <= prev_line) {

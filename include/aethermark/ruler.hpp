@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace aethermark {
@@ -120,7 +121,8 @@ class Ruler {
   /// @brief Get list of enabled rules for given chain.
   /// @param chain_name Name of the chain.
   /// @return Array of rule functions.
-  std::vector<T> GetRules(const std::string& chain_name) const;
+  std::vector<std::pair<std::string, T>> GetRules(
+      const std::string& chain_name) const;
 
   /// @brief Find rule by name.
   /// @param name Name of the rule.
@@ -134,7 +136,9 @@ class Ruler {
 
  private:
   std::vector<Rule<T>> rules_;
-  mutable std::unordered_map<std::string, std::vector<T>> cache_;
+  mutable std::unordered_map<std::string,
+                             std::vector<std::pair<std::string, T>>>
+      cache_;
 
   void Compile() const;
   void Touch() const { cache_.clear(); }
