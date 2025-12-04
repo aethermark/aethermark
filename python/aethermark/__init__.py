@@ -16,4 +16,4 @@ See: https://github.com/aethermark/aethermark
 
 # TODO(MukulWaval): Export top level Aethermark functionalities here.
 # __all__ = ["greet"]
-__version__ = "0.0.20"
+__version__ = "0.0.21"
