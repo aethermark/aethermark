@@ -59,7 +59,7 @@ sudo ldconfig
 uninstalltion:
 
 ```bash
-sudo uninstall-cpp
+sudo make uninstall-cpp
 ```
 
 **Usage**:

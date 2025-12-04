@@ -1,50 +1,36 @@
 cmake_minimum_required(VERSION 3.16)
 project(aethermark LANGUAGES CXX)
 
-# ==============================
 # C++ Standard
-# ==============================
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ==============================
 # Options
-# ==============================
 option(BUILD_TESTS "Build Google Test unit tests" ON)
 option(BUILD_PYTHON "Build Python bindings with pybind11" ON)
 option(BUILD_PLAYGROUND "Build playground executable" ON)
 
-# ==============================
 # Include directories
-# ==============================
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# ==============================
 # Source files
-# ==============================
 file(GLOB_RECURSE SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
 
-# ==============================
 # Build static library
-# ==============================
 add_library(aethermark STATIC ${SRC_FILES})
 target_include_directories(aethermark PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-# ==============================
 # Playground executable
-# ==============================
 if(BUILD_PLAYGROUND)
     add_executable(playground ${PROJECT_SOURCE_DIR}/playground/main.cpp)
     target_link_libraries(playground PRIVATE aethermark)
     target_include_directories(playground PRIVATE ${PROJECT_SOURCE_DIR}/include)
 endif()
 
-# ==============================
 # Google Test for C++ tests
-# ==============================
 if(BUILD_TESTS)
     enable_testing()
     find_package(GTest REQUIRED)
@@ -66,11 +52,7 @@ if(BUILD_TESTS)
     )
 endif()
 
-
-
-# ==============================
 # Python bindings via pybind11
-# ==============================
 if(BUILD_PYTHON)
     # Python headers + interpreter
     find_package(Python REQUIRED COMPONENTS Interpreter Development)
@@ -97,9 +79,7 @@ file(GLOB_RECURSE PUBLIC_HEADERS
 )
 set_target_properties(aethermark PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
-# ==============================
 # Installation
-# ==============================
 install(
     TARGETS aethermark
     EXPORT aethermarkTargets
@@ -109,9 +89,7 @@ install(
     PUBLIC_HEADER DESTINATION include/aethermark
 )
 
-# ==============================
 # Uninstall target
-# ==============================
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
     set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
