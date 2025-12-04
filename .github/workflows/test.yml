@@ -92,26 +92,11 @@ jobs:
             ${{ runner.os }}-build-
 
       # -------------------- BUILD + TEST --------------------
-      - name: Build C++ library
-        run: make all
-
-      - name: Run C++ tests (GoogleTest)
-        run: make test-cpp
-
       - name: Pull submodules
         run: git submodule update --init --recursive
 
-      - name: Build Python package
-        run: make build-py
-
-      - name: Install Python package (from dist)
-        run: make install
-
-      - name: Run Python tests (pytest)
-        run: make test-py
-
-      - name: Run type checking (mypy)
-        run: make test-py-static-typecheck
+      - name: Build and test
+        run: make test
 
       # -------------------- LINTING --------------------
       - name: Run linting & formatting (pre-commit)
