@@ -7,7 +7,7 @@ name = "aethermark"
 version = "0.0.21"
 description = "Aethermark: A high-performance Markdown parser with AFM support."
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.8"
 authors = [
     { name = "Mukul Waval" }

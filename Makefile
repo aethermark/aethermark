@@ -26,6 +26,7 @@ all: build
 # C++ / CMake
 # ==========================
 build:
+	$(MAKE) clean
 	@mkdir -p $(BUILD_DIR)
 	cd $(BUILD_DIR) && cmake \
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
@@ -38,6 +39,15 @@ build:
 debug:
 	$(MAKE) clean
 	$(MAKE) BUILD_TYPE=Debug BUILD_PLAYGROUND=ON build
+
+test:
+	$(MAKE) clean
+	$(MAKE) BUILD_TESTS=ON BUILD_PYTHON=ON build
+	@mkdir -p python/aethermark
+	@cp $(BUILD_DIR)/aethermark_py*.so python/aethermark/_aethermark.so
+	@cd python && ../$(PYTHON) -m build --sdist
+	@cd $(BUILD_DIR) && ctest --output-on-failure
+	$(MAKE) test-py-static-typecheck
 
 test-cpp:
 	$(MAKE) clean
@@ -88,7 +98,9 @@ build-python-ext:
 	@cp $(BUILD_DIR)/aethermark_py*.so python/aethermark/_aethermark.so
 
 test-py:
-	cd python && ../$(PYTHON) -m pytest -v
+	$(MAKE) clean
+	$(MAKE) build-py
+	@cd python && ../$(PYTHON) -m pytest -v
 
 test-py-static-typecheck:
 	$(PYTHON) -m mypy python/aethermark
