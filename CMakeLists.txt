@@ -53,17 +53,19 @@ if(BUILD_TESTS)
     # Collect all test sources
     file(GLOB TEST_SRC "${PROJECT_SOURCE_DIR}/tests/*.cpp")
 
-    # Single executable for all tests
-    add_executable(unit_tests ${TEST_SRC})
+    # Single executable for all tests, exclude from default all so it doesn't auto-register twice
+    add_executable(unit_tests EXCLUDE_FROM_ALL ${TEST_SRC})
     target_link_libraries(unit_tests PRIVATE aethermark GTest::GTest GTest::Main pthread)
     target_include_directories(unit_tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-    # Discover all TEST() and TEST_F() cases
+    # Only register with CTest once
     gtest_discover_tests(unit_tests
         DISCOVERY_TIMEOUT 5
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        PROPERTIES LABELS "unit"
     )
 endif()
+
 
 
 # ==============================

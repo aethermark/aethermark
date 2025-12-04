@@ -106,5 +106,4 @@ lint:
 # ==========================
 clean:
 	@echo "Cleaning build and Python artifacts..."
-	rm -rf $(BUILD_DIR)
 	rm -rf python/dist python/*.egg-info python/aethermark/*.so
