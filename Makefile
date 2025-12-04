@@ -8,6 +8,9 @@ REQ_FILE := requirements-dev.txt
 
 # CMake build type
 BUILD_TYPE ?= Release
+BUILD_PLAYGROUND ?= OFF
+BUILD_PYTHON ?= OFF
+BUILD_TESTS ?= OFF
 
 # Targets
 .PHONY: all clean venv activate build test test-cpp test-py test-py-static-typecheck \
@@ -26,19 +29,25 @@ build:
 	@mkdir -p $(BUILD_DIR)
 	cd $(BUILD_DIR) && cmake \
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
-		-DBUILD_PYTHON=ON \
-		-DBUILD_TESTS=ON \
-		-DBUILD_PLAYGROUND=OFF \
+		-DBUILD_PYTHON=$(BUILD_PYTHON) \
+		-DBUILD_TESTS=$(BUILD_TESTS) \
+		-DBUILD_PLAYGROUND=$(BUILD_PLAYGROUND) \
 		..
 	cd $(BUILD_DIR) && cmake --build . --config $(BUILD_TYPE)
 
 debug:
-	$(MAKE) BUILD_TYPE=Debug build
+	$(MAKE) clean
+	$(MAKE) BUILD_TYPE=Debug BUILD_PLAYGROUND=ON build
 
 test-cpp:
+	$(MAKE) clean
+	$(MAKE) BUILD_TESTS=ON build
 	cd $(BUILD_DIR) && ctest --output-on-failure
 
+
 install-cpp:
+	$(MAKE) clean
+	$(MAKE) build
 	cd $(BUILD_DIR) && cmake --install . --prefix /usr/local
 
 uninstall-cpp:
@@ -46,10 +55,14 @@ uninstall-cpp:
 	@cd $(BUILD_DIR) && cmake --build . --target uninstall
 
 play:
+	$(MAKE) clean
 	@mkdir -p $(BUILD_DIR)
-	@cd $(BUILD_DIR) && cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAYGROUND=ON ..
-	@cd $(BUILD_DIR) && cmake --build . --config Debug
-	@cd $(BUILD_DIR) && ./playground
+	cd $(BUILD_DIR) && cmake \
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DBUILD_PLAYGROUND=ON \
+		..
+	cd $(BUILD_DIR) && cmake --build . --config Debug
+	cd $(BUILD_DIR) && ./playground
 
 # ==========================
 # Python / venv
@@ -70,7 +83,7 @@ activate:
 # Python Bindings (from CMake)
 # ==========================
 build-python-ext:
-	$(MAKE) build
+	$(MAKE) BUILD_PYTHON=ON build
 	@mkdir -p python/aethermark
 	@cp $(BUILD_DIR)/aethermark_py*.so python/aethermark/_aethermark.so
 
@@ -87,9 +100,15 @@ build-py: build-python-ext
 	cd python && ../$(PYTHON) -m build --sdist
 
 release:
+	$(MAKE) clean
+	$(MAKE) build
+	$(MAKE) build-py
 	cd python && ../$(PYTHON) -m twine upload dist/*
 
 release-test:
+	$(MAKE) clean
+	$(MAKE) build
+	$(MAKE) build-py
 	cd python && ../$(PYTHON) -m twine upload --repository testpypi dist/* --verbose
 
 install:
@@ -107,4 +126,4 @@ lint:
 clean:
 	@echo "Cleaning build and Python artifacts..."
 	rm -rf python/dist python/*.egg-info python/aethermark/*.so
-	rm -rf $(BUILD_DIR)/playground $(BUILD_DIR)/unit_tests $(BUILD_DIR)/libaethermark.a $(BUILD_DIR)/aethermark_py*
+	rm -rf $(BUILD_DIR)
