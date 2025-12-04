@@ -187,25 +187,39 @@ bool BlockRules::RuleBlockquote(StateBlock& state, int start_line, int end_line,
 }
 
 bool BlockRules::RuleCode(StateBlock& state, int start_line, int end_line,
-                          bool silent) {}
+                          bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleFence(StateBlock& state, int start_line, int end_line,
-                           bool silent) {}
+                           bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleHeading(StateBlock& state, int start_line, int end_line,
-                             bool silent) {}
+                             bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleHr(StateBlock& state, int start_line, int end_line,
-                        bool silent) {}
+                        bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleHtmlBlock(StateBlock& state, int start_line, int end_line,
-                               bool silent) {}
+                               bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleLheading(StateBlock& state, int start_line, int end_line,
-                              bool silent) {}
+                              bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleList(StateBlock& state, int start_line, int end_line,
-                          bool silent) {}
+                          bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleParagraph(StateBlock& state, int start_line, int end_line,
                                bool silent) {
@@ -264,10 +278,14 @@ bool BlockRules::RuleParagraph(StateBlock& state, int start_line, int end_line,
 }
 
 bool BlockRules::RuleReference(StateBlock& state, int start_line, int end_line,
-                               bool silent) {}
+                               bool silent) {
+  return false;
+}
 
 bool BlockRules::RuleTable(StateBlock& state, int start_line, int end_line,
-                           bool silent) {}
+                           bool silent) {
+  return false;
+}
 
 // NOLINTEND
 
