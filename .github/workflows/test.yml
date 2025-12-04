@@ -98,6 +98,9 @@ jobs:
       - name: Run C++ tests (GoogleTest)
         run: make test-cpp
 
+      - name: Pull submodules
+        run: git submodule update --init --recursive
+
       - name: Build Python package
         run: make build-py
 
