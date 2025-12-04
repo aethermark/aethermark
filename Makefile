@@ -46,6 +46,8 @@ test:
 	@mkdir -p python/aethermark
 	@cp $(BUILD_DIR)/aethermark_py*.so python/aethermark/_aethermark.so
 	@cd python && ../$(PYTHON) -m build --sdist
+	@cd python && ../$(PYTHON) -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
+	@cd python && ../$(PYTHON) -m pytest -v
 	@cd $(BUILD_DIR) && ctest --output-on-failure
 	$(MAKE) test-py-static-typecheck
 
