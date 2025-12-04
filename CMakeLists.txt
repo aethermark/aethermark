@@ -108,3 +108,17 @@ install(
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/aethermark
 )
+
+# ==============================
+# Uninstall target
+# ==============================
+if(NOT DEFINED CMAKE_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX "/usr/local")
+endif()
+
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -E echo "Uninstalling Aethermark from ${CMAKE_INSTALL_PREFIX}"
+    COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_INSTALL_PREFIX}/lib/libaethermark.a"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_INSTALL_PREFIX}/include/aethermark"
+    COMMENT "Removing installed Aethermark library and headers"
+)

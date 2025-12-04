@@ -42,8 +42,8 @@ install-cpp:
 	cd $(BUILD_DIR) && cmake --install . --prefix /usr/local
 
 uninstall-cpp:
-	@echo "Running CMake uninstall script..."
-	@cd $(BUILD_DIR) && cmake -P ../uninstall.cmake
+	@echo "Running CMake uninstall target..."
+	@cd $(BUILD_DIR) && cmake --build . --target uninstall
 
 play:
 	@mkdir -p $(BUILD_DIR)
