@@ -116,14 +116,14 @@ inline void printTable(const TableData& data, const TableRow& headers) {
                   const std::string& right) {
     std::cout << left;
     for (size_t i = 0; i < cols; i++) {
-      std::cout << repeat(u8"─", widths[i] + 2);
+      std::cout << repeat("─", widths[i] + 2);
       std::cout << (i < cols - 1 ? mid : right);
     }
     std::cout << "\n";
   };
 
   // TOP border
-  line(u8"┌", u8"┬", u8"┐");
+  line("┌", "┬", "┐");
 
   // HEADER
   std::cout << "│";
@@ -134,7 +134,7 @@ inline void printTable(const TableData& data, const TableRow& headers) {
   std::cout << "\n";
 
   // MID border
-  line(u8"├", u8"┼", u8"┤");
+  line("├", "┼", "┤");
 
   // DATA rows
   for (auto& row : data) {
@@ -149,7 +149,7 @@ inline void printTable(const TableData& data, const TableRow& headers) {
   }
 
   // BOTTOM border
-  line(u8"└", u8"┴", u8"┘");
+  line("└", "┴", "┘");
 }
 
 inline std::string repeat(const std::string& str, size_t times) {
