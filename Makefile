@@ -106,12 +106,7 @@ lint:
 
 play:
 	$(MAKE) clean
-	@mkdir -p $(BUILD_DIR)
-	cd $(BUILD_DIR) && cmake \
-		-DCMAKE_BUILD_TYPE=Debug \
-		-DBUILD_PLAYGROUND=ON \
-		..
-	cd $(BUILD_DIR) && cmake --build . --config Debug
+	$(MAKE) BUILD_TYPE=Debug BUILD_PLAYGROUND=ON build
 	cd $(BUILD_DIR) && ./playground
 
 debug:

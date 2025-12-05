@@ -6,6 +6,7 @@
 #include <deque>
 #include <iomanip>
 #include <iostream>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -16,13 +17,14 @@
 using TableRow = std::vector<std::string>;
 using TableData = std::vector<TableRow>;
 
-inline void printTable(const TableData& data, const TableRow& headers);
-inline void print(const std::deque<aethermark::Token>& tokens);
-inline std::string repeat(const std::string& str, size_t times);
-inline std::string center(const std::string& str, size_t width);
+inline void PrintTable(const TableData& data, const TableRow& headers);
+inline void Print(const std::deque<aethermark::Token>& tokens);
+inline std::string Repeat(const std::string& str, size_t times);
+inline std::string Center(const std::string& str, size_t width);
+inline std::string Normalize(std::string s);
 
 int main() {
-  std::string src = "> Blockquotes can also be nested...";
+  std::string src = "    some code";
   aethermark::Aethermark md;
   std::any env;
 
@@ -34,12 +36,12 @@ int main() {
 
   // md.blockParser.parse(src, md, env, tokens);
 
-  print(state.tokens);
+  Print(state.tokens);
 
   return 0;
 }
 
-inline void print(const std::deque<aethermark::Token>& tokens) {
+inline void Print(const std::deque<aethermark::Token>& tokens) {
   TableData rows;
   TableRow headers = {
       "Index", "Type", "Content", "Tag", "Map", "Nesting",
@@ -51,14 +53,14 @@ inline void print(const std::deque<aethermark::Token>& tokens) {
 
     row.push_back(std::to_string(i));
     row.push_back(token.type);
-    row.push_back(token.content != "" ? token.content : "-");
+    row.push_back(token.content != "" ? Normalize(token.content) : "-");
     row.push_back(token.tag);
 
     if (token.map) {
-      std::string mapStr =
+      std::string map_str =
           "[" + std::to_string(static_cast<int>(token.map->first)) + ", " +
           std::to_string(static_cast<int>(token.map->second)) + "] ";
-      row.push_back(mapStr);
+      row.push_back(map_str);
     } else {
       row.push_back("-");
     }
@@ -84,10 +86,10 @@ inline void print(const std::deque<aethermark::Token>& tokens) {
     rows.push_back(row);
   }
 
-  printTable(rows, headers);
+  PrintTable(rows, headers);
 }
 
-inline void printTable(const TableData& data, const TableRow& headers) {
+inline void PrintTable(const TableData& data, const TableRow& headers) {
   if (data.empty() && headers.empty()) return;
 
   size_t cols = headers.size();
@@ -116,7 +118,7 @@ inline void printTable(const TableData& data, const TableRow& headers) {
                   const std::string& right) {
     std::cout << left;
     for (size_t i = 0; i < cols; i++) {
-      std::cout << repeat("─", widths[i] + 2);
+      std::cout << Repeat("─", widths[i] + 2);
       std::cout << (i < cols - 1 ? mid : right);
     }
     std::cout << "\n";
@@ -129,7 +131,7 @@ inline void printTable(const TableData& data, const TableRow& headers) {
   std::cout << "│";
   for (size_t i = 0; i < cols; i++) {
     std::cout << " " << bold << blue << std::setw(widths[i])
-              << center(headers[i], widths[i]) << reset << " │";
+              << Center(headers[i], widths[i]) << reset << " │";
   }
   std::cout << "\n";
 
@@ -152,7 +154,7 @@ inline void printTable(const TableData& data, const TableRow& headers) {
   line("└", "┴", "┘");
 }
 
-inline std::string repeat(const std::string& str, size_t times) {
+inline std::string Repeat(const std::string& str, size_t times) {
   std::string result;
   for (size_t i = 0; i < times; ++i) {
     result += str;
@@ -160,10 +162,17 @@ inline std::string repeat(const std::string& str, size_t times) {
   return result;
 }
 
-inline std::string center(const std::string& str, size_t width) {
+inline std::string Center(const std::string& str, size_t width) {
   if (str.size() >= width) return str;
   size_t pad = width - str.size();
   size_t pad_left = pad / 2;
   size_t pad_right = pad - pad_left;
   return std::string(pad_left, ' ') + str + std::string(pad_right, ' ');
+}
+
+inline std::string Normalize(std::string s) {
+  const std::regex kNewlineRe(R"(\r\n?|\n)");
+  const std::regex kNullRe(std::string("\x00", 1));
+
+  return std::regex_replace(s, std::regex(R"(\r\n?|\n)"), "\\n");
 }

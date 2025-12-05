@@ -8,6 +8,7 @@
 
 #include "aethermark/aethermark.hpp"
 #include "aethermark/parser_block.hpp"
+#include "aethermark/token.hpp"
 #include "aethermark/utils.hpp"
 
 namespace aethermark {
@@ -188,7 +189,35 @@ bool BlockRules::RuleBlockquote(StateBlock& state, int start_line, int end_line,
 
 bool BlockRules::RuleCode(StateBlock& state, int start_line, int end_line,
                           bool silent) {
-  return false;
+  if (state.s_count[start_line] - state.blk_indent < 4) {
+    return false;
+  }
+
+  int next_line = start_line + 1;
+  int last = next_line;
+
+  // Find end of block
+  while (next_line < end_line) {
+    if (state.IsEmpty(next_line)) {
+      next_line++;
+      continue;
+    }
+    if (state.s_count[next_line] - state.blk_indent >= 4) {
+      next_line++;
+      last = next_line;
+      continue;
+    }
+    break;
+  }
+
+  state.line = last;
+
+  Token& token = state.Push("code_block", "code", Nesting::kSelfClosing);
+  token.content =
+      state.GetLines(start_line, last, 4 + state.blk_indent, false) + "\n";
+  token.map = {start_line, state.line};
+
+  return true;
 }
 
 bool BlockRules::RuleFence(StateBlock& state, int start_line, int end_line,
