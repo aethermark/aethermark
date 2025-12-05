@@ -16,4 +16,4 @@ from ._aethermark import greet  # noqa: F401
 
 # TODO(MukulWaval): Export top level Aethermark functionalities here.
 __all__ = ["greet"]
-__version__ = "0.0.22"
+__version__ = "0.0.23"
