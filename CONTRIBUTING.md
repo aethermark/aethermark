@@ -18,19 +18,7 @@ make venv
 make activate
 ```
 
-### 3. GTest Installtion
-
-```bash
-sudo apt update
-sudo apt install -y g++ make python3-dev python3-venv \
- libgtest-dev cmake
-cd /usr/src/googletest
-sudo cmake .
-sudo make
-sudo cp lib/\*.a /usr/lib
-```
-
-### 4. Pre-commit installation
+### 3. Pre-commit installation
 
 ```bash
 pre-commit install
