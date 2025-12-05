@@ -33,18 +33,27 @@ endif()
 # Google Test for C++ tests
 if(BUILD_TESTS)
     enable_testing()
-    find_package(GTest REQUIRED)
-    include(GoogleTest)
 
-    # Collect all test sources
+    # Add GoogleTest from submodule
+    add_subdirectory(extern/googletest)
+
+    # Collect test sources
     file(GLOB TEST_SRC "${PROJECT_SOURCE_DIR}/tests/*.cpp")
 
-    # Single executable for all tests, exclude from default all so it doesn't auto-register twice
+    # Create test executable
     add_executable(unit_tests ${TEST_SRC})
-    target_link_libraries(unit_tests PRIVATE aethermark GTest::GTest GTest::Main pthread)
-    target_include_directories(unit_tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
+    target_link_libraries(unit_tests PRIVATE
+        aethermark
+        gtest
+        gtest_main
+        pthread
+    )
 
-    # Only register with CTest once
+    target_include_directories(unit_tests PRIVATE
+        ${PROJECT_SOURCE_DIR}/include
+    )
+
+    include(GoogleTest)
     gtest_discover_tests(unit_tests
         DISCOVERY_TIMEOUT 5
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

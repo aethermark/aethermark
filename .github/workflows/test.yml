@@ -41,24 +41,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # -------------------- BUILD GTEST --------------------
-      - name: Cache GoogleTest build
-        id: gtest-cache
-        uses: actions/cache@v4
-        with:
-          path: /usr/local/lib/libgtest.a
-          key: ${{ runner.os }}-gtest-v1
-
-      - name: Build GoogleTest
-        if: steps.gtest-cache.outputs.cache-hit != 'true'
-        run: |
-          echo "Building GoogleTest..."
-          cd /usr/src/gtest
-          sudo cmake .
-          sudo make
-          sudo cp lib/*.a /usr/local/lib
-          echo "GoogleTest built and cached."
-
       # -------------------- VIRTUAL ENV --------------------
       - name: Ensure virtual environment
         run: |
