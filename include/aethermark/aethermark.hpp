@@ -7,6 +7,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "aethermark/parser_block.hpp"
@@ -18,7 +19,7 @@
 
 namespace aethermark {
 
-/// @brief Configuration object for Aethermark.
+/// @brief Options configuration object for Aethermark.
 struct Options {
   /// @brief HTML.
   bool html = false;
@@ -50,6 +51,35 @@ struct Options {
   int max_nesting = 20;
 };
 
+/// @brief Core parser configuration.
+struct CoreConfig {
+  std::vector<std::string> rules;  ///< Rules array.
+};
+
+/// @brief Block parser configuration.
+struct BlockConfig {
+  std::vector<std::string> rules;  ///< Rules array.
+};
+
+/// @brief Inline parser configuration.
+struct InlineConfig {
+  std::vector<std::string> rules_1;  ///< First rules array.
+  std::vector<std::string> rules_2;  ///< Second rules array.
+};
+
+/// @brief Rules configuration.
+struct ComponentConfig {
+  CoreConfig core_config;      ///< Core parser configuration.
+  BlockConfig block_config;    ///< Block parser configuration.
+  InlineConfig inline_config;  ///< Inline parser configuration.
+};
+
+/// @brief Configuration preset object for Aethermark.
+struct Preset {
+  Options options;             ///< Options configuration.
+  ComponentConfig components;  ///< Component configuration.
+};
+
 /// @brief Main entry for Aethermark.
 class Aethermark {
  public:
@@ -68,15 +98,21 @@ class Aethermark {
   /// @brief Confgurations of processor.
   Options options;
 
+  /// @brief The configuration presets.
+  static const std::unordered_map<std::string, Preset> presets;
+
   // TODO(MukulWaval): complete documentation.
   Aethermark();
   explicit Aethermark(const Options& opts);
+  explicit Aethermark(std::string preset_name,
+                      std::optional<Options> options = std::nullopt);
 
   // configure options on existing instance
   Aethermark& Set(const Options& opts);
 
   // presets: "default", "zero", "commonmark"
-  Aethermark& Configure(const std::string& preset);
+  Aethermark& Configure(const std::string& preset_name);
+  Aethermark& Configure(const Preset& preset);
 
   // enable/disable rules: dispatch into block/core/inline
   Aethermark& Enable(const std::vector<std::string>& list,

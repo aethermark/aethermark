@@ -4,69 +4,72 @@
 #include <algorithm>
 #include <any>
 #include <deque>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <print>
 #include <regex>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "aethermark/aethermark.hpp"
-#include "aethermark/parser_block.hpp"
 #include "aethermark/token.hpp"
 
 using TableRow = std::vector<std::string>;
 using TableData = std::vector<TableRow>;
 
-inline void PrintTable(const TableData& data, const TableRow& headers);
 inline void Print(const std::deque<aethermark::Token>& tokens);
 inline std::string Repeat(const std::string& str, size_t times);
-inline std::string Center(const std::string& str, size_t width);
-inline std::string Normalize(std::string s);
+inline std::string Center(const std::string& s, size_t w);
+inline std::string Normalize(const std::string& s);
 
-int main() {
-  std::string src = "    some code";
-  aethermark::Aethermark md;
-  std::any env;
+int main(int argc, char** argv) {
+  std::string input;
 
-  std::deque<aethermark::Token> tokens;
+  if (argc > 1) {
+    std::ifstream file(argv[1]);
+    if (!file) {
+      std::cerr << "Failed to open file: " << argv[1] << "\n";
+      return 1;
+    }
+    std::ostringstream oss;
+    oss << file.rdbuf();
+    input = oss.str();
+  } else {
+    std::ostringstream oss;
+    for (int i = 1; i < argc; i++) {
+      if (i > 1) oss << " ";
+      oss << argv[i];
+    }
+    input = oss.str();
+  }
 
-  aethermark::StateCore state = aethermark::StateCore(src, md, env);
-
-  md.core_parser.Process(state);
-
-  // md.blockParser.parse(src, md, env, tokens);
-
-  Print(state.tokens);
-
+  aethermark::Aethermark am("commonmark");
+  Print(am.Parse(input, {}));
   return 0;
 }
 
 inline void Print(const std::deque<aethermark::Token>& tokens) {
   TableData rows;
-  TableRow headers = {
-      "Index", "Type", "Content", "Tag", "Map", "Nesting",
-  };
+  TableRow headers = {"Index", "Type", "Content", "Tag", "Map", "Nesting"};
 
   for (size_t i = 0; i < tokens.size(); ++i) {
-    auto& token = tokens[i];
+    const auto& token = tokens[i];
     TableRow row;
-
     row.push_back(std::to_string(i));
     row.push_back(token.type);
-    row.push_back(token.content != "" ? Normalize(token.content) : "-");
+    row.push_back(token.content.empty() ? "-" : Normalize(token.content));
     row.push_back(token.tag);
 
     if (token.map) {
-      std::string map_str =
-          "[" + std::to_string(static_cast<int>(token.map->first)) + ", " +
-          std::to_string(static_cast<int>(token.map->second)) + "] ";
-      row.push_back(map_str);
+      row.push_back("[" + std::to_string(token.map->first) + ", " +
+                    std::to_string(token.map->second) + "]");
     } else {
       row.push_back("-");
     }
 
     std::string nesting;
-
     switch (token.nesting) {
       case aethermark::Nesting::kOpening:
         nesting = "OPENING";
@@ -82,38 +85,24 @@ inline void Print(const std::deque<aethermark::Token>& tokens) {
         break;
     }
     row.push_back(nesting);
-
     rows.push_back(row);
   }
 
-  PrintTable(rows, headers);
-}
-
-inline void PrintTable(const TableData& data, const TableRow& headers) {
-  if (data.empty() && headers.empty()) return;
+  if (rows.empty()) return;
 
   size_t cols = headers.size();
   std::vector<size_t> widths(cols, 0);
-
-  // compute column widths
-  for (size_t i = 0; i < cols; i++) {
-    widths[i] = headers[i].size();
-  }
-
-  for (auto& row : data) {
-    for (size_t i = 0; i < row.size(); i++) {
+  for (size_t i = 0; i < cols; i++) widths[i] = headers[i].size();
+  for (auto& row : rows)
+    for (size_t i = 0; i < row.size(); i++)
       widths[i] = std::max(widths[i], row[i].size());
-    }
-  }
 
-  // Colors and formatting
   const std::string blue = "\033[34m";
   const std::string green = "\033[32m";
   const std::string red = "\033[31m";
   const std::string bold = "\033[1m";
   const std::string reset = "\033[0m";
 
-  // Helper to print horizontal line
   auto line = [&](const std::string& left, const std::string& mid,
                   const std::string& right) {
     std::cout << left;
@@ -124,55 +113,46 @@ inline void PrintTable(const TableData& data, const TableRow& headers) {
     std::cout << "\n";
   };
 
-  // TOP border
   line("┌", "┬", "┐");
 
-  // HEADER
+  // header
   std::cout << "│";
   for (size_t i = 0; i < cols; i++) {
-    std::cout << " " << bold << blue << std::setw(widths[i])
-              << Center(headers[i], widths[i]) << reset << " │";
+    std::cout << " " << bold << blue << Center(headers[i], widths[i]) << reset
+              << " │";
   }
   std::cout << "\n";
-
-  // MID border
   line("├", "┼", "┤");
 
-  // DATA rows
-  for (auto& row : data) {
+  // rows
+  for (auto& row : rows) {
     std::cout << "│";
     for (size_t i = 0; i < cols; i++) {
       std::string val = (i < row.size()) ? row[i] : "";
       std::string color = (val == "-") ? red : green;
-      std::cout << " " << color << std::setw(widths[i]) << std::left << val
+      std::cout << " " << color << std::left << std::setw(widths[i]) << val
                 << reset << " │";
     }
     std::cout << "\n";
   }
 
-  // BOTTOM border
   line("└", "┴", "┘");
 }
 
 inline std::string Repeat(const std::string& str, size_t times) {
   std::string result;
-  for (size_t i = 0; i < times; ++i) {
-    result += str;
-  }
+  result.reserve(str.size() * times);
+  for (size_t i = 0; i < times; ++i) result += str;
   return result;
 }
 
-inline std::string Center(const std::string& str, size_t width) {
-  if (str.size() >= width) return str;
-  size_t pad = width - str.size();
-  size_t pad_left = pad / 2;
-  size_t pad_right = pad - pad_left;
-  return std::string(pad_left, ' ') + str + std::string(pad_right, ' ');
+inline std::string Center(const std::string& s, size_t w) {
+  if (s.size() >= w) return s;
+  size_t pad_left = (w - s.size()) / 2;
+  size_t pad_right = w - s.size() - pad_left;
+  return std::string(pad_left, ' ') + s + std::string(pad_right, ' ');
 }
 
-inline std::string Normalize(std::string s) {
-  const std::regex kNewlineRe(R"(\r\n?|\n)");
-  const std::regex kNullRe(std::string("\x00", 1));
-
+inline std::string Normalize(const std::string& s) {
   return std::regex_replace(s, std::regex(R"(\r\n?|\n)"), "\\n");
 }

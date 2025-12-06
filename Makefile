@@ -25,11 +25,7 @@ clean:
 venv:
 	python3 -m venv $(VENV_DIR)
 	$(PYTHON) -m pip install --upgrade pip
-	@if [ -f $(REQ_FILE) ]; then \
-		$(PYTHON) -m pip install -r $(REQ_FILE); \
-	else \
-		$(PYTHON) -m pip install setuptools wheel build twine pytest pre-commit mypy; \
-	fi
+	$(PYTHON) -m pip install -r $(REQ_FILE)
 
 activate:
 	@echo "Run: source $(VENV_DIR)/bin/activate"
@@ -107,7 +103,7 @@ lint:
 play:
 	$(MAKE) clean
 	$(MAKE) BUILD_TYPE=Debug BUILD_PLAYGROUND=ON build
-	cd $(BUILD_DIR) && ./playground
+	cd $(BUILD_DIR) && ./playground ../playground/play.md
 
 debug:
 	$(MAKE) clean
