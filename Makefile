@@ -13,7 +13,7 @@ BUILD_TESTS ?= OFF
         build build-py build-python-ext \
 		release release-test \
 		install install-cpp uninstall-cpp \
-        lint play debug
+        lint play debug run-cov
 
 all: build
 
@@ -108,3 +108,9 @@ play:
 debug:
 	$(MAKE) clean
 	$(MAKE) BUILD_TYPE=Debug BUILD_PLAYGROUND=ON build
+
+run-cov:
+	$(MAKE) clean
+	cmake -B build -DENABLE_COVERAGE=ON
+	cmake --build build
+	$(MAKE) -C build coverage

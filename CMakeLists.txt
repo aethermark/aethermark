@@ -6,6 +6,50 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Coverage support
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+
+if(ENABLE_COVERAGE)
+    message(STATUS ">>> Coverage Enabled")
+
+    # ----- Enable coverage flags -----
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-O0 -g --coverage)
+        add_link_options(--coverage)
+    else()
+        message(WARNING "Coverage not supported for this compiler")
+    endif()
+
+    # ----- Find required tools -----
+    find_program(GCOVR_EXECUTABLE gcovr)
+    if(NOT GCOVR_EXECUTABLE)
+        message(FATAL_ERROR "gcovr not found — install via: sudo apt install gcovr")
+    endif()
+
+    find_program(GCOV_EXECUTABLE gcov-14)
+    if(NOT GCOV_EXECUTABLE)
+        message(FATAL_ERROR "gcov-14 not found — install via: sudo apt install ggcov-14")
+    endif()
+
+    # ----- Coverage target -----
+    add_custom_target(coverage
+        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+        COMMAND ${GCOVR_EXECUTABLE}
+            --gcov-executable ${GCOV_EXECUTABLE}
+            --root ${PROJECT_SOURCE_DIR}
+
+            --filter "${PROJECT_SOURCE_DIR}/src"
+            --filter "${PROJECT_SOURCE_DIR}/include"
+
+            --xml coverage.xml
+            --html-details coverage.html
+            --print-summary
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Generating coverage report"
+    )
+endif()
+
+
 # Options
 option(BUILD_TESTS "Build Google Test unit tests" ON)
 option(BUILD_PYTHON "Build Python bindings with pybind11" ON)
