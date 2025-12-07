@@ -12,3 +12,16 @@ Example:
 
 See: https://github.com/aethermark/aethermark
 """
+
+
+def greet(name: str) -> str:
+    """
+    Greet someone by name.
+
+    Args:
+        name (str): Name of the person.
+
+    Returns:
+        str: Greeting string.
+    """
+    ...

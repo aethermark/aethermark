@@ -1,0 +1,59 @@
+name: Coverage
+
+on:
+    push:
+        branches: ["dev"]
+    workflow_dispatch:
+
+jobs:
+    coverage:
+        name: Run Coverage + Upload to Codecov
+        runs-on: ubuntu-latest
+
+        steps:
+            # ---------------------------------------
+            # Checkout repo
+            # ---------------------------------------
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # ---------------------------------------
+            # Pull dev container
+            # ---------------------------------------
+            - name: Pull coverage container
+              run: docker pull mukulwaval/aethermark-test-cov:v1.0.0
+
+            # ---------------------------------------
+            # Cache CMake + Build + ccache dirs
+            # ---------------------------------------
+            - name: Cache build artifacts
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      build/
+                      ~/.ccache
+                  key: ${{ runner.os }}-aethermark-${{ hashFiles('**/*') }}
+                  restore-keys: |
+                      ${{ runner.os }}-aethermark-
+
+            # ---------------------------------------
+            # Run coverage inside Docker container
+            # ---------------------------------------
+            - name: Run coverage inside container
+              run: |
+                  docker run --rm \
+                    -v ${{ github.workspace }}:/aethermark \
+                    -w /aethermark \
+                    mukulwaval/aethermark-test-cov:v1.0.0 \
+                    make run-cov
+
+            # ---------------------------------------
+            # Upload to Codecov
+            # ---------------------------------------
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  files: ./build/coverage.xml
+                  fail_ci_if_error: true
+                  verbose: true

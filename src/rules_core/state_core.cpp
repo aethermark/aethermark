@@ -8,6 +8,6 @@
 namespace aethermark {
 
 StateCore::StateCore(const std::string& src, Aethermark& md, std::any env)
-    : src(src), md(md), env(env) {}  // NOLINT(whitespace/indent_namespace)
+    : src(src), md(md), env(env) {}
 
 }  // namespace aethermark

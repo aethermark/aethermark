@@ -1,4 +1,3 @@
-recursive-include src *.cpp
-recursive-include include *.hpp *.tpp *.h
 include README.md
 recursive-include aethermark *.pyi
+recursive-include aethermark *.so

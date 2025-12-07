@@ -2,7 +2,11 @@
 // All rights reserved.
 
 #pragma once
+
+#include <any>
+#include <deque>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -11,14 +15,21 @@ namespace aethermark {
 
 /// @brief Represents the type of nesting type of a token.
 enum Nesting {
-  CLOSING = -1,      ///< Represents a closing token.
-  SELF_CLOSING = 0,  ///< Represents a self-closing token.
-  OPENING = 1,       ///< Represents an opening token.
+  kClosing = -1,     ///< Represents a closing token.
+  kSelfClosing = 0,  ///< Represents a self-closing token.
+  kOpening = 1,      ///< Represents an opening token.
 };
 
 /// @brief Represents a token in the Aethermark markdown flavor.
 class Token {
  public:
+  Token() = default;
+  Token(const Token&) = default;
+  Token(Token&&) noexcept = default;
+  Token& operator=(const Token&) = default;
+  Token& operator=(Token&&) noexcept = default;
+  ~Token() = default;
+
   /// @brief Constructs a new Token.
   /// @param type Type of the token.
   /// @param tag Tag of the token.
@@ -31,9 +42,9 @@ class Token {
   int AttrIndex(const std::string& name);
 
   /// @brief Push attributes to the token.
-  /// @param attrData Attribute data to be pushed. ( name, value ) pairs.
+  /// @param attr_data Attribute data to be pushed. ( name, value ) pairs.
   void AttrPush(
-      const std::vector<std::pair<std::string, std::string>>& attrData);
+      const std::vector<std::pair<std::string, std::string>>& attr_data);
 
   /// @brief Set an attribute to the token. Override old value if exists.
   /// @param name Name of attribute.
@@ -52,45 +63,6 @@ class Token {
   /// @param value Value of the attribute.
   void AttrJoin(const std::string& name, const std::string& value);
 
-  // ---------- Accessors ----------
-
-  std::string GetType() const { return type; }
-  std::string GetTag() const { return tag; }
-  std::optional<std::vector<std::pair<std::string, std::string>>> GetAttrs() {
-    return attrs;
-  }
-  std::optional<std::vector<std::pair<float, float>>> GetMap() { return map; }
-  Nesting GetNesting() const { return nesting; }
-  float GetLevel() const { return level; }
-  std::optional<std::vector<Token>> GetChildren() { return children; }
-  std::string GetContent() const { return content; }
-  std::string GetMarkup() const { return markup; }
-  std::string GetInfo() const { return info; }
-  bool IsBlock() const { return block; }
-  bool IsHidden() const { return hidden; }
-
-  // ---------- Mutators ----------
-
-  void SetType(const std::string& t) { type = t; }
-  void SetTag(const std::string& t) { tag = t; }
-  void SetAttrs(
-      const std::optional<std::vector<std::pair<std::string, std::string>>>&
-          a) {
-    attrs = a;
-  }
-  void SetMap(const std::optional<std::vector<std::pair<float, float>>>& m) {
-    map = m;
-  }
-  void SetNesting(Nesting n) { nesting = n; }
-  void SetLevel(float l) { level = l; }
-  void SetChildren(const std::optional<std::vector<Token>>& c) { children = c; }
-  void SetContent(const std::string& c) { content = c; }
-  void SetMarkup(const std::string& m) { markup = m; }
-  void SetInfo(const std::string& i) { info = i; }
-  void SetBlock(bool b) { block = b; }
-  void SetHidden(bool h) { hidden = h; }
-
- private:
   /// @brief Type of the token, e.g. "paragraph_open".
   std::string type;
 
@@ -102,7 +74,7 @@ class Token {
   std::optional<std::vector<std::pair<std::string, std::string>>> attrs;
 
   /// @brief Source map info. Format: `[ line_begin, line_end ]`
-  std::optional<std::vector<std::pair<float, float>>> map;
+  std::optional<std::pair<float, float>> map;
 
   /// @brief Level change in the token.
   Nesting nesting;
@@ -111,7 +83,7 @@ class Token {
   float level;
 
   /// @brief An array of child nodes (inline and img tokens)
-  std::optional<std::vector<Token>> children;
+  std::optional<std::deque<Token>> children;
 
   /// @brief Contents of the tag. If it is a self-closing tag (code, html,
   /// fence, etc.)
@@ -127,7 +99,8 @@ class Token {
   /// tokens
   std::string info;
 
-  // TODO(MukulWaval): Add meta field
+  /// @brief A place for plugins to store an arbitrary data.
+  std::any meta;
 
   /// @brief True for block-level tokens, false for inline tokens.
   /// Used in renderer to calculate line breaks.

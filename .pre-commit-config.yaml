@@ -58,4 +58,6 @@ repos:
     hooks:
       - id: cpplint
         name: cpplint
+        args:
+          - --filter=-whitespace/indent_namespace
         files: ^(src/|include/|python/bindings/) # only these directories

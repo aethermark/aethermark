@@ -1,12 +1,12 @@
-// NOLINT(whitespace/indent_namespace)
-
 // Copyright 2025 Aethermark Contributors
 // All rights reserved.
 
 #include "aethermark/aethermark.hpp"
 
+#include <deque>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 // #include "aethermark/parser_block.hpp"
@@ -18,55 +18,147 @@
 
 namespace aethermark {
 
+// TODO(MukulWaval): Add default move, copy constructors and destructors for all
+// clasess
+// TODO(MukulWaval): Add documentation for all classes
+// TODO(MukulWaval): Optimize the use of std::vector
+// TODO(MukulWaval): Remove all unnecessary comments from all files
+// TODO(MukulWaval): Implement missing Aethermark class
+
+const std::unordered_map<std::string, Preset> Aethermark::presets = {
+    {"default",
+     Preset{.options = Options{.html = false,
+                               .xhtml_out = false,
+                               .breaks = false,
+                               .lang_prefix = "language-",
+                               .linkify = false,
+                               .typographer = false,
+                               .quotes = {"\u201c", "\u201d", "\u2018",
+                                          "\u2019"},  // “”‘’
+                               .highlight = nullptr,
+                               .max_nesting = 100},
+            .components =
+                ComponentConfig{.core_config = CoreConfig{.rules = {}},
+                                .block_config = BlockConfig{.rules = {}},
+                                .inline_config = InlineConfig{.rules_1 = {},
+                                                              .rules_2 = {}}}}},
+    {"zero", Preset{.options = Options{.html = false,
+                                       .xhtml_out = false,
+                                       .breaks = false,
+                                       .lang_prefix = "language-",
+                                       .linkify = false,
+                                       .typographer = false,
+                                       .quotes = {"\u201c", "\u201d", "\u2018",
+                                                  "\u2019"},  // “”‘’
+                                       .highlight = nullptr,
+                                       .max_nesting = 20},
+                    .components =
+                        ComponentConfig{
+                            .core_config =
+                                CoreConfig{.rules = {"normalize", "block",
+                                                     "inline", "text_join"}},
+
+                            .block_config = BlockConfig{.rules = {"paragraph"}},
+
+                            .inline_config =
+                                InlineConfig{
+                                    .rules_1 = {"text"},
+                                    .rules_2 = {"balance_pairs",
+                                                "fragments_join"}}}}},
+    {"commonmark",
+     Preset{
+         .options = Options{.html = true,
+                            .xhtml_out = true,
+                            .breaks = false,
+                            .lang_prefix = "language-",
+                            .linkify = false,
+                            .typographer = false,
+                            .quotes = {"\u201c", "\u201d", "\u2018",
+                                       "\u2019"},  // “”‘’
+                            .highlight = nullptr,
+                            .max_nesting = 20},
+
+         .components = ComponentConfig{
+             .core_config = CoreConfig{.rules = {"normalize", "block", "inline",
+                                                 "text_join"}},
+
+             .block_config =
+                 BlockConfig{.rules = {"blockquote", "code", "fence", "heading",
+                                       "hr", "html_block", "lheading", "list",
+                                       "reference", "paragraph"}},
+
+             .inline_config =
+                 InlineConfig{.rules_1 = {"autolink", "backticks", "emphasis",
+                                          "entity", "escape", "html_inline",
+                                          "image", "link", "newline", "text"},
+                              .rules_2 = {"balance_pairs", "emphasis",
+                                          "fragments_join"}}}}}};
+
 Aethermark::Aethermark()
-    : /*inlineParser(), blockParser(),*/  // NOLINT(whitespace/indent_namespace)
-      coreParser(),                       // NOLINT(whitespace/indent_namespace)
-      /* renderer(), */ options() {       // NOLINT(whitespace/indent_namespace)
-  configure("default");
+    : /*inlineParser(),*/ block_parser(), core_parser() /* , renderer(),*/ {
+  Configure("default");
 }
 
 Aethermark::Aethermark(const Options& opts)
-    : /*inlineParser(), blockParser(),*/  // NOLINT(whitespace/indent_namespace)
-      coreParser(),                       // NOLINT(whitespace/indent_namespace)
-      /* renderer(), */ options(opts) {   // NOLINT(whitespace/indent_namespace)
-  configure("default");
-  set(opts);
+    : /*inlineParser(),*/ block_parser(), core_parser() /*, renderer(), */ {
+  Configure("default");
+  Set(opts);
 }
 
-Aethermark& Aethermark::set(const Options& opts) {
+Aethermark::Aethermark(std::string preset_name, std::optional<Options> options)
+    : /*inlineParser(),*/ block_parser(), core_parser() /*, renderer(), */ {
+  Configure(preset_name);
+
+  if (options.has_value()) {
+    Set(*options);
+  }
+}
+
+Aethermark& Aethermark::Set(const Options& opts) {
   options = opts;
   return *this;
 }
 
-Aethermark& Aethermark::configure(const std::string& preset) {
-  // TODO(MukulWaval): load presets from C++ equivalents of cfg_default /
-  // cfg_zero / cfg_commonmark For now, accept only "default"
-  if (preset != "default" && preset != "zero" && preset != "commonmark") {
-    throw std::runtime_error("Invalid preset: " + preset);
+Aethermark& Aethermark::Configure(const std::string& preset_name) {
+  auto it = Aethermark::presets.find(preset_name);
+  if (it == Aethermark::presets.end()) {
+    throw std::runtime_error("Unknown preset: " + preset_name);
   }
+  Preset preset = it->second;
 
-  // Here you’d load component/ruler configs.
-  // Keeping it empty for scaffolding.
+  Configure(preset);
 
   return *this;
 }
 
-// Aethermark& Aethermark::enable(const std::vector<std::string>& list,
+Aethermark& Aethermark::Configure(const Preset& preset) {
+  Set(preset.options);
+
+  core_parser.ruler.EnableOnly(preset.components.core_config.rules);
+  block_parser.ruler.EnableOnly(preset.components.block_config.rules);
+  // inline_parser.ruler.EnableOnly(preset.components.inline_config.rules_1);
+  // inline_parser.rule2.EnableOnly(preset.components.inline_config.rules_2);
+
+  return *this;
+}
+
+// Aethermark& Aethermark::Enable(const std::vector<std::string>& list,
 //                                bool ignoreInvalid) {
 //   std::vector<std::string> enabled;
-
+//
 //   for (auto* chain :
-//        {&coreParser.ruler, &blockParser.ruler, &inlineParser.ruler}) {
+//        {&core_parser.ruler, &block_parser.ruler /*, &inline_parser.ruler*/})
+//        {
 //     auto r = chain->enable(list, true);
 //     enabled.insert(enabled.end(), r.begin(), r.end());
 //   }
-
-//   // inline ruler2 (if implemented)
-//   if (inlineParser.ruler2.has_value()) {
-//     auto r2 = inlineParser.ruler2->enable(list, true);
-//     enabled.insert(enabled.end(), r2.begin(), r2.end());
-//   }
-
+//
+//   // inline ruler2
+//   // if (inline_parser.ruler2.has_value()) {
+//   //   auto r2 = inline_parser.ruler2->enable(list, true);
+//   //   enabled.insert(enabled.end(), r2.begin(), r2.end());
+//   // }
+//
 //   for (const auto& name : list) {
 //     if (std::find(enabled.begin(), enabled.end(), name) == enabled.end()) {
 //       if (!ignoreInvalid) {
@@ -76,22 +168,22 @@ Aethermark& Aethermark::configure(const std::string& preset) {
 //   }
 //   return *this;
 // }
-
+//
 // Aethermark& Aethermark::disable(const std::vector<std::string>& list,
 //                                 bool ignoreInvalid) {
 //   std::vector<std::string> disabled;
-
+//
 //   for (auto* chain :
 //        {&coreParser.ruler, &blockParser.ruler, &inlineParser.ruler}) {
 //     auto r = chain->disable(list, true);
 //     disabled.insert(disabled.end(), r.begin(), r.end());
 //   }
-
+//
 //   if (inlineParser.ruler2.has_value()) {
 //     auto r2 = inlineParser.ruler2->disable(list, true);
 //     disabled.insert(disabled.end(), r2.begin(), r2.end());
 //   }
-
+//
 //   for (const auto& name : list) {
 //     if (std::find(disabled.begin(), disabled.end(), name) == disabled.end())
 //     {
@@ -103,18 +195,17 @@ Aethermark& Aethermark::configure(const std::string& preset) {
 //   return *this;
 // }
 
-std::vector<Token> Aethermark::parse(const std::string& src, std::any env) {
+std::deque<Token> Aethermark::Parse(const std::string& src, std::any env) {
   StateCore state(src, *this, env);
-  coreParser.process(state);
+  core_parser.Process(state);
   return state.tokens;
 }
 
-std::vector<Token> Aethermark::parseInline(
-    const std::string& src,  // NOLINT(whitespace/indent_namespace)
-    std::any env) {          // NOLINT(whitespace/indent_namespace)
+std::deque<Token> Aethermark::ParseInline(const std::string& src,
+                                          std::any env) {
   StateCore state(src, *this, env);
-  state.inlineMode = true;
-  coreParser.process(state);
+  state.inline_mode = true;
+  core_parser.Process(state);
   return state.tokens;
 }
 
@@ -151,17 +242,17 @@ std::vector<Token> Aethermark::parseInline(
 //   return true;
 // }
 
-std::string Aethermark::normalizeLink(const std::string& url) const {
+std::string Aethermark::NormalizeLink(const std::string& url) const {
   // TODO(MukulWaval): add proper mdurl + punycode equivalent
   return url;
 }
 
-std::string Aethermark::normalizeLinkText(const std::string& url) const {
+std::string Aethermark::NormalizeLinkText(const std::string& url) const {
   // TODO(MukulWaval): add proper unicode/punycode normalization
   return url;
 }
 
-Aethermark& Aethermark::use(std::function<void(Aethermark&)> plugin) {
+Aethermark& Aethermark::Use(std::function<void(Aethermark&)> plugin) {
   plugin(*this);
   return *this;
 }
