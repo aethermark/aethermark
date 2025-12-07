@@ -323,7 +323,63 @@ bool BlockRules::RuleFence(StateBlock& state, int start_line, int end_line,
 
 bool BlockRules::RuleHeading(StateBlock& state, int start_line, int end_line,
                              bool silent) {
-  return false;
+  int pos = state.b_marks[start_line] + state.t_shift[start_line];
+  int max = state.e_marks[start_line];
+
+  // if it's indented more than 3 spaces, it should be a code block
+  if (state.s_count[start_line] - state.blk_indent >= 4) {
+    return false;
+  }
+
+  char ch = state.src[pos];
+
+  if (ch != 0x23 /* # */ || pos >= max) {
+    return false;
+  }
+
+  // count heading level
+  int level = 1;
+
+  ch = state.src[++pos];
+  while (ch == 0x23 /* # */ && pos < max && level <= 6) {
+    level++;
+    ch = state.src[++pos];
+  }
+
+  if (level > 6 || (pos < max && !Utils::IsSpace(ch))) {
+    return false;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  // Let's cut tails like '    ###  ' from the end of string
+
+  max = state.SkipSpacesBack(max, pos);
+  int tmp = state.SkipCharsBack(max, 0x23, pos);  // #
+  if (tmp > pos && Utils::IsSpace(state.src[tmp - 1])) {
+    max = tmp;
+  }
+
+  state.line = start_line + 1;
+
+  Token& token_o = state.Push("heading_open", "h" + std::to_string(level),
+                              Nesting::kOpening);
+  std::string header_scafolding = "########";
+  token_o.markup = Utils::Slice(header_scafolding, 0, level);
+  token_o.map = {start_line, state.line};
+
+  Token& token_i = state.Push("inline", "", Nesting::kSelfClosing);
+  token_i.content = Utils::Trim(Utils::Slice(state.src, pos, max));
+  token_i.map = {start_line, state.line};
+  token_i.children = {};
+
+  Token& token_c = state.Push("heading_close", "h" + std::to_string(level),
+                              Nesting::kClosing);
+  token_c.markup = Utils::Slice(header_scafolding, 0, level);
+
+  return true;
 }
 
 bool BlockRules::RuleHr(StateBlock& state, int start_line, int end_line,
