@@ -3,6 +3,7 @@
 
 #include "aethermark/utils.hpp"
 
+#include <algorithm>
 #include <string>
 
 namespace aethermark {
@@ -27,5 +28,22 @@ std::string Utils::Trim(const std::string& s) {
 }
 
 bool Utils::IsSpace(int ch) { return ch == 0x20 || ch == 0x09; }
+
+std::string Utils::Slice(const std::string& s, int start, int end) {
+  int n = s.size();
+
+  // Handle negative indexes
+  if (start < 0) start = n + start;
+  if (end < 0) end = n + end;
+
+  // Clamp bounds
+  start = std::clamp(start, 0, n);
+  end = std::clamp(end, 0, n);
+
+  // If range invalid -> return empty
+  if (end <= start) return "";
+
+  return s.substr(start, end - start);
+}
 
 }  // namespace aethermark

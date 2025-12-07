@@ -21,6 +21,8 @@ class Utils {
   /// @param ch The given character
   /// @return `true` if "space".
   static bool IsSpace(int ch);
+
+  static std::string Slice(const std::string& s, int start, int end);
 };
 
 }  // namespace aethermark

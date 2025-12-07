@@ -222,7 +222,103 @@ bool BlockRules::RuleCode(StateBlock& state, int start_line, int end_line,
 
 bool BlockRules::RuleFence(StateBlock& state, int start_line, int end_line,
                            bool silent) {
-  return false;
+  int pos = state.b_marks[start_line] + state.t_shift[start_line];
+  int max = state.e_marks[start_line];
+
+  // if it's indented more than 3 spaces, it should be a code block
+  if (state.s_count[start_line] - state.blk_indent >= 4) {
+    return false;
+  }
+
+  if (pos + 3 > max) return false;
+
+  const char marker = state.src[pos];
+
+  if (marker != 0x7E /* ~ */ && marker != 0x60 /* ` */) {
+    return false;
+  }
+
+  // scan marker length
+  int mem = pos;
+  pos = state.SkipChars(pos, marker);
+
+  int len = pos - mem;
+
+  if (len < 3) {
+    return false;
+  }
+
+  std::string markup = Utils::Slice(state.src, mem, pos);
+  std::string params = Utils::Slice(state.src, pos, max);
+
+  if (marker == 0x60 /* ` */) {
+    if (params.find(marker) != std::string::npos) {
+      return false;
+    }
+  }
+
+  // Since start is found, we can report success here in validation mode
+  if (silent) {
+    return true;
+  }
+
+  // search end of block
+  int next_line = start_line;
+  int have_end_marker = false;
+
+  while (true) {
+    next_line++;
+
+    if (next_line >= end_line) {
+      // unclosed block should be autoclosed by end of document.
+      // also block seems to be autoclosed by end of parent
+      break;
+    }
+
+    pos = mem = state.b_marks[next_line] + state.t_shift[next_line];
+    max = state.e_marks[next_line];
+
+    if (pos < max && state.s_count[next_line] < state.blk_indent) {
+      // non-empty line with negative indent should stop the list:
+      // - ```
+      //  test
+      break;
+    }
+
+    if (state.src[pos] != marker) continue;
+
+    if (state.s_count[next_line] - state.blk_indent >= 4) {
+      // closing fence should be indented less than 4 spaces
+      continue;
+    }
+
+    pos = state.SkipChars(pos, marker);
+
+    // closing code fence must be at least as long as the opening one
+    if (pos - mem < len) continue;
+
+    // make sure tail has spaces only
+    pos = state.SkipSpaces(pos);
+
+    if (pos < max) continue;
+
+    // found!
+    have_end_marker = true;
+    break;
+  }
+
+  // If a fence has heading spaces, they should be removed from its inner block
+  len = state.s_count[start_line];
+
+  state.line = next_line + (have_end_marker ? 1 : 0);
+
+  Token& token = state.Push("fence", "code", Nesting::kSelfClosing);
+  token.info = params;
+  token.content = state.GetLines(start_line + 1, next_line, len, true);
+  token.markup = markup;
+  token.map = {start_line, state.line};
+
+  return true;
 }
 
 bool BlockRules::RuleHeading(StateBlock& state, int start_line, int end_line,

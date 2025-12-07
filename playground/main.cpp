@@ -23,6 +23,12 @@ inline void Print(const std::deque<aethermark::Token>& tokens);
 inline std::string Repeat(const std::string& str, size_t times);
 inline std::string Center(const std::string& s, size_t w);
 inline std::string Normalize(const std::string& s);
+inline std::string ChildrenToString(
+    const std::optional<std::deque<aethermark::Token>>& children);
+inline std::string AttrsToString(
+    const std::optional<std::vector<std::pair<std::string, std::string>>>&
+        attrs);
+inline std::string AnyToString(const std::any& a);
 
 int main(int argc, char** argv) {
   std::string input;
@@ -52,7 +58,9 @@ int main(int argc, char** argv) {
 
 inline void Print(const std::deque<aethermark::Token>& tokens) {
   TableData rows;
-  TableRow headers = {"Index", "Type", "Content", "Tag", "Map", "Nesting"};
+  TableRow headers = {"Index",   "Type",   "Content", "Tag",      "Map",
+                      "Nesting", "Markup", "Info",    "Children", "Level",
+                      "Hidden",  "Block",  "Attrs",   "Any"};
 
   for (size_t i = 0; i < tokens.size(); ++i) {
     const auto& token = tokens[i];
@@ -60,7 +68,7 @@ inline void Print(const std::deque<aethermark::Token>& tokens) {
     row.push_back(std::to_string(i));
     row.push_back(token.type);
     row.push_back(token.content.empty() ? "-" : Normalize(token.content));
-    row.push_back(token.tag);
+    row.push_back(token.tag.empty() ? "-" : Normalize(token.tag));
 
     if (token.map) {
       row.push_back("[" + std::to_string(token.map->first) + ", " +
@@ -85,6 +93,16 @@ inline void Print(const std::deque<aethermark::Token>& tokens) {
         break;
     }
     row.push_back(nesting);
+
+    row.push_back(token.markup.empty() ? "-" : Normalize(token.markup));
+    row.push_back(token.info.empty() ? "-" : Normalize(token.info));
+    row.push_back(ChildrenToString(token.children));
+    row.push_back(std::to_string(token.level));
+    row.push_back(token.hidden ? "true" : "false");
+    row.push_back(token.block ? "true" : "false");
+    row.push_back(AttrsToString(token.attrs));
+    row.push_back(AnyToString(token.meta));
+
     rows.push_back(row);
   }
 
@@ -155,4 +173,95 @@ inline std::string Center(const std::string& s, size_t w) {
 
 inline std::string Normalize(const std::string& s) {
   return std::regex_replace(s, std::regex(R"(\r\n?|\n)"), "\\n");
+}
+
+inline std::string ChildrenToString(
+    const std::optional<std::deque<aethermark::Token>>& children) {
+  if (!children || children->empty()) return "-";
+
+  std::ostringstream oss;
+  oss << "[";
+  bool first = true;
+  for (const auto& c : *children) {
+    if (!first) oss << ", ";
+    first = false;
+    oss << c.type;  // or maybe c.content if you want inline content
+  }
+  oss << "]";
+  return oss.str();
+}
+
+inline std::string AttrsToString(
+    const std::optional<std::vector<std::pair<std::string, std::string>>>&
+        attrs) {
+  if (!attrs || attrs->empty()) return "-";
+
+  std::ostringstream oss;
+  oss << "{";
+  bool first = true;
+  for (const auto& [name, value] : *attrs) {
+    if (!first) oss << ", ";
+    first = false;
+    oss << name << "=\"" << value << "\"";
+  }
+  oss << "}";
+  return oss.str();
+}
+
+inline std::string AnyToString(const std::any& a) {
+  if (!a.has_value()) return "-";
+
+  const std::type_info& t = a.type();
+
+  // Try common primitives
+  if (t == typeid(int)) {
+    return std::to_string(std::any_cast<int>(a));
+  }
+  if (t == typeid(long)) {
+    return std::to_string(std::any_cast<long>(a));
+  }
+  if (t == typeid(double)) {
+    return std::to_string(std::any_cast<double>(a));
+  }
+  if (t == typeid(float)) {
+    return std::to_string(std::any_cast<float>(a));
+  }
+  if (t == typeid(bool)) {
+    return std::any_cast<bool>(a) ? "true" : "false";
+  }
+  if (t == typeid(std::string)) {
+    return "\"" + std::any_cast<std::string>(a) + "\"";
+  }
+  if (t == typeid(const char*)) {
+    return "\"" + std::string(std::any_cast<const char*>(a)) + "\"";
+  }
+
+  // Try vector<string>
+  if (t == typeid(std::vector<std::string>)) {
+    const auto& vec = std::any_cast<const std::vector<std::string>&>(a);
+    std::ostringstream oss;
+    oss << "[";
+    for (size_t i = 0; i < vec.size(); ++i) {
+      if (i) oss << ", ";
+      oss << "\"" << vec[i] << "\"";
+    }
+    oss << "]";
+    return oss.str();
+  }
+
+  // Try vector<int>
+  if (t == typeid(std::vector<int>)) {
+    const auto& vec = std::any_cast<const std::vector<int>&>(a);
+    std::ostringstream oss;
+    oss << "[";
+    for (size_t i = 0; i < vec.size(); ++i) {
+      if (i) oss << ", ";
+      oss << vec[i];
+    }
+    oss << "]";
+    return oss.str();
+  }
+
+  // Unknown type fallback
+  return std::string("Unknown<std::any>(") + t.name() + ")";
 }
