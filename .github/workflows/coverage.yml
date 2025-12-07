@@ -16,12 +16,14 @@ jobs:
             # ---------------------------------------
             - name: Checkout repository
               uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
             # ---------------------------------------
             # Pull dev container
             # ---------------------------------------
             - name: Pull coverage container
-              run: docker pull mukulwaval/aethermark-test-cov:v1.0.0
+              run: docker pull mukulwaval/aethermark-test-cov:v1.0.2
 
             # ---------------------------------------
             # Cache CMake + Build + ccache dirs
@@ -44,7 +46,7 @@ jobs:
                   docker run --rm \
                     -v ${{ github.workspace }}:/aethermark \
                     -w /aethermark \
-                    mukulwaval/aethermark-test-cov:v1.0.0 \
+                    mukulwaval/aethermark-test-cov:v1.0.2 \
                     make run-cov
 
             # ---------------------------------------
