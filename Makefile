@@ -101,9 +101,7 @@ lint:
 	$(PYTHON) -m pre_commit run --all-files --show-diff-on-failure --hook-stage manual --verbose
 
 play:
-	$(MAKE) clean
-	$(MAKE) BUILD_TYPE=Debug BUILD_PLAYGROUND=ON build
-	cd $(BUILD_DIR) && ./playground ../playground/play.md
+	./build/playground ./playground/play.md
 
 debug:
 	$(MAKE) clean

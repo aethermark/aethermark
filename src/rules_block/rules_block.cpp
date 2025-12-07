@@ -384,7 +384,51 @@ bool BlockRules::RuleHeading(StateBlock& state, int start_line, int end_line,
 
 bool BlockRules::RuleHr(StateBlock& state, int start_line, int end_line,
                         bool silent) {
-  return false;
+  int max = state.e_marks[start_line];
+
+  // if it's indented more than 3 spaces, it should be a code block
+  if (state.s_count[start_line] - state.blk_indent >= 4) {
+    return false;
+  }
+
+  int pos = state.b_marks[start_line] + state.t_shift[start_line];
+  const char marker = state.src[pos++];
+
+  // Check hr marker
+  if (marker != 0x2A /* * */ && marker != 0x2D /* - */ &&
+      marker != 0x5F /* _ */) {
+    return false;
+  }
+
+  // markers can be mixed with spaces, but there should be at least 3 of them
+
+  int cnt = 1;
+  while (pos < max) {
+    const char ch = state.src[pos++];
+    if (ch != marker && !Utils::IsSpace(ch)) {
+      return false;
+    }
+    if (ch == marker) {
+      cnt++;
+    }
+  }
+
+  if (cnt < 3) return false;
+
+  if (silent) return true;
+
+  state.line = start_line + 1;
+
+  Token& token = state.Push("hr", "hr", Nesting::kSelfClosing);
+  token.map = {start_line, state.line};
+
+  std::string markup;
+  markup.reserve(cnt);
+  for (size_t i = 0; i < cnt; ++i) markup += marker;
+
+  token.markup = markup;
+
+  return true;
 }
 
 bool BlockRules::RuleHtmlBlock(StateBlock& state, int start_line, int end_line,

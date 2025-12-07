@@ -109,7 +109,7 @@ You can use the following `make` commands from the project root:
 | `sudo make uninstall-cpp`       | Uninstalls the C++ library + headers from `/usr/local/lib` and `/usr/local/include`. |
 | `make lint`                     | Runs all configured pre-commit hooks and auto-fixes issues.                          |
 | `make debug`                    | Builds the project in Debug mode with symbols enabled.                               |
-| `make play`                     | Builds + runs the C++ "playground" executable for manual experimentation.            |
+| `make play`                     | Runs the C++ "playground" executable for manual experimentation.                     |
 
 **Test PyPI Installation**
 
