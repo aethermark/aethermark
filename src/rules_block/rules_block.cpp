@@ -438,7 +438,93 @@ bool BlockRules::RuleHtmlBlock(StateBlock& state, int start_line, int end_line,
 
 bool BlockRules::RuleLheading(StateBlock& state, int start_line, int end_line,
                               bool silent) {
-  return false;
+  std::vector<std::pair<std::string, aethermark::RuleBlock>> terminator_rules =
+      state.md.block_parser.ruler.GetRules("paragraph");
+
+  // if it's indented more than 3 spaces, it should be a code block
+  if (state.s_count[start_line] - state.blk_indent >= 4) {
+    return false;
+  }
+
+  ParentType old_parent_type = state.parent_type;
+  state.parent_type =
+      ParentType::kParagraph;  // use paragraph to match terminatorRules
+
+  // jump line-by-line until empty one or EOF
+  int level = 0;
+  char marker;
+  int next_line = start_line + 1;
+
+  for (; next_line < end_line && !state.IsEmpty(next_line); next_line++) {
+    // this would be a code block normally, but after paragraph
+    // it's considered a lazy continuation regardless of what's there
+    if (state.s_count[next_line] - state.blk_indent > 3) {
+      continue;
+    }
+
+    // Check for underline in setext header
+    if (state.s_count[next_line] >= state.blk_indent) {
+      int pos = state.b_marks[next_line] + state.t_shift[next_line];
+      const int max = state.e_marks[next_line];
+
+      if (pos < max) {
+        marker = state.src[pos];
+
+        if (marker == 0x2D /* - */ || marker == 0x3D /* = */) {
+          pos = state.SkipChars(pos, marker);
+          pos = state.SkipSpaces(pos);
+
+          if (pos >= max) {
+            level = (marker == 0x3D /* = */ ? 1 : 2);
+            break;
+          }
+        }
+      }
+    }
+
+    // quirk for blockquotes, this line should already be checked by that rule
+    if (state.s_count[next_line] < 0) {
+      continue;
+    }
+
+    // Some tags can terminate paragraph without empty line.
+    bool terminate = false;
+    for (int i = 0, l = terminator_rules.size(); i < l; i++) {
+      if (terminator_rules[i].second(state, next_line, end_line, true)) {
+        terminate = true;
+        break;
+      }
+    }
+    if (terminate) break;
+  }
+
+  if (!level) {
+    // Didn't find valid underline
+    return false;
+  }
+
+  const std::string content = Utils::Trim(
+      state.GetLines(start_line, next_line, state.blk_indent, false));
+
+  state.line = next_line + 1;
+
+  Token& token_o = state.Push("heading_open", "h" + std::to_string(level),
+                              Nesting::kOpening);
+  token_o.markup = marker;
+  token_o.map = {start_line, state.line};
+
+  Token& token_i = state.Push("inline", "", Nesting::kSelfClosing);
+  token_i.content = content;
+  token_i.map = {start_line, state.line - 1};
+  token_i.children = {};
+
+  Token& token_c = state.Push("heading_close", "h" + std::to_string(level),
+                              Nesting::kClosing);
+  token_c.markup = marker;
+
+  state.parent_type = old_parent_type;
+
+  return true;
 }
 
 bool BlockRules::RuleList(StateBlock& state, int start_line, int end_line,
