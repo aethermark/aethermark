@@ -3,7 +3,9 @@
 # [Aethermark](https://aethermark.dev)
 
 ![tests](https://github.com/aethermark/aethermark/actions/workflows/test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/aethermark/aethermark/graph/badge.svg?token=1GJGI4JGV1)](https://codecov.io/gh/aethermark/aethermark)
 [![PyPI Version](https://img.shields.io/pypi/v/aethermark)](https://pypi.org/project/aethermark/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Aethermark is a high-performance, extensible Markdown parser and renderer built with `pybind11`. It introduces **Aethermark-Flavored Markdown (AFM)**, a custom dialect that enhances standard Markdown with additional features and improved rendering capabilities.
 
