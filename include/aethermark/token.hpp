@@ -74,13 +74,13 @@ class Token {
   std::optional<std::vector<std::pair<std::string, std::string>>> attrs;
 
   /// @brief Source map info. Format: `[ line_begin, line_end ]`
-  std::optional<std::pair<float, float>> map;
+  std::optional<std::pair<int, int>> map;
 
   /// @brief Level change in the token.
   Nesting nesting;
 
   /// @brief Nesting level, the same as `state.level`.
-  float level;
+  int level;
 
   /// @brief An array of child nodes (inline and img tokens)
   std::optional<std::deque<Token>> children;
