@@ -21,7 +21,7 @@ jobs:
             # Pull dev container
             # ---------------------------------------
             - name: Pull coverage container
-              run: docker pull mukulwaval/aethermark-test-cov:v1.0.0
+              run: docker pull mukulwaval/aethermark-test-cov:v1.0.1
 
             # ---------------------------------------
             # Cache CMake + Build + ccache dirs
