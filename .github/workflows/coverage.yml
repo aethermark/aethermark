@@ -44,7 +44,7 @@ jobs:
                   docker run --rm \
                     -v ${{ github.workspace }}:/aethermark \
                     -w /aethermark \
-                    mukulwaval/aethermark-test-cov:v1.0.0 \
+                    mukulwaval/aethermark-test-cov:v1.0.1 \
                     make run-cov
 
             # ---------------------------------------
