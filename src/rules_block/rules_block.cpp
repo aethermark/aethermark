@@ -3,7 +3,9 @@
 
 #include "aethermark/rules_block/rules_block.hpp"
 
+#include <algorithm>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "aethermark/aethermark.hpp"
@@ -529,7 +531,274 @@ bool BlockRules::RuleLheading(StateBlock& state, int start_line, int end_line,
 
 bool BlockRules::RuleList(StateBlock& state, int start_line, int end_line,
                           bool silent) {
-  return false;
+  int max, pos, start;
+  int next_line = start_line;
+  bool tight = true;
+
+  // if it's indented more than 3 spaces, it should be a code block.
+  if (state.s_count[next_line] - state.blk_indent >= 4) {
+    return false;
+  }
+
+  // Special case:
+  //  - item 1
+  //   - item 2
+  //    - item 3
+  //     - item 4
+  //      - this one is a paragraph continuation
+  if (state.list_indent >= 0 &&
+      state.s_count[next_line] - state.list_indent >= 4 &&
+      state.s_count[next_line] < state.blk_indent) {
+    return false;
+  }
+
+  bool is_terminating_paragraph = false;
+
+  // limit conditions when list can interrupt
+  // a paragraph (validation mode only)
+  if (silent && state.parent_type == ParentType::kParagraph) {
+    // Next list item should still terminate previous list item;
+    if (state.s_count[next_line] >= state.blk_indent) {
+      is_terminating_paragraph = true;
+    }
+  }
+
+  // Detect list type and position after marker
+  bool is_ordered;
+  int marker_value;
+  int pos_after_marker;
+
+  if ((pos_after_marker = Utils::SkipOrderedListmarker(state, next_line)) >=
+      0) {
+    is_ordered = true;
+    start = state.b_marks[next_line] + state.t_shift[next_line];
+    marker_value =
+        std::stoi(Utils::Slice(state.src, start, pos_after_marker - 1));
+
+    // If we're starting a new ordered list right after
+    // a paragraph, it should start with 1.
+    if (is_terminating_paragraph && marker_value != 1) return false;
+  } else if ((pos_after_marker =
+                  Utils::SkipBulletListMarker(state, next_line)) >= 0) {
+    is_ordered = false;
+  } else {
+    return false;
+  }
+
+  // If we're starting a new unordered list right after
+  // a paragraph, first line should not be empty.
+  if (is_terminating_paragraph) {
+    if (state.SkipSpaces(pos_after_marker) >= state.e_marks[next_line])
+      return false;
+  }
+
+  // For validation mode we can terminate immediately
+  if (silent) {
+    return true;
+  }
+
+  // We should terminate list on style change. Remember first one to compare.
+  const char marker_char_code = state.src[pos_after_marker - 1];
+
+  // Start list
+  const int list_tok_idx = state.tokens.size();
+
+  Token token;
+
+  if (is_ordered) {
+    token = state.Push("ordered_list_open", "ol", Nesting::kOpening);
+    if (marker_value != 1) {
+      if (!token.attrs) token.attrs.emplace();
+
+      token.attrs->push_back({"start", std::to_string(marker_value)});
+    }
+  } else {
+    token = state.Push("bullet_list_open", "ul", Nesting::kOpening);
+  }
+
+  std::pair<int, int> list_lines = {next_line, 0};
+  token.map = list_lines;
+  token.markup = marker_char_code;
+
+  //
+  // Iterate list items
+  //
+
+  bool prev_empty_end = false;
+  const std::vector<std::pair<std::string, RuleBlock>> terminator_rules =
+      state.md.block_parser.ruler.GetRules("list");
+
+  const ParentType old_parent_type = state.parent_type;
+  state.parent_type = ParentType::kList;
+
+  while (next_line < end_line) {
+    pos = pos_after_marker;
+    max = state.e_marks[next_line];
+
+    const int initial = state.s_count[next_line] + pos_after_marker -
+                        (state.b_marks[next_line] + state.t_shift[next_line]);
+    int offset = initial;
+
+    while (pos < max) {
+      const char ch = state.src[pos];
+
+      if (ch == 0x09) {
+        offset += 4 - (offset + state.bs_count[next_line]) % 4;
+      } else if (ch == 0x20) {
+        offset++;
+      } else {
+        break;
+      }
+
+      pos++;
+    }
+
+    const int content_start = pos;
+    int indent_after_marker;
+
+    if (content_start >= max) {
+      // trimming space in "-    \n  3" case, indent is 1 here
+      indent_after_marker = 1;
+    } else {
+      indent_after_marker = offset - initial;
+    }
+
+    // If we have more than 4 spaces, the indent is 1
+    // (the rest is just indented code block)
+    if (indent_after_marker > 4) {
+      indent_after_marker = 1;
+    }
+
+    // "  -  test"
+    //  ^^^^^ - calculating total length of this thing
+    const int indent = initial + indent_after_marker;
+
+    // Run subparser & write tokens
+    token = state.Push("list_item_open", "li", Nesting::kOpening);
+    token.markup = marker_char_code;
+    std::pair<int, int> item_lines = {next_line, 0};
+    token.map = item_lines;
+    if (is_ordered) {
+      token.info = Utils::Slice(state.src, start, pos_after_marker - 1);
+    }
+
+    // change current state, then restore it after parser subcall
+    const bool old_tight = state.tight;
+    const int old_t_shift = state.t_shift[next_line];
+    const int old_s_count = state.s_count[next_line];
+
+    //  - example list
+    // ^ listIndent position will be here
+    //   ^ blkIndent position will be here
+    //
+    const int old_list_indent = state.list_indent;
+    state.list_indent = state.blk_indent;
+    state.blk_indent = indent;
+
+    state.tight = true;
+    state.t_shift[next_line] = content_start - state.b_marks[next_line];
+    state.s_count[next_line] = offset;
+
+    if (content_start >= max && state.IsEmpty(next_line + 1)) {
+      // workaround for this case
+      // (list item is empty, list terminates before "foo"):
+      // ~~~~~~~~
+      //   -
+      //
+      //     foo
+      // ~~~~~~~~
+      state.line = std::min(state.line + 2, end_line);
+    } else {
+      state.md.block_parser.Tokenize(state, next_line, end_line);
+    }
+
+    // If any of list item is tight, mark list as tight
+    if (!state.tight || prev_empty_end) {
+      tight = false;
+    }
+    // Item become loose if finish with empty line,
+    // but we should filter last element, because it means list finish
+    prev_empty_end =
+        (state.line - next_line) > 1 && state.IsEmpty(state.line - 1);
+
+    state.blk_indent = state.list_indent;
+    state.list_indent = old_list_indent;
+    state.t_shift[next_line] = old_t_shift;
+    state.s_count[next_line] = old_s_count;
+    state.tight = old_tight;
+
+    token = state.Push("list_item_close", "li", Nesting::kClosing);
+    token.markup = marker_char_code;
+
+    next_line = state.line;
+    item_lines.second = next_line;
+
+    if (next_line >= end_line) {
+      break;
+    }
+
+    //
+    // Try to check if list is terminated or continued.
+    //
+    if (state.s_count[next_line] < state.blk_indent) {
+      break;
+    }
+
+    // if it's indented more than 3 spaces, it should be a code block
+    if (state.s_count[next_line] - state.blk_indent >= 4) {
+      break;
+    }
+
+    // fail if terminating block found
+    bool terminate = false;
+    for (int i = 0, l = terminator_rules.size(); i < l; i++) {
+      if (terminator_rules[i].second(state, next_line, end_line, true)) {
+        terminate = true;
+        break;
+      }
+    }
+    if (terminate) {
+      break;
+    }
+
+    // fail if list has another type
+    if (is_ordered) {
+      pos_after_marker = Utils::SkipOrderedListmarker(state, next_line);
+      if (pos_after_marker < 0) {
+        break;
+      }
+      start = state.b_marks[next_line] + state.t_shift[next_line];
+    } else {
+      pos_after_marker = Utils::SkipBulletListMarker(state, next_line);
+      if (pos_after_marker < 0) {
+        break;
+      }
+    }
+
+    if (marker_char_code != state.src[pos_after_marker - 1]) {
+      break;
+    }
+  }
+
+  // Finalize list
+  if (is_ordered) {
+    token = state.Push("ordered_list_close", "ol", Nesting::kClosing);
+  } else {
+    token = state.Push("bullet_list_close", "ul", Nesting::kClosing);
+  }
+  token.markup = marker_char_code;
+
+  list_lines.second = next_line;
+  state.line = next_line;
+
+  state.parent_type = old_parent_type;
+
+  // mark paragraphs tight if needed
+  if (tight) {
+    Utils::MarkTightParagraphs(state, list_tok_idx);
+  }
+
+  return true;
 }
 
 bool BlockRules::RuleParagraph(StateBlock& state, int start_line, int end_line,
