@@ -27,6 +27,10 @@ pip install aethermark
 
 // TODO: Add code snippet here.
 
+## Coverage
+
+![codecov](https://codecov.io/gh/aethermark/aethermark/graphs/tree.svg?token=1GJGI4JGV1)
+
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests on [GitHub](https://github.com/aethermark/aethermark). Refer to the [Contribution Guide](CONTRIBUTING.md)
