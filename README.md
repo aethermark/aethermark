@@ -29,7 +29,7 @@ pip install aethermark
 
 ## Coverage
 
-![codecov](https://codecov.io/gh/aethermark/aethermark/graphs/tree.svg?token=1GJGI4JGV1)
+![codecov](https://codecov.io/gh/aethermark/aethermark/graphs/icicle.svg?token=1GJGI4JGV1)
 
 ## Contributing
 
