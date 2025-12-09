@@ -38,3 +38,6 @@ Contributions are welcome! Feel free to open issues or submit pull requests on [
 ## License
 
 Aethermark is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+This project includes derived code from markdown-it (MIT License).
+See [THIRD PARTY LICENSES](THIRD_PARTY_LICENSES.md) for details.
