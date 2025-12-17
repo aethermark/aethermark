@@ -9,7 +9,7 @@ BUILD_PYTHON ?= OFF
 BUILD_TESTS ?= OFF
 
 .PHONY: all clean venv activate \
-		test test-cpp test-py test-py-static-typecheck \
+		test test-cpp test-cpp-debug test-py test-py-static-typecheck \
         build build-py build-python-ext \
 		release release-test \
 		install install-cpp uninstall-cpp \
@@ -44,6 +44,11 @@ test:
 test-cpp:
 	$(MAKE) clean
 	$(MAKE) BUILD_TESTS=ON build
+	cd $(BUILD_DIR) && ctest --output-on-failure
+
+test-cpp-debug:
+	$(MAKE) clean
+	$(MAKE) BUILD_TESTS=ON BUILD_TYPE=Debug build
 	cd $(BUILD_DIR) && ctest --output-on-failure
 
 test-py:
