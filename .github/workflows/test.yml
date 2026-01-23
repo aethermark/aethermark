@@ -1,4 +1,4 @@
-name: tests
+name: Tests & Lint
 
 on:
   push:
@@ -12,25 +12,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # -------------------- SOURCE --------------------
+      # -------------------- Checkout --------------------
       - name: Checkout code
         uses: actions/checkout@v6
-
-      # -------------------- APT CACHE --------------------
-      - name: Cache APT packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: g++ cmake make libgtest-dev
-          version: 1.1 # bump this if apt cache breaks
+          submodules: recursive
 
-      # -------------------- PYTHON SETUP --------------------
+      # -------------------- APT / system deps --------------------
+      - name: Install system packages
+        run: sudo apt-get update && sudo apt-get install -y g++ cmake make libgtest-dev
+
+      # -------------------- Python Setup --------------------
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.x"
           cache: "pip"
 
-      # -------------------- PIP CACHE --------------------
+      # -------------------- Cache pip + venv --------------------
       - name: Cache pip and venv
         uses: actions/cache@v4
         with:
@@ -41,19 +40,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # -------------------- VIRTUAL ENV --------------------
+      # -------------------- Virtual environment --------------------
       - name: Ensure virtual environment
         run: |
           if [ ! -d ".venv" ]; then
             python -m venv .venv
           fi
-          source .venv/bin/activate
-          pip install --upgrade pip wheel
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pre-commit pylint
+          .venv/bin/pip install --upgrade pip wheel
+          if [ -f requirements-dev.txt ]; then .venv/bin/pip install -r requirements-dev.txt; fi
+          if [ -f requirements.txt ]; then .venv/bin/pip install -r requirements.txt; fi
+          .venv/bin/pip install pre-commit pylint
 
-      # -------------------- PRE-COMMIT CACHE --------------------
+      # -------------------- Cache pre-commit envs --------------------
       - name: Cache pre-commit environments
         uses: actions/cache@v4
         with:
@@ -62,27 +60,48 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-precommit-
 
-      # -------------------- BUILD CACHE --------------------
-      - name: Cache build artifacts
+      # -------------------- Cache per-build-dir --------------------
+      - name: Cache C++ and Python builds
         uses: actions/cache@v4
         with:
           path: |
-            build
+            build/test
+            build/python
             python/dist
           key: ${{ runner.os }}-build-${{ hashFiles('src/**/*.cpp', 'include/**/*.h') }}
           restore-keys: |
             ${{ runner.os }}-build-
 
-      # -------------------- BUILD + TEST --------------------
+      # -------------------- Pull submodules --------------------
       - name: Pull submodules
         run: git submodule update --init --recursive
 
-      - name: Build and test
-        run: make test
-
-      # -------------------- LINTING --------------------
-      - name: Run linting & formatting (pre-commit)
+      # -------------------- Build C++ tests --------------------
+      - name: Build and run C++ tests
         run: |
-          source .venv/bin/activate
-          pre-commit install
-          pre-commit run --all-files --show-diff-on-failure --verbose
+          make test-cpp
+
+      # -------------------- Build Python extension & package --------------------
+      - name: Build Python extension
+        run: |
+          make build-python-ext
+
+      - name: Build Python package
+        run: |
+          make build-py
+
+      # -------------------- Run Python tests --------------------
+      - name: Run Python tests
+        run: |
+          .venv/bin/python -m pytest -v python
+
+      # -------------------- Static type checking --------------------
+      - name: Run Python type check
+        run: |
+          make test-py-static-typecheck
+
+      # -------------------- Lint --------------------
+      - name: Run linting & formatting
+        run: |
+          .venv/bin/pre-commit install
+          .venv/bin/pre-commit run --all-files --show-diff-on-failure --verbose

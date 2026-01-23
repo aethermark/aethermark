@@ -1,4 +1,10 @@
 BUILD_DIR := build
+BUILD_PLAY := $(BUILD_DIR)/playground
+BUILD_TEST := $(BUILD_DIR)/test
+BUILD_PY   := $(BUILD_DIR)/python
+BUILD_REL  := $(BUILD_DIR)/release
+BUILD_DBG  := $(BUILD_DIR)/debug
+
 VENV_DIR := .venv
 PYTHON := $(VENV_DIR)/bin/python
 REQ_FILE := requirements-dev.txt
@@ -9,11 +15,11 @@ BUILD_PYTHON ?= OFF
 BUILD_TESTS ?= OFF
 
 .PHONY: all clean venv activate \
-		test test-cpp test-cpp-debug test-py test-py-static-typecheck \
-        build build-py build-python-ext \
-		release release-test \
-		install install-cpp uninstall-cpp \
-        lint play debug run-cov
+    test test-cpp test-cpp-debug test-py test-py-static-typecheck \
+    build build-py build-python-ext \
+    release release-test \
+    install install-cpp uninstall-cpp \
+    lint play debug run-cov
 
 all: build
 
@@ -30,54 +36,78 @@ venv:
 activate:
 	@echo "Run: source $(VENV_DIR)/bin/activate"
 
-test:
-	$(MAKE) clean
-	$(MAKE) BUILD_TESTS=ON BUILD_PYTHON=ON build
-	@mkdir -p python/aethermark
-	@cp $(BUILD_DIR)/_aethermark*.so python/aethermark/_aethermark.so
-	@cd python && ../$(PYTHON) -m build --sdist
-	@cd python && ../$(PYTHON) -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
-	@cd python && ../$(PYTHON) -m pytest -v
-	@cd $(BUILD_DIR) && ctest --output-on-failure
-	$(MAKE) test-py-static-typecheck
+PROJECT_ROOT := $(shell pwd)
 
+define cmake_build
+	@mkdir -p $(1)
+	cd $(1) && cmake $(2) $(PROJECT_ROOT)
+	cd $(1) && cmake --build .
+endef
+
+# ----------------------------
+# C++ Test targets
+# ----------------------------
 test-cpp:
-	$(MAKE) clean
-	$(MAKE) BUILD_TESTS=ON build
-	cd $(BUILD_DIR) && ctest --output-on-failure
+	$(call cmake_build,$(BUILD_TEST)/release,-DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON)
+	cd $(BUILD_TEST)/release && ctest --output-on-failure
 
 test-cpp-debug:
-	$(MAKE) clean
-	$(MAKE) BUILD_TESTS=ON BUILD_TYPE=Debug build
-	cd $(BUILD_DIR) && ctest --output-on-failure
+	$(call cmake_build,$(BUILD_TEST)/debug,-DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON)
+	cd $(BUILD_TEST)/debug && ctest --output-on-failure
+
+# ----------------------------
+# Python build targets
+# ----------------------------
+build-python-ext:
+	$(call cmake_build,$(BUILD_PY)/release,-DCMAKE_BUILD_TYPE=Release -DBUILD_PYTHON=ON)
+	@mkdir -p python/aethermark
+	@cp $(BUILD_PY)/release/_aethermark*.so python/aethermark/_aethermark.so
+
+build-py: build-python-ext
+	cd python && ../$(PYTHON) -m build --sdist
 
 test-py:
-	$(MAKE) clean
-	$(MAKE) build-py
+	$(call cmake_build,$(BUILD_PY)/release,-DCMAKE_BUILD_TYPE=Release -DBUILD_PYTHON=ON)
+	@mkdir -p python/aethermark
+	@cp $(BUILD_PY)/release/_aethermark*.so python/aethermark/_aethermark.so
 	@cd python && ../$(PYTHON) -m pytest -v
 
 test-py-static-typecheck:
 	$(PYTHON) -m mypy python/aethermark
 
-build:
-	$(MAKE) clean
-	@mkdir -p $(BUILD_DIR)
-	cd $(BUILD_DIR) && cmake \
-		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
-		-DBUILD_PYTHON=$(BUILD_PYTHON) \
-		-DBUILD_TESTS=$(BUILD_TESTS) \
-		-DBUILD_PLAYGROUND=$(BUILD_PLAYGROUND) \
-		..
-	cd $(BUILD_DIR) && cmake --build . --config $(BUILD_TYPE)
+# ----------------------------
+# Combined test (C++ + Python)
+# ----------------------------
+test: test-cpp test-py test-py-static-typecheck
 
-build-py: build-python-ext
-	cd python && ../$(PYTHON) -m build --sdist
+# ----------------------------
+# Playground / debug / coverage
+# ----------------------------
+play:
+	$(call cmake_build,$(BUILD_PLAY)/release,-DCMAKE_BUILD_TYPE=Release -DBUILD_PLAYGROUND=ON)
+	./$(BUILD_PLAY)/release/playground ./playground/play.md
 
-build-python-ext:
-	$(MAKE) BUILD_PYTHON=ON build
-	@mkdir -p python/aethermark
-	@cp $(BUILD_DIR)/_aethermark*.so python/aethermark/_aethermark.so
+debug:
+	$(call cmake_build,$(BUILD_PLAY)/debug,-DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAYGROUND=ON)
 
+run-cov:
+	$(call cmake_build,$(BUILD_REL)/debug,-DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON)
+	$(MAKE) -C $(BUILD_REL)/debug coverage
+
+# ----------------------------
+# C++ Install / Uninstall
+# ----------------------------
+install-cpp:
+	$(call cmake_build,$(BUILD_REL)/release,-DCMAKE_BUILD_TYPE=Release -DBUILD_PYTHON=OFF -DBUILD_TESTS=OFF -DBUILD_PLAYGROUND=OFF)
+	cd $(BUILD_REL)/release && cmake --build . --config Release --target install --prefix /usr/local
+
+uninstall-cpp:
+	@echo "Running CMake uninstall target..."
+	cd $(BUILD_REL)/release && cmake --build . --target uninstall --config Release
+
+# ----------------------------
+# Release
+# ----------------------------
 release:
 	$(MAKE) clean
 	$(MAKE) build
@@ -90,30 +120,14 @@ release-test:
 	$(MAKE) build-py
 	cd python && ../$(PYTHON) -m twine upload --repository testpypi dist/* --verbose
 
-install:
-	cd python && ../$(PYTHON) -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
-
-install-cpp:
-	$(MAKE) clean
-	$(MAKE) build
-	cd $(BUILD_DIR) && cmake --install . --prefix /usr/local
-
-uninstall-cpp:
-	@echo "Running CMake uninstall target..."
-	@cd $(BUILD_DIR) && cmake --build . --target uninstall
-
+# ----------------------------
+# Lint
+# ----------------------------
 lint:
 	$(PYTHON) -m pre_commit run --all-files --show-diff-on-failure --hook-stage manual --verbose
 
-play:
-	./build/playground ./playground/play.md
-
-debug:
-	$(MAKE) clean
-	$(MAKE) BUILD_TYPE=Debug BUILD_PLAYGROUND=ON build
-
-run-cov:
-	$(MAKE) clean
-	cmake -B build -DENABLE_COVERAGE=ON
-	cmake --build build
-	$(MAKE) -C build coverage
+# ----------------------------
+# Original build target (kept for all)
+# ----------------------------
+build:
+	$(call cmake_build,$(BUILD_DIR)/release,-DCMAKE_BUILD_TYPE=Release -DBUILD_PYTHON=$(BUILD_PYTHON) -DBUILD_TESTS=$(BUILD_TESTS) -DBUILD_PLAYGROUND=$(BUILD_PLAYGROUND))

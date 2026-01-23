@@ -38,8 +38,8 @@ jobs:
           pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; else pip install setuptools wheel build twine; fi
 
-      - name: Build C++ library
-        run: make all
+      - name: Build C++ extension for Python
+        run: make build-python-ext
 
       - name: Build Python package
         run: make build-py
