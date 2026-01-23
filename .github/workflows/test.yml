@@ -92,11 +92,11 @@ jobs:
       - name: Build Python package
         run: |
           make build-py
-      
+
       - name: Install Python package
         run: |
           make install
-
+          
       # -------------------- Run Python tests --------------------
       - name: Run Python tests
         run: |
