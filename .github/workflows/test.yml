@@ -29,13 +29,11 @@ jobs:
           python-version: "3.x"
           cache: "pip"
 
-      # -------------------- Cache pip + venv --------------------
-      - name: Cache pip and venv
+      # -------------------- Cache pip packages --------------------
+      - name: Cache pip packages
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.cache/pip
-            .venv
+          path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', 'pyproject.toml') }}
           restore-keys: |
             ${{ runner.os }}-pip-
@@ -43,14 +41,12 @@ jobs:
       # -------------------- Virtual environment --------------------
       - name: Ensure virtual environment
         run: |
-          if [ ! -d ".venv" ]; then
-            python -m venv .venv
-          fi
+          python -m venv .venv
           .venv/bin/pip install --upgrade pip wheel
           if [ -f requirements-dev.txt ]; then .venv/bin/pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then .venv/bin/pip install -r requirements.txt; fi
           .venv/bin/pip install pre-commit pylint
-
+          
       # -------------------- Cache pre-commit envs --------------------
       - name: Cache pre-commit environments
         uses: actions/cache@v4
