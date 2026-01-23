@@ -46,7 +46,7 @@ jobs:
           if [ -f requirements-dev.txt ]; then .venv/bin/pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then .venv/bin/pip install -r requirements.txt; fi
           .venv/bin/pip install pre-commit pylint
-          
+
       # -------------------- Cache pre-commit envs --------------------
       - name: Cache pre-commit environments
         uses: actions/cache@v4
