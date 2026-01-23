@@ -19,8 +19,15 @@ jobs:
           submodules: recursive
 
       # -------------------- APT / system deps --------------------
-      - name: Install system packages
-        run: sudo apt-get update && sudo apt-get install -y g++ cmake make libgtest-dev
+      - name: Install system packages (G++ 14, CMake, Make, GTest)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y g++-14 g++-14-multilib cmake make libgtest-dev
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
 
       # -------------------- Python Setup --------------------
       - name: Set up Python
