@@ -95,8 +95,11 @@ run-cov:
 	$(MAKE) -C $(BUILD_REL)/debug coverage
 
 # ----------------------------
-# C++ Install / Uninstall
+# Install / Uninstall
 # ----------------------------
+install:
+	cd python && ../$(PYTHON) -m pip install --force-reinstall ./dist/aethermark-*.tar.gz
+
 install-cpp:
 	$(call cmake_build,$(BUILD_REL)/release,-DCMAKE_BUILD_TYPE=Release -DBUILD_PYTHON=OFF -DBUILD_TESTS=OFF -DBUILD_PLAYGROUND=OFF)
 	cd $(BUILD_REL)/release && cmake --build . --config Release --target install --prefix /usr/local
