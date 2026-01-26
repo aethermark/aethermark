@@ -92,6 +92,7 @@ You can use the following `make` commands from the project root:
 | **Command**                     | **Description**                                                                      |
 | ------------------------------- | ------------------------------------------------------------------------------------ |
 | `make all`                      | Builds the C++ static library (`libaethermark.a`).                                   |
+| `make help`                     | Lists all available commands.                                                        |
 | `make clean`                    | Removes all build artifacts, Python build outputs, and temporary files.              |
 | `make venv`                     | Creates a Python virtual environment and installs development dependencies.          |
 | `make activate`                 | Prints instructions for activating the virtual environment.                          |
