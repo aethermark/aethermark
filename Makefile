@@ -123,8 +123,8 @@ debug:
 	$(call cmake_build,$(BUILD_PLAY)/debug,-DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAYGROUND=ON)
 
 run-cov:
-	$(call cmake_build,$(BUILD_REL)/debug,-DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON)
-	$(MAKE) -C $(BUILD_REL)/debug coverage
+	$(call cmake_build,$(BUILD_TEST)/debug,-DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON)
+	$(MAKE) -C $(BUILD_TEST)/debug coverage
 
 # ----------------------------
 # Install / Uninstall
