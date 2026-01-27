@@ -120,13 +120,146 @@ pip install --index-url https://test.pypi.org/simple/ \
  aethermark==version
 ```
 
-## Recommendations
-
-For vs-code:
+## Recommendations For vs-code:
 
 - `cpplint`
 - `pylance`
 - `yapf`
+
+launch.json
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Playground",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/playground",
+      "preLaunchTask": "Build Playground",
+      "cwd": "${workspaceFolder}",
+      "args": ["./playground/play.md"],
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Load GCC libstdc++ printers",
+          "text": "python import sys; sys.path.insert(0, '/usr/share/gcc/11/python'); import libstdcxx.v6.printers",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      "name": "Playground (main.py)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/playground/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Debug Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/tests",
+      "console": "integratedTerminal",
+      "purpose": ["debug-test"],
+      "justMyCode": false
+    },
+    {
+      "name": "Debug GoogleTests",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/unit_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}/build",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable GDB pretty-printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Load libstdc++ pretty-printers",
+          "text": "python import sys; sys.path.insert(0, '/usr/share/gcc/python'); from libstdcxx.v6.printers import register_libstdcxx_printers; register_libstdcxx_printers(gdb.current_objfile())",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+tasks.json
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "make lint",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Build Playground",
+      "type": "shell",
+      "command": "make debug"
+    }
+  ]
+}
+```
+
+settings.json
+
+```json
+	"testMate.cpp.test.advancedExecutables": [
+    {
+      "name": "Release",
+      "pattern": "build/test/release/*",
+      "cwd": "${workspaceFolder}",
+      "framework": "gtest"
+    },
+    {
+      "name": "Debug",
+      "pattern": "build/test/debug/*",
+      "cwd": "${workspaceFolder}",
+      "framework": "gtest"
+    }
+  ],
+
+  "python.testing.pytestArgs": ["python/tests"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+
+  "cpplint.filters": ["-whitespace/indent_namespace"],
+  "cpplint.excludes": [".venv/**", "build/**", "extern/**"],
+  "cpplint.lintMode": "workspace",
+  "cpplint.cpplintPath": "${workspaceFolder}/.venv/bin/cpplint",
+
+  "cmake.configureOnOpen": false,
+  "cmake.configureOnEdit": false,
+  "cmake.buildDirectory": "",
+  "cmake.autoSelectActiveFolder": false,
+  "cmake.useCMakePresets": "never",
+  "cmake.ctest.testExplorerIntegrationEnabled": false,
+  "cmake.ctest.allowParallelJobs": false,
+  "cmake.ctest.parallelJobs": 0,
+```
 
 ---
 
