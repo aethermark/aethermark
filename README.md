@@ -1,6 +1,6 @@
 ![Aethermark](https://raw.githubusercontent.com/aethermark/aethermark/refs/heads/main/favicon.png)
 
-# [Aethermark](https://aethermark.dev)
+# [Aethermark](https://aethermark.io)
 
 ![tests](https://github.com/aethermark/aethermark/actions/workflows/test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/aethermark/aethermark/graph/badge.svg?token=1GJGI4JGV1)](https://codecov.io/gh/aethermark/aethermark)
