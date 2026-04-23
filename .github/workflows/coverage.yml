@@ -15,7 +15,7 @@ jobs:
             # Checkout repo
             # ---------------------------------------
             - name: Checkout repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   submodules: recursive
 
@@ -29,7 +29,7 @@ jobs:
             # Cache CMake + Build + ccache dirs
             # ---------------------------------------
             - name: Cache build artifacts
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: |
                       build/

@@ -32,7 +32,7 @@ jobs:
 
       # -------------------- PIP CACHE --------------------
       - name: Cache pip and venv
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
@@ -55,7 +55,7 @@ jobs:
 
       # -------------------- PRE-COMMIT CACHE --------------------
       - name: Cache pre-commit environments
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -64,7 +64,7 @@ jobs:
 
       # -------------------- BUILD CACHE --------------------
       - name: Cache build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             build
